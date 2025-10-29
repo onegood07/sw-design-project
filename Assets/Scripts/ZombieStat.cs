@@ -6,8 +6,6 @@ public class ZombieStat : MonoBehaviour
     int hp = 1000;
     int speed = 1000;
     int power = 1000;
-
-    int playerSpeed = 1000;
   
     void Start()
     {
@@ -16,7 +14,10 @@ public class ZombieStat : MonoBehaviour
 
     void Update()
     {
-       
+        if (hp <= 0) DestroyZombie();
     }
-    
+    void DestroyZombie()
+    {
+        DestroyZombie(gameObject);
+    }
 }
