@@ -3,7 +3,7 @@ using UnityEngine;
 public class HeroStat : MonoBehaviour
 {
     int hp;
-    int speed;
+    public int speed;
     int hunger;
 
     bool isSurvival;
