@@ -1,4 +1,3 @@
-using System.Threading.Tasks.Dataflow;
 using UnityEngine;
 
 public class ZombieStat : MonoBehaviour
@@ -22,6 +21,6 @@ public class ZombieStat : MonoBehaviour
     }
     void DestroyZombie()
     {
-        DestroyZombie(gameObject);
+        Destroy(gameObject);
     }
 }
