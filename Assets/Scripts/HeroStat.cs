@@ -8,6 +8,11 @@ public class HeroStat : MonoBehaviour
 
     bool isSurvival;
 
+    void SpeedControl()
+    {
+        if (hunger <= 100) speed = 100;
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -20,6 +25,6 @@ public class HeroStat : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        SpeedControl();
     }
 }
