@@ -58,9 +58,40 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start()
+   void Start()
     {
-        
+        CurrentDay = GameDays.FirstDay;
+        CurrentPhase = Phase.Day;
+
+        // 처음 좀비 스폰
+        spawnManager.SpawnZombies(ZombieSpawnCount);
+
+        // 일차 자동 진행
+        StartCoroutine(GameProgressCoroutine());
+    }
+
+    IEnumerator GameProgressCoroutine()
+    {
+        while (CurrentDay != GameDays.FourthDay) // 3일차까지만
+        {
+            // 낮
+            CurrentPhase = Phase.Day;
+            Debug.Log($"[☀️ {CurrentDay}] 낮 시작. 좀비 수: {ZombieSpawnCount}");
+            yield return new WaitForSeconds(5f);
+
+            // 밤
+            CurrentPhase = Phase.Night;
+            ZombieSpawnCount += 20; // 밤에는 좀비 더 많아짐
+            Debug.Log($"🌙 [{CurrentDay}] 밤 시작! 좀비 수: {ZombieSpawnCount}");
+            spawnManager.ClearZombies();
+            spawnManager.SpawnZombies(ZombieSpawnCount);
+            yield return new WaitForSeconds(5f);
+
+            // 다음 일차로 전환
+            NextDay();
+        }
+
+        Debug.Log("모든 날이 끝났습니다!");
     }
 
     void Update()
