@@ -4,15 +4,19 @@ using System.Collections.Generic;
 
 public class SpawnManager : MonoBehaviour
 {
+    // TileMap 및 좀비 Prefab
     public Tilemap groundTilemap;     
     public GameObject zombiePrefab;   
 
+    // 소환할 좌표 
     private List<Vector3> spawnPositions = new List<Vector3>();
+    // 소환한 Prefab
     private List<GameObject> spawnedZombies = new List<GameObject>();
    
     void Awake()
     {
-        GetSpawnPositions(); // 한 번만 계산
+        // 스폰 계산은 맨 처음에 한번만
+        GetSpawnPositions();
     }
 
     void Start()
@@ -20,7 +24,6 @@ public class SpawnManager : MonoBehaviour
         
     }
 
-    // Update is called once per frame
     void Update()
     {
         
@@ -56,23 +59,28 @@ public class SpawnManager : MonoBehaviour
         {
             if (zombie != null) Destroy(zombie);
         }
+
         spawnedZombies.Clear();
     }
     
-    // 랜덤 소환
+    // 랜덤 좀비 소환
     public void SpawnZombies(int spawnCount)
     {
-        ClearZombies(); // 기존 좀비 삭제
+        // 기존 좀비 삭제
+        ClearZombies();
 
+        // 좌표 리스트를 새롭게 복제한 리스트
         List<Vector3> availablePositions = new List<Vector3>(spawnPositions);
 
         for (int i = 0; i < spawnCount; i++)
         {
             if (availablePositions.Count == 0) break;
 
+            // 랜덤으로 위치 선정
             int index = Random.Range(0, availablePositions.Count);
             Vector3 spawnPos = availablePositions[index];
             GameObject zombie = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
+            
             spawnedZombies.Add(zombie);
 
             availablePositions.RemoveAt(index);
