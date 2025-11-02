@@ -2,7 +2,12 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public Tilemap groundTilemap;     
+    public GameObject zombiePrefab;   
+
+    private List<Vector3> spawnPositions = new List<Vector3>();
+    private List<GameObject> spawnedZombies = new List<GameObject>();
+   
     void Start()
     {
         
