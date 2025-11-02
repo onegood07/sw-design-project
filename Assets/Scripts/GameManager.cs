@@ -26,6 +26,24 @@ public enum Phase
 
 public class GameManager : MonoBehaviour
 {
+    // 싱글톤
+    public static GameManager Instance;
+
+    // 게임 진행 일수 (외부에서 참조 가능, 수정 불가능)
+    public GameDays CurrentDay { get; private set; }
+    // 게임 엔딩 상태 (외부에서 참조 가능, 수정 불가능)
+    public GameEnding? Ending { get; private set; } = null;
+    // 현재 페이즈
+    public Phase CurrentPhase { get; private set; }
+    // 납입 스코어
+    public int ShelterItemScore { get; private set; } = 0;
+    // 생존자수 스코어
+    public int SurvivorScore { get; private set; } = 0;
+
+    [Header("Settings")]
+    public SpawnManager spawnManager;
+    public int ZombieSpawnCount = 10;
+    
     void Start()
     {
         
