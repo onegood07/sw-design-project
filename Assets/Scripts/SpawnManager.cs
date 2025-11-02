@@ -8,6 +8,11 @@ public class SpawnManager : MonoBehaviour
     private List<Vector3> spawnPositions = new List<Vector3>();
     private List<GameObject> spawnedZombies = new List<GameObject>();
    
+    void Awake()
+    {
+        GetSpawnPositions(); // 한 번만 계산
+    }
+
     void Start()
     {
         
