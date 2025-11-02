@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 // 게임 엔딩
 public enum GameEnding
