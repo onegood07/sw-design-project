@@ -57,4 +57,24 @@ public class SpawnManager : MonoBehaviour
         spawnedZombies.Clear();
     }
     
+    // 랜덤 소환
+    public void SpawnZombies(int spawnCount)
+    {
+        ClearZombies(); // 기존 좀비 삭제
+
+        List<Vector3> availablePositions = new List<Vector3>(spawnPositions);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            if (availablePositions.Count == 0) break;
+
+            int index = Random.Range(0, availablePositions.Count);
+            Vector3 spawnPos = availablePositions[index];
+            GameObject zombie = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
+            spawnedZombies.Add(zombie);
+
+            availablePositions.RemoveAt(index);
+        }
+    }
+
 }
