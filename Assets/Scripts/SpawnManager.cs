@@ -46,4 +46,15 @@ public class SpawnManager : MonoBehaviour
             }
         }
     }
+
+    // 기존 좀비 삭제
+    public void ClearZombies()
+    {
+        foreach (var zombie in spawnedZombies)
+        {
+            if (zombie != null) Destroy(zombie);
+        }
+        spawnedZombies.Clear();
+    }
+    
 }
