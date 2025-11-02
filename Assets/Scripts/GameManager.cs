@@ -98,4 +98,31 @@ public class GameManager : MonoBehaviour
     {
         
     }
+
+    // 다음 일차로 변경 시 로직 관련 함수
+    public void NextDay()
+    {
+        // 기존 좀비 모두 삭제
+        spawnManager.ClearZombies();
+
+        switch (CurrentDay)
+        {
+            case GameDays.FirstDay:
+                CurrentDay = GameDays.SecondDay;
+                ZombieSpawnCount += 10;
+                break;
+            case GameDays.SecondDay:
+                CurrentDay = GameDays.ThirdDay;
+                ZombieSpawnCount += 10;
+                break;
+            case GameDays.ThirdDay:
+                CurrentDay = GameDays.FourthDay;
+                break;
+        }
+
+        Debug.Log($"[다음 일차] Day: {CurrentDay}, 좀비 수: {ZombieSpawnCount}");
+
+        // 새로운 좀비 스폰
+        spawnManager.SpawnZombies(ZombieSpawnCount);
+    }
 }
