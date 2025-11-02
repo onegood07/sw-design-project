@@ -42,10 +42,12 @@ public class GameManager : MonoBehaviour
     public int SurvivorScore { get; private set; } = 0;
 
     [Header("Settings")]
+    // 스폰 매니저
     public SpawnManager spawnManager;
+    // 좀비 스폰 수
     public int ZombieSpawnCount = 10;
 
-    // 싱글톤
+    // 싱글톤 선언
     void Awake()
     {
         if (Instance == null)
@@ -61,6 +63,7 @@ public class GameManager : MonoBehaviour
 
    void Start()
     {
+        // 첫째날 및 낮 페이즈로 설정
         CurrentDay = GameDays.FirstDay;
         CurrentPhase = Phase.Day;
 
@@ -71,19 +74,23 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GameProgressCoroutine());
     }
 
+    // 코루틴으로 시간마다 자동으로 일차 진행
     IEnumerator GameProgressCoroutine()
     {
-        while (CurrentDay != GameDays.FourthDay) // 3일차까지만
+        // 3일차까지 진행
+        while (CurrentDay != GameDays.FourthDay)
         {
             // 낮
             CurrentPhase = Phase.Day;
-            Debug.Log($"[☀️ {CurrentDay}] 낮 시작. 좀비 수: {ZombieSpawnCount}");
+            Debug.Log($"[☀️ {CurrentDay}] 낮 시작! 좀비 수: {ZombieSpawnCount}");
+            // 5초마다 페이즈 변경
             yield return new WaitForSeconds(5f);
 
             // 밤
             CurrentPhase = Phase.Night;
-            ZombieSpawnCount += 20; // 밤에는 좀비 더 많아짐
+            ZombieSpawnCount += 20;
             Debug.Log($"🌙 [{CurrentDay}] 밤 시작! 좀비 수: {ZombieSpawnCount}");
+            // 모든 좀비 파괴 후 재생성
             spawnManager.ClearZombies();
             spawnManager.SpawnZombies(ZombieSpawnCount);
             yield return new WaitForSeconds(5f);
@@ -92,6 +99,7 @@ public class GameManager : MonoBehaviour
             NextDay();
         }
 
+        // 마지막 날(4일차)인 경우  
         Debug.Log("모든 날이 끝났습니다!");
     }
 
@@ -105,7 +113,7 @@ public class GameManager : MonoBehaviour
     {
         // 기존 좀비 모두 삭제
         spawnManager.ClearZombies();
-
+    
         switch (CurrentDay)
         {
             case GameDays.FirstDay:
