@@ -43,7 +43,21 @@ public class GameManager : MonoBehaviour
     [Header("Settings")]
     public SpawnManager spawnManager;
     public int ZombieSpawnCount = 10;
-    
+
+    // 싱글톤
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 씬 이동 시에도 유지
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
         
