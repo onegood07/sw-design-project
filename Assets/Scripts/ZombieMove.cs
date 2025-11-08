@@ -3,11 +3,11 @@ using UnityEngine.Tilemaps;
 
 public class ZombieMove : MonoBehaviour
 {
-    [SerializeField] public float speed;     // 추적 속도(유닛/초)
-    [SerializeField] public int grid;        // 타겟을 쫓기 시작/유지할 그리드
-    [SerializeField] public int limitGrid;   // 스폰 위치에서 허용하는 최대 이동 그리드
+    [SerializeField] public float speed = 2.5f;     // 추적 속도(유닛/초)
+    [SerializeField] public int grid = 5;        // 타겟을 쫓기 시작/유지할 그리드
+    [SerializeField] public int limitGrid = 3;   // 스폰 위치에서 허용하는 최대 이동 그리드
     [SerializeField] float attackDelay = 1f; // 공격 딜레이(초). 요구사항: 1로 줄임(에디터에서 조정 가능)
-    [SerializeField] Tilemap collisionTilemap;
+    Tilemap collisionTilemap;
 
     float Timer = 0f; 
     float stepDuration = 0.5f; // 한 칸 이동 시간
@@ -69,6 +69,25 @@ public class ZombieMove : MonoBehaviour
     {
         // TODO: 애니메이션 트리거, 히트박스 활성화, 데미지 적용 등
         Debug.Log("Zombie Attack!");
+    }
+
+    void TryAssignReferences()
+    {
+        // Hero 찾기 (target)
+        if (target == null)
+        {
+            var hero = GameObject.Find("Hero");  // 이름 기준으로 찾기
+            if (hero != null)
+                target = hero.GetComponent<Rigidbody2D>();
+        }
+
+        // collision 타일맵 찾기
+        if (collisionTilemap == null)
+        {
+            var obj = GameObject.Find("collision");   // 이름 기준
+            if (obj != null)
+                collisionTilemap = obj.GetComponent<Tilemap>();
+        }
     }
 
     void Awake()
