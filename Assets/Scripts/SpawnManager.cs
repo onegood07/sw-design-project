@@ -28,7 +28,7 @@ public class SpawnManager : MonoBehaviour
     {
 
     }
-    
+
     // Tilemap에서 소환 가능 좌표 수집
     void GetSpawnPositions()
     {
@@ -42,13 +42,24 @@ public class SpawnManager : MonoBehaviour
             for (int y = 0; y < bounds.size.y; y++)
             {
                 TileBase tile = allTiles[x + y * bounds.size.x];
-                if (tile != null) 
+                if (tile != null)
                 {
                     Vector3Int cellPos = new Vector3Int(x + bounds.x, y + bounds.y, 0);
-                    Vector3 worldPos = groundTilemap.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f, 0); 
+                    Vector3 worldPos = groundTilemap.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f, 0);
                     spawnPositions.Add(worldPos);
                 }
             }
         }
+    }
+    
+    // 기존 좀비 삭제
+    public void ClearZombies()
+    {
+        foreach (var zombie in spawnedZombies)
+        {
+            if (zombie != null) Destroy(zombie);
+        }
+
+        spawnedZombies.Clear();
     }
 }
