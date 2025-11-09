@@ -19,8 +19,12 @@ public class ZombieStat : MonoBehaviour
     {
         if (hp <= 0) DestroyZombie();
     }
-    void DestroyZombie()
+    void DestroyZombie() // public 으로 변경하였음
     {
         Destroy(gameObject);
+    }
+    public void takeDamage(int damage) // zombie hp 데이터 타입 변경 필요성 있음
+    {
+        hp -= damage;
     }
 }
