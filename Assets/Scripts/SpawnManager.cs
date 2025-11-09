@@ -4,8 +4,10 @@ using System.Collections.Generic;
 
 public class SpawnManager : MonoBehaviour
 {
+    [Header("Setting")]
     // TileMap 및 좀비 Prefab
-    public Tilemap groundTilemap;     
+    public Tilemap groundTilemap;  
+    public Tilemap collisionTilemap;   
     public GameObject zombiePrefab;   
 
     // 소환할 좌표 
@@ -29,11 +31,18 @@ public class SpawnManager : MonoBehaviour
 
     }
 
-    // Tilemap에서 소환 가능 좌표 수집
+   // Tilemap에서 소환 가능 좌표 수집
     void GetSpawnPositions()
     {
         BoundsInt bounds = groundTilemap.cellBounds;
-        TileBase[] allTiles = groundTilemap.GetTilesBlock(bounds);
+        TileBase[] allGroundTiles = groundTilemap.GetTilesBlock(bounds);
+        
+        // collisionTilemap null인지 확인하여 예외처리
+        if (collisionTilemap == null)
+        {
+            Debug.LogError("[SpawnManager] GetSpawnPositions() - Collision Tilemap 할당 X");
+            return;
+        }
 
         spawnPositions.Clear();
 
@@ -41,10 +50,19 @@ public class SpawnManager : MonoBehaviour
         {
             for (int y = 0; y < bounds.size.y; y++)
             {
-                TileBase tile = allTiles[x + y * bounds.size.x];
-                if (tile != null)
+                // 현재 셀 위치 계산
+                Vector3Int cellPos = new Vector3Int(x + bounds.x, y + bounds.y, 0);
+
+                // groundTile에 타일이 있는지 확인
+                TileBase groundTile = allGroundTiles[x + y * bounds.size.x];
+
+                // collisionTilemap 확인
+                TileBase collisionTile = collisionTilemap.GetTile(cellPos);
+                
+                // groundTile이 존재하며 collisionTile이 없을 때 (건물이 없는 곳)
+                if (groundTile != null && collisionTile == null)
                 {
-                    Vector3Int cellPos = new Vector3Int(x + bounds.x, y + bounds.y, 0);
+                    // 월드 좌표로 변환
                     Vector3 worldPos = groundTilemap.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f, 0);
                     spawnPositions.Add(worldPos);
                 }
