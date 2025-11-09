@@ -51,7 +51,7 @@ public class SpawnManager : MonoBehaviour
             }
         }
     }
-    
+
     // 기존 좀비 삭제
     public void ClearZombies()
     {
@@ -61,5 +61,29 @@ public class SpawnManager : MonoBehaviour
         }
 
         spawnedZombies.Clear();
+    }
+    
+    // 랜덤 좀비 소환
+    public void SpawnZombies(int spawnCount)
+    {
+        // 기존 좀비 삭제
+        ClearZombies();
+
+        // 좌표 리스트를 새롭게 복제한 리스트
+        List<Vector3> availablePositions = new List<Vector3>(spawnPositions);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            if (availablePositions.Count == 0) break;
+
+            // 랜덤으로 위치 선정
+            int index = Random.Range(0, availablePositions.Count);
+            Vector3 spawnPos = availablePositions[index];
+            GameObject zombie = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
+
+            spawnedZombies.Add(zombie);
+
+            availablePositions.RemoveAt(index);
+        }
     }
 }
