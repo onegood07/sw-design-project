@@ -1,6 +1,10 @@
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+/// tap, hold 구분 x
+/// hold로 모든 동작 처리
+/// input 에 입력값이 들어오면 무조건 changeViewDirection 을 실행 함.
 public class HeroMoveControl : MonoBehaviour
 {
     private Vector2 currentViewDirection = new Vector2(0f,-1f); // 시야 방향. 외부 참조 변수
@@ -9,13 +13,14 @@ public class HeroMoveControl : MonoBehaviour
         get { return currentViewDirection; }
     }
     public float moveSpeed = 5f; // 초기 이동 속도
-    private Rigidbody2D rb; // 2D 물리 엔진 컴포넌트 참조
     private Vector2 targetPosition; // 이동 위치
+    private Rigidbody2D rb; // 2D 물리 엔진 컴포넌트 참조
     // Input Actions Asset을 public으로 참조
     public InputActionAsset inputActions;
     private InputAction moveAction;
     private Vector2 moveInput;
-    private bool isMoving = false; // 그리드 단위 이동 변수. true 일 경우 입력을 무시하고 1그리드 이동
+    // 그리드 단위 이동 변수. true 일 경우 입력을 무시하고 1그리드 이동
+    private bool isMoving = false; 
     [SerializeField]
     private Vector2 initHeroPosition = new Vector2(0.5f, 0.5f); // Hero 초기화 좌표.
     void Awake()
@@ -52,15 +57,6 @@ public class HeroMoveControl : MonoBehaviour
         // InputSystem 내부에서 4방향 통제 불가로 인한 후처리
         if (moveInput.x != 0f && moveInput.y != 0f) moveInput.x = 0f; 
     }
-    // void FixedUpdate()
-    // {
-    //     // 물리 이동 처리
-    //     if (moveAction != null)
-    //     {
-    //         Vector2 newPos = rb.position + moveInput * moveSpeed * Time.fixedDeltaTime;
-    //         rb.MovePosition(newPos);
-    //     }
-    // }
 
     // 그리드 단위 이동
     void FixedUpdate()
@@ -80,7 +76,7 @@ public class HeroMoveControl : MonoBehaviour
                 {
                     isMoving = true;
                     targetPosition += moveInput.normalized * 1.0f;
-                    currentViewDirection = (targetPosition - rb.position).normalized; // 플레이어 시야 방향. (외부 사용)
+                    changeViewDirection(moveInput.normalized);
                 } // 입력값이 없으면 해당 그리드에서 멈춘다.
                 else
                 {
@@ -96,8 +92,18 @@ public class HeroMoveControl : MonoBehaviour
             {
                 isMoving = true;
                 targetPosition = rb.position + moveInput.normalized * 1.0f;
-                currentViewDirection = (targetPosition - rb.position).normalized; // 플레이어 시야 방향. (외부 사용)
+                changeViewDirection(moveInput.normalized);
             }
         }
+    }
+    // changeViewDirection
+    // 시야 방향 변경 동작은 해당 함수에서 처리함.
+    void changeViewDirection(Vector2 inputDir)
+    {
+        // input direction 과 currentViewDirection 이 다른 경우 변경을 진행 함.
+        if (currentViewDirection != inputDir.normalized)
+        {
+            currentViewDirection = inputDir.normalized;
+        } 
     }
 }
