@@ -4,7 +4,20 @@ using System.Collections.Generic;
 
 public class SpawnManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // TileMap 및 좀비 Prefab
+    public Tilemap groundTilemap;     
+    public GameObject zombiePrefab;   
+
+    // 소환할 좌표 
+    private List<Vector3> spawnPositions = new List<Vector3>();
+    // 소환한 Prefab
+    private List<GameObject> spawnedZombies = new List<GameObject>();
+
+    void Awake()
+    {
+        // 스폰 계산은 맨 처음에 한번만
+        GetSpawnPositions();
+    }
     void Start()
     {
         
