@@ -5,12 +5,11 @@ public class ZombieStat : MonoBehaviour
     int hp = 1000;
     int speed;
     int power = 1000;
-    public Transform player;
     private HeroStat heroStat;
   
     void Start()
     {
-        heroStat = player.GetComponent<HeroStat>();
+        heroStat = HeroStat.Instance;
         if (heroStat != null) speed = (int)(heroStat.speed * 1.1f);
         else speed = 1000;
     }
