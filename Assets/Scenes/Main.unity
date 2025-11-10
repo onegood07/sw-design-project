@@ -85092,7 +85092,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03efb2b00b4d94e95b2c16598f1e0cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieStat
-  player: {fileID: 0}
+  player: {fileID: 1380755839}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

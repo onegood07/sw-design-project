@@ -15,7 +15,7 @@ public class ZombieInteraction : MonoBehaviour, IInteractable
     private void Start()
     {
         zombieStat = GetComponent<ZombieStat>();
-        heroStat = GetComponent<HeroStat>();
+        heroStat = zombieStat.player.GetComponent<HeroStat>();
         if(heroStat == null)Debug.Log("hero_stat reference error");
         if (zombieStat == null) Debug.Log("zombie_stat reference error");
     }
