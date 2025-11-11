@@ -66,17 +66,23 @@ public class ZombieMove : MonoBehaviour
 
     void Awake()
     {
-       zombieStat = GetComponent<ZombieStat>();
         zombie = GetComponent<Rigidbody2D>();
-        spawnGrid = Vector2Int.FloorToInt(zombie.position);
 
-        // 현재 위치를 셀 중앙으로 스냅하고, 점유 등록 시 명시 변환 사용
+        // 널가드 (씬에 "collision" 오브젝트 없을 때 NRE 방지)
+        var colGo = GameObject.Find("collision");
+        if (colGo != null) collisionTilemap = colGo.GetComponent<Tilemap>();
+
+        // ★ 추가: 널가드 (씬에 "Hero" 없을 때 NRE 방지)
+        var heroGo = GameObject.Find("Hero");
+        if (heroGo != null) target = heroGo.GetComponent<Rigidbody2D>();
+
+        // ★ 수정: 현재 위치를 셀 중앙으로 스냅하고, 점유 등록 시 명시 변환 사용
         Vector2 snapped = GetCellCenter(transform.position);
         transform.position = snapped;
 
         // (Vector2Int) 캐스트 금지 → 명시 변환으로 교체
-        Vector3Int cur3 = collisionTilemap.WorldToCell(snapped);              
-        currentCell = new Vector2Int(cur3.x, cur3.y);                        
+        Vector3Int cur3 = collisionTilemap.WorldToCell(snapped);                 // ★ 수정
+        currentCell = new Vector2Int(cur3.x, cur3.y);                            // ★ 수정
         GridOccupancy.TryReserve(collisionTilemap, currentCell, this);
 
         spawnGrid = Vector2Int.FloorToInt(zombie.position);
@@ -108,7 +114,7 @@ public class ZombieMove : MonoBehaviour
 
             if (t >= 1f)
             {
-                // 스텝 완료 후에만 이전 셀 반납 + 새 셀 확정
+                // ★ 중요 수정: 스텝 완료 후에만 이전 셀 반납 + 새 셀 확정
                 GridOccupancy.Release(collisionTilemap, currentCell, this);
                 currentCell = reservedTargetCell;
                 hasReservedNext = false;
@@ -117,7 +123,7 @@ public class ZombieMove : MonoBehaviour
             return;
         }
 
-        // 스텝 시작 전 항상 중앙으로 스냅(코너/라인 타기 방지)
+        // ★ 추가: 스텝 시작 전 항상 중앙으로 스냅(코너/라인 타기 방지)
         Vector2 snapped = GetCellCenter(zombie.position);
         if (Vector2.Distance(zombie.position, snapped) > 0.001f)
         {
