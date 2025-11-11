@@ -20,6 +20,7 @@ public class HeroMoveControl : MonoBehaviour
     [SerializeField]
     private Vector2 initHeroPosition = new Vector2(0.5f, 0.5f); // Hero 초기화 좌표.
     [SerializeField] Tilemap collisionTilemap;
+    
     void Awake()
     {
         // 충돌맵 찾아서 넣어주기
@@ -39,7 +40,6 @@ public class HeroMoveControl : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.MovePosition(initHeroPosition); // 그리드 내부로 Hero 위치 초기화 
     }
-
 
     void OnDisable()
     {
@@ -90,7 +90,17 @@ public class HeroMoveControl : MonoBehaviour
     bool CanStep(Vector2 dirUnit)
     {
         Vector2 nextCenter = GetCellCenter(rb.position + dirUnit); // 한 칸(그리드 1) 이동 가정
-        return !IsBlockedCell(nextCenter);
+        if (IsBlockedCell(nextCenter)) return false;        // 타일(벽) 막힘
+        if (IsOccupiedByZombie(nextCenter)) return false;   // 좀비 있음
+        return true;
+    }
+
+    // 좀비 점유 셀인지 검사
+    bool IsOccupiedByZombie(Vector2 worldPos)
+    {
+        Vector3Int cell3 = collisionTilemap.WorldToCell(worldPos);
+        var cell2 = new Vector2Int(cell3.x, cell3.y);  
+        return GridOccupancy.IsOccupied(collisionTilemap, cell2);
     }
 
     // 그리드 단위 이동
@@ -107,10 +117,6 @@ public class HeroMoveControl : MonoBehaviour
             {
                 // 막혀 있으면 이번 프레임은 이동하지 않음 
                 isMoving = false;
-                // 현재 셀 중앙으로만 정렬
-                Vector2 snap = GetCellCenter(rb.position);
-                rb.MovePosition(snap);
-                targetPosition = snap;
                 return;
             }
 
