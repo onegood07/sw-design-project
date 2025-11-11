@@ -84925,6 +84925,7 @@ MonoBehaviour:
   moveSpeed: 5
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   initHeroPosition: {x: 0.5, y: -4.5}
+  collisionTilemap: {fileID: 0}
 --- !u!114 &1380755844
 MonoBehaviour:
   m_ObjectHideFlags: 0
