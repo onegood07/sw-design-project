@@ -27,7 +27,7 @@ public class ZombieMove : MonoBehaviour
     Vector2Int currentCell;
     Vector2Int reservedTargetCell; 
     bool hasReservedNext = false;
-
+    
     Vector2Int spawnGrid;
     Vector2 stepStartPos, stepTargetPos;
 
@@ -68,21 +68,21 @@ public class ZombieMove : MonoBehaviour
     {
         zombie = GetComponent<Rigidbody2D>();
 
-        // 널가드 (씬에 "collision" 오브젝트 없을 때 NRE 방지)
+        // 널가드
         var colGo = GameObject.Find("collision");
         if (colGo != null) collisionTilemap = colGo.GetComponent<Tilemap>();
 
-        // ★ 추가: 널가드 (씬에 "Hero" 없을 때 NRE 방지)
+        // 널가드
         var heroGo = GameObject.Find("Hero");
         if (heroGo != null) target = heroGo.GetComponent<Rigidbody2D>();
 
-        // ★ 수정: 현재 위치를 셀 중앙으로 스냅하고, 점유 등록 시 명시 변환 사용
+        // 현재 위치를 셀 중앙으로 스냅하고, 점유 등록 시 명시 변환 사용
         Vector2 snapped = GetCellCenter(transform.position);
         transform.position = snapped;
 
         // (Vector2Int) 캐스트 금지 → 명시 변환으로 교체
-        Vector3Int cur3 = collisionTilemap.WorldToCell(snapped);                 // ★ 수정
-        currentCell = new Vector2Int(cur3.x, cur3.y);                            // ★ 수정
+        Vector3Int cur3 = collisionTilemap.WorldToCell(snapped);              
+        currentCell = new Vector2Int(cur3.x, cur3.y);                           
         GridOccupancy.TryReserve(collisionTilemap, currentCell, this);
 
         spawnGrid = Vector2Int.FloorToInt(zombie.position);
@@ -114,7 +114,7 @@ public class ZombieMove : MonoBehaviour
 
             if (t >= 1f)
             {
-                // ★ 중요 수정: 스텝 완료 후에만 이전 셀 반납 + 새 셀 확정
+                //스텝 완료 후에만 이전 셀 반납 + 새 셀 확정
                 GridOccupancy.Release(collisionTilemap, currentCell, this);
                 currentCell = reservedTargetCell;
                 hasReservedNext = false;
@@ -175,13 +175,13 @@ public class ZombieMove : MonoBehaviour
                 Vector2Int tryDir = candidates[i];
                 if (!CanStep(tryDir)) continue;
 
-                // ★ 중요 추가: 이동 시작 전 "다음 셀" 예약(경합/통과 방지)
+                // 이동 시작 전 "다음 셀" 예약(경합/통과 방지)
                 Vector2Int nextCell = currentCell + tryDir;
                 if (!GridOccupancy.TryReserve(collisionTilemap, nextCell, this)) continue;
 
                 // 예약 성공 → 스텝 시작
-                hasReservedNext    = true;                 // ★ 추가
-                reservedTargetCell = nextCell;             // ★ 추가
+                hasReservedNext    = true;                
+                reservedTargetCell = nextCell;             
 
                 stepStartPos  = GetCellCenter(zombie.position);
                 stepTargetPos = GetCellCenter(zombie.position + (Vector2)tryDir);
@@ -215,12 +215,12 @@ public class ZombieMove : MonoBehaviour
                 if (nextFromSpawn > limitGrid) continue;
                 if (!CanStep(tryDir)) continue;
 
-                // ★ 중요 추가: 배회도 동일하게 다음 셀 예약
+                // 배회도 동일하게 다음 셀 예약
                 Vector2Int nextCell = currentCell + tryDir;
                 if (!GridOccupancy.TryReserve(collisionTilemap, nextCell, this)) continue;
 
-                hasReservedNext    = true;                 // ★ 추가
-                reservedTargetCell = nextCell;             // ★ 추가
+                hasReservedNext    = true;                
+                reservedTargetCell = nextCell;             
 
                 // 스텝 시작
                 stepStartPos  = GetCellCenter(zombie.position);
