@@ -2,7 +2,6 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-
 public class HeroMoveControl : MonoBehaviour
 {
     private Vector2 currentViewDirection = new Vector2(0f,-1f); // 시야 방향. 외부 참조 변수
@@ -13,7 +12,6 @@ public class HeroMoveControl : MonoBehaviour
     public float moveSpeed = 5f; // 초기 이동 속도
     private Rigidbody2D rb; // 2D 물리 엔진 컴포넌트 참조
     private Vector2 targetPosition; // 이동 위치
-
     // Input Actions Asset을 public으로 참조
     public InputActionAsset inputActions;
     private InputAction moveAction;
@@ -22,7 +20,6 @@ public class HeroMoveControl : MonoBehaviour
     [SerializeField]
     private Vector2 initHeroPosition = new Vector2(0.5f, 0.5f); // Hero 초기화 좌표.
     [SerializeField] Tilemap collisionTilemap;
-
     void Awake()
     {
         // 충돌맵 찾아서 넣어주기
@@ -42,6 +39,7 @@ public class HeroMoveControl : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.MovePosition(initHeroPosition); // 그리드 내부로 Hero 위치 초기화 
     }
+
 
     void OnDisable()
     {
@@ -66,7 +64,7 @@ public class HeroMoveControl : MonoBehaviour
     //         rb.MovePosition(newPos);
     //     }
     // }
-
+    
     // 그리드 셀 중앙 좌표 반환 (타일맵 기준, 없으면 1x1 가정)
     Vector2 GetCellCenter(Vector2 worldPos)
     {
@@ -80,16 +78,7 @@ public class HeroMoveControl : MonoBehaviour
         return new Vector2(Mathf.Floor(worldPos.x) + 0.5f, Mathf.Floor(worldPos.y) + 0.5f);
     }
 
-    // 셀 좌표(정수) 반환
-    Vector3Int GetCell(Vector2 worldPos)
-    {
-        if (collisionTilemap != null)
-            return collisionTilemap.WorldToCell(worldPos);
-        // 타일맵 없으면 1x1 격자 셀 좌표화
-        return new Vector3Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y), 0);
-    }
-    
-    // 해당 월드 좌표가 충돌 영역인지
+    // 해당 월드 좌표가 막힌 셀인가?
     bool IsBlockedCell(Vector2 worldPos)
     {
         if (collisionTilemap == null) return false;
@@ -97,28 +86,11 @@ public class HeroMoveControl : MonoBehaviour
         return collisionTilemap.HasTile(cell); // 타일 있으면 '막힘'
     }
 
-    // 다음 한 칸(step)으로 갈 수 있는지
+    // 다음 한 칸(step)으로 갈 수 있는가? (셀 중앙 기준)
     bool CanStep(Vector2 dirUnit)
     {
         Vector2 nextCenter = GetCellCenter(rb.position + dirUnit); // 한 칸(그리드 1) 이동 가정
-        if (IsBlockedCell(nextCenter)) return false;        // 타일(벽) 막힘
-        if (IsOccupiedByZombie(nextCenter)) return false;   // 좀비 있음
-        return true;
-    }
-
-    // 좀비 점유 셀인지 검사 (Tag 기반)
-    bool IsOccupiedByZombie(Vector2 worldPos)
-    {
-        Vector3Int targetCell = GetCell(worldPos);
-        var zombies = GameObject.FindGameObjectsWithTag("Zombie");  // ← zombieTag 변수 쓰고 싶으면 교체
-
-        for (int i = 0; i < zombies.Length; i++)
-        {
-            var t = zombies[i].transform;
-            if (!t) continue;
-            if (GetCell(t.position) == targetCell) return true; // 같은 셀에 있으면 막음
-        }
-        return false;
+        return !IsBlockedCell(nextCenter);
     }
 
     // 그리드 단위 이동
@@ -131,10 +103,14 @@ public class HeroMoveControl : MonoBehaviour
 
             // 이동위치가 들어갈 셀 중앙을 기준으로 막힘 검사
             Vector2 nextCenter = GetCellCenter(newPos);
-           if (IsBlockedCell(nextCenter) || IsOccupiedByZombie(nextCenter))
+            if (IsBlockedCell(nextCenter))
             {
                 // 막혀 있으면 이번 프레임은 이동하지 않음 
                 isMoving = false;
+                // 현재 셀 중앙으로만 정렬
+                Vector2 snap = GetCellCenter(rb.position);
+                rb.MovePosition(snap);
+                targetPosition = snap;
                 return;
             }
 
@@ -151,7 +127,7 @@ public class HeroMoveControl : MonoBehaviour
                     Vector2 dir = moveInput.normalized;
                     dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y));
 
-                    // 다음 칸 시작 전 충돌 검사 (셀 중앙 기준)
+                    //다음 칸 시작 전 충돌 검사 (셀 중앙 기준)
                     if (dir.sqrMagnitude > 0.1f && CanStep(dir))
                     {
                         isMoving = true;
@@ -168,22 +144,27 @@ public class HeroMoveControl : MonoBehaviour
                 }
                 else
                 {
-                    // 막혀 있으면 시작하지 않음
-                    isMoving = false;
+                    isMoving = false; // 입력 없음 → 멈춤
+                    // 도착 지점 셀 중앙 정렬
+                    Vector2 snap = GetCellCenter(targetPosition);
+                    rb.MovePosition(snap);
+                    targetPosition = snap;
                 }
             }
 
             return;
         }
 
-        // 정지 상태: 첫 한 칸 시작도 차단
+        // ─────────────────────────────────────────────
+        // 정지 상태: 첫 한 칸 시작도 '미리' 차단
+        // ─────────────────────────────────────────────
         if (moveInput.sqrMagnitude > 0.1f)
         {
             // 상하좌우 스냅
             Vector2 dir = moveInput.normalized;
             dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y));
 
-            // 시작 전 충돌 검사
+            // ★추가: 시작 전 충돌 검사 (다음 셀 중앙 진입 가능?)
             if (dir.sqrMagnitude > 0.1f && CanStep(dir))
             {
                 // 현재를 셀 중앙으로 정렬하고 거기서 한 칸 이동 시작
@@ -198,6 +179,10 @@ public class HeroMoveControl : MonoBehaviour
             {
                 // 막혀 있으면 시작 자체를 안 함 (아예 못 들어감)
                 isMoving = false;
+                // 선택사항: 현재도 셀 중앙으로 정렬
+                Vector2 snap = GetCellCenter(rb.position);
+                rb.MovePosition(snap);
+                targetPosition = snap;
             }
         }
     }

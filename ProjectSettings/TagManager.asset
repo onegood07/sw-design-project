@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Interactable
+  - Zombie
   layers:
   - Default
   - TransparentFX
