@@ -123,7 +123,7 @@ public class ZombieMove : MonoBehaviour
             return;
         }
 
-        // ★ 추가: 스텝 시작 전 항상 중앙으로 스냅(코너/라인 타기 방지)
+        // 스텝 시작 전 항상 중앙으로 스냅(코너/라인 타기 방지)
         Vector2 snapped = GetCellCenter(zombie.position);
         if (Vector2.Distance(zombie.position, snapped) > 0.001f)
         {
@@ -174,7 +174,8 @@ public class ZombieMove : MonoBehaviour
                 Vector2Int tryDir = candidates[i];
                 if (!CanStep(tryDir)) continue;
 
-                // 이동 시작 전 "다음 셀" 예약(경합/통과 방지)
+                // 이동 시작 전 다음 셀 예약
+                // 좀비랑 플레이어가 동시에 같은 셀을 점유하게 될것을 방지 (낑김)
                 Vector2Int nextCell = currentCell + tryDir;
                 if (!GridOccupancy.TryReserve(collisionTilemap, nextCell, this)) continue;
 
@@ -209,13 +210,13 @@ public class ZombieMove : MonoBehaviour
             {
                 Vector2Int tryDir = dirs[(start + i) % 4];
 
-                // 리쉬 체크
+                // 움직임 체크
                 Vector2Int nextGrid = zombieGrid + tryDir;
                 int nextFromSpawn = Mathf.Abs(nextGrid.x - spawnGrid.x) + Mathf.Abs(nextGrid.y - spawnGrid.y);
                 if (nextFromSpawn > limitGrid) continue;
                 if (!CanStep(tryDir)) continue;
 
-                // 배회도 동일하게 다음 셀 예약
+                // 배회도 동일하게 다음 셀 예약 
                 Vector2Int nextCell = currentCell + tryDir;
                 if (!GridOccupancy.TryReserve(collisionTilemap, nextCell, this)) continue;
 
