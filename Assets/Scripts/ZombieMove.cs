@@ -196,10 +196,6 @@ public class ZombieMove : MonoBehaviour
         }
         else
         {
-            // 배회
-
-            // Debug.Log("haa....");
-            // 랜덤 배회: 기존 로직 유지(단, CanStep/스냅의 효과를 그대로 받음)
             if (stepping) return;
 
             Timer += Time.fixedDeltaTime;
