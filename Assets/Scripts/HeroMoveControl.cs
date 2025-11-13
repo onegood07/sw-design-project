@@ -168,6 +168,14 @@ public class HeroMoveControl : MonoBehaviour
             nextReservedCell = null;
         }
     }
+    void changeViewDirection(Vector2 inputDir)
+    {
+        // input direction 과 currentViewDirection 이 다른 경우 변경을 진행 함.
+        if (currentViewDirection != inputDir.normalized)
+        {
+            currentViewDirection = inputDir.normalized;
+        } 
+    }
 
     // 그리드 단위 이동
     void FixedUpdate()
@@ -268,23 +276,33 @@ public class HeroMoveControl : MonoBehaviour
                     rb.MovePosition(curCenter);                 // 스냅 정렬
                     isMoving = true;
                     targetPosition = CellCenterWorld(nextCell); // 다음 칸 중앙을 타깃으로
-                    currentViewDirection = (targetPosition - rb.position).normalized;
+                    
+                    changeViewDirection(dir);
                 }
                 else
                 {
                     // >>> [ADD] 좀비가 선점 중 → 시작 자체를 막음
+                    Vector2 center = GetCellCenter(rb.position);
+                    rb.MovePosition(center);
+                    targetPosition = center;
+
+                    changeViewDirection(dir);          // <<< 여기 때문에 "정지 방향 전환" 됨
+
                     isMoving = false;
-                    rb.MovePosition(curCenter); // 스냅만
-                    targetPosition = curCenter;
                 }
             }
             else
             {
-                // 벽 등으로 막힘
+                Vector2 curCenter = GetCellCenter(rb.position);
+                rb.MovePosition(curCenter);
+                targetPosition = curCenter;
+
+                if (dir.sqrMagnitude > 0.1f)
+                {
+                    changeViewDirection(dir);          // <<< 여기
+                }
+
                 isMoving = false;
-                Vector2 snap = GetCellCenter(rb.position);
-                rb.MovePosition(snap);
-                targetPosition = snap;
             }
         }
         else
