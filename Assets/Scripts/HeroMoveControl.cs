@@ -21,7 +21,7 @@ public class HeroMoveControl : MonoBehaviour
     [SerializeField] private Vector2 initHeroPosition = new Vector2(0.5f, 0.5f); // Hero 초기화 좌표
     [SerializeField] private Tilemap collisionTilemap;
 
-    // ===== [ADD] 점유(Reservation) 관리용 필드 =====
+    // 점유 관리용 변수
     private Vector2Int currentReservedCell;     // 내가 현재 점유 중인 셀
     private bool hasCurrentReservation = false; // 현재 셀을 점유했는가
     private Vector2Int? nextReservedCell = null; // 다음 셀을 선점했으면 저장
@@ -42,7 +42,7 @@ public class HeroMoveControl : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.MovePosition(initHeroPosition); // 그리드 내부로 Hero 위치 초기화
 
-        // >>> [ADD] 시작 위치 스냅 + 현재 셀 예약 보장
+        // 시작 위치 스냅 + 현재 셀 예약 보장
         Vector2 snap = GetCellCenter(rb.position);
         rb.MovePosition(snap);
         EnsureCurrentCellReserved(); // 현재 서 있는 칸을 점유
@@ -53,13 +53,13 @@ public class HeroMoveControl : MonoBehaviour
     {
         if (moveAction != null) moveAction.Disable();
 
-        // >>> [ADD] 비활성화 시 보유 중인 점유를 모두 반납
+        // 비활성화 시 보유 중인 점유를 모두 반납
         ReleaseAllReservations();
     }
 
     void OnDestroy()
     {
-        // >>> [ADD] 파괴 시에도 안전하게 반납
+        // 파괴 시에도 안전하게 반납
         ReleaseAllReservations();
     }
 
@@ -84,7 +84,7 @@ public class HeroMoveControl : MonoBehaviour
         return new Vector2(Mathf.Floor(worldPos.x) + 0.5f, Mathf.Floor(worldPos.y) + 0.5f);
     }
 
-    // ===== [ADD] 월드 <-> 셀 변환 유틸 =====
+    // 월드 <-> 셀 변환 
     Vector2Int WorldToCell(Vector2 worldPos)
     {
         if (collisionTilemap == null)
@@ -93,7 +93,7 @@ public class HeroMoveControl : MonoBehaviour
         return new Vector2Int(c.x, c.y);
     }
 
-    // ===== [ADD] 셀 센터 월드 좌표 유틸 =====
+    // 셀 센터 월드 좌표 유틸
     Vector2 CellCenterWorld(Vector2Int cell)
     {
         if (collisionTilemap == null)
@@ -110,7 +110,7 @@ public class HeroMoveControl : MonoBehaviour
         return collisionTilemap.HasTile(cell); // 타일 있으면 '막힘'
     }
 
-    // ===== [ADD] 타일(벽)만 확인하는 한 칸 가능 검사
+    // 타일(벽)만 확인하는 한 칸 가능 검사
     // 점유(좀비) 충돌은 "시작 시 TryReserve"로 처리한다
     bool CanStepTileOnly(Vector2 dirUnit)
     {
@@ -118,7 +118,7 @@ public class HeroMoveControl : MonoBehaviour
         return !IsBlockedCell(nextCenter);
     }
 
-    // ===== [ADD] 현재 셀 예약 보장(없으면 예약, 바뀌었으면 갱신)
+    // 현재 셀 예약 보장(없으면 예약, 바뀌었으면 갱신)
     void EnsureCurrentCellReserved()
     {
         if (collisionTilemap == null) return;
@@ -185,13 +185,13 @@ public class HeroMoveControl : MonoBehaviour
         {
             Vector2 newPos = Vector2.MoveTowards(rb.position, targetPosition, moveSpeed * Time.fixedDeltaTime);
 
-            // *** [CHANGE] 타일 막힘은 이동 시작 전에만 검사(여기선 스냅만 처리)
+            // 타일 막힘은 이동 시작 전에만 검사(여기선 스냅만 처리)
             rb.MovePosition(newPos);
 
             // 목표 그리드 도착 판정
             if (Vector2.Distance(rb.position, targetPosition) < 0.001f)
             {
-                // ===== [ADD] 도착: 이전 셀 반납, 다음 셀 -> 현재 셀로 승계
+                // 도착: 이전 셀 반납, 다음 셀 -> 현재 셀로 이동
                 if (nextReservedCell.HasValue)
                 {
                     if (hasCurrentReservation)
@@ -210,7 +210,7 @@ public class HeroMoveControl : MonoBehaviour
 
                     if (dir.sqrMagnitude > 0.1f && CanStepTileOnly(dir))
                     {
-                        // >>> [ADD] 다음 셀 계산 + 선점 시도
+                        // 다음 셀 계산 + 선점 시도
                         Vector2 curCenter = GetCellCenter(rb.position);
                         Vector2Int nextCell = WorldToCell(curCenter + dir * 1.0f);
 
@@ -225,7 +225,7 @@ public class HeroMoveControl : MonoBehaviour
                         }
                         else
                         {
-                            // >>> [ADD] 좀비 등 점유 중 → 연속 이동 차단
+                            // 좀비 등 점유 중 → 연속 이동 차단
                             isMoving = false;
                             rb.MovePosition(curCenter);
                             targetPosition = curCenter;
@@ -252,9 +252,7 @@ public class HeroMoveControl : MonoBehaviour
             return;
         }
 
-        // ─────────────────────────────────────────────
         // 정지 상태: 첫 한 칸 시작(벽 체크 + 다음 셀 선점)
-        // ─────────────────────────────────────────────
         if (moveInput.sqrMagnitude > 0.1f)
         {
             Vector2 dir = moveInput.normalized;
@@ -265,12 +263,11 @@ public class HeroMoveControl : MonoBehaviour
                 Vector2 curCenter = GetCellCenter(rb.position);
                 Vector2Int nextCell = WorldToCell(curCenter + dir * 1.0f);
 
-                // ===== [ADD] ★★★ 다음 칸 선점이 핵심 ★★★
                 if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
                 {
                     nextReservedCell = nextCell;
 
-                    // >>> [ADD] 현재 셀도 반드시 예약되어 있어야 함(좀비가 못 들어오게)
+                    //  현재 셀도 반드시 예약되어 있어야 함(좀비가 못 들어오게)
                     EnsureCurrentCellReserved();
 
                     rb.MovePosition(curCenter);                 // 스냅 정렬
@@ -281,7 +278,7 @@ public class HeroMoveControl : MonoBehaviour
                 }
                 else
                 {
-                    // >>> [ADD] 좀비가 선점 중 → 시작 자체를 막음
+                    // 좀비가 선점 중 → 시작 자체를 막음
                     Vector2 center = GetCellCenter(rb.position);
                     rb.MovePosition(center);
                     targetPosition = center;
@@ -299,7 +296,7 @@ public class HeroMoveControl : MonoBehaviour
 
                 if (dir.sqrMagnitude > 0.1f)
                 {
-                    changeViewDirection(dir);          // <<< 여기
+                    changeViewDirection(dir);       
                 }
 
                 isMoving = false;
@@ -307,7 +304,7 @@ public class HeroMoveControl : MonoBehaviour
         }
         else
         {
-            // >>> [ADD] 입력이 없어도 현재 셀 예약은 항상 보장
+            // 입력이 없어도 현재 셀 예약은 항상 보장
             EnsureCurrentCellReserved();
         }
     }
