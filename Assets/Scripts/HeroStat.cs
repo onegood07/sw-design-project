@@ -1,12 +1,23 @@
 using UnityEngine;
 
-public class HeroStat : MonoBehaviour
+public class HeroStat : MonoBehaviour 
 {
-    int hp;
+    
+    public static HeroStat Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        Instance = this;
+    }
+    private int hp;
     public int speed;
-    int hunger;
+    private int hunger;
 
-    bool isSurvival;
+    private bool isSurvival;
 
     void SpeedControl()
     {

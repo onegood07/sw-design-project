@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour
             CurrentPhase = Phase.Day;
             Debug.Log($"[☀️ {CurrentDay}] 낮 시작! 좀비 수: {ZombieSpawnCount}");
             // 5초마다 페이즈 변경
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(30f);
 
             // 밤
             CurrentPhase = Phase.Night;

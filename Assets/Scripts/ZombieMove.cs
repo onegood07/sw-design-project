@@ -151,7 +151,7 @@ public class ZombieMove : MonoBehaviour
 
         if (findTarget)
         {
-            Debug.Log("find!!!");
+            // Debug.Log("find!!!");
             // ─────────────────────────────────────────────────────
             // [수정] 추격 시에도 "연속 밀기" 대신 "한 칸 스텝"으로 통일
             //  - 왜? 연속 MovePosition은 라인을 타거나 코너에서 관통 위험이 있음.
@@ -192,7 +192,7 @@ public class ZombieMove : MonoBehaviour
         }
         else
         {
-            Debug.Log("haa....");
+            // Debug.Log("haa....");
             // 랜덤 배회: 기존 로직 유지(단, CanStep/스냅의 효과를 그대로 받음)
             if (stepping) return;
 
