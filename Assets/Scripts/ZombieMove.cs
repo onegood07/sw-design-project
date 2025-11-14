@@ -62,7 +62,11 @@ public class ZombieMove : MonoBehaviour
         return true;
     }
 
-    void DoAttack() { Debug.Log("Zombie Attack!"); }
+    void DoAttack() 
+    { 
+
+        Debug.Log("Zombie Attack!"); 
+    }
 
     void Awake()
     {
@@ -154,6 +158,7 @@ public class ZombieMove : MonoBehaviour
 
         if (findTarget)
         {
+            speed = 1100f;
             Vector2Int primary, secondary;
             if (Mathf.Abs(diff.x) > Mathf.Abs(diff.y))
             {
@@ -197,6 +202,7 @@ public class ZombieMove : MonoBehaviour
         }
         else
         {
+            speed = 2.5f;
             if (stepping) return;
 
             Timer += Time.fixedDeltaTime;

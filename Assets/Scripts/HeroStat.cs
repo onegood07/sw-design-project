@@ -13,7 +13,6 @@ public class HeroStat : MonoBehaviour
         }
         Instance = this;
     }
-    
     public int hp;
     public int speed;
     private int hunger;
