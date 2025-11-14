@@ -84655,6 +84655,57 @@ Transform:
   - {fileID: 884975782}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1215500391
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1215500393}
+  - component: {fileID: 1215500392}
+  m_Layer: 0
+  m_Name: InventoryManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1215500392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215500391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f135c7e5dba85dd4c94e3dbd160fd08d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
+  QuickSlot:
+  - {fileID: 11400000, guid: 01fc2da11691b7d45b6e4d9a45d091fb, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  HeroTransform: {fileID: 1380755839}
+  HeroMoveControl: {fileID: 0}
+--- !u!4 &1215500393
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215500391}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.38582, y: -3.67658, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1231151905
 GameObject:
   m_ObjectHideFlags: 0
@@ -84716,6 +84767,7 @@ GameObject:
   - component: {fileID: 1380755845}
   - component: {fileID: 1380755842}
   - component: {fileID: 1380755846}
+  - component: {fileID: 1380755847}
   m_Layer: 0
   m_Name: Hero
   m_TagString: Player
@@ -84891,6 +84943,70 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1380755847}
+        m_TargetAssemblyTypeName: HeroItemUse, Assembly-CSharp
+        m_MethodName: OnQuickSlot1
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 88d84372-6bcf-4871-9691-2bf61c1ca326
+    m_ActionName: 'Player/QuickSlot1[/Keyboard/1]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1380755847}
+        m_TargetAssemblyTypeName: HeroItemUse, Assembly-CSharp
+        m_MethodName: OnQuickSlot2
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: bab630aa-c04f-45bb-9655-74f054c407d2
+    m_ActionName: 'Player/QuickSlot2[/Keyboard/2]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1380755847}
+        m_TargetAssemblyTypeName: HeroItemUse, Assembly-CSharp
+        m_MethodName: OnQuickSlot3
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0f664f5f-9bd5-491c-86c9-ff4783c98431
+    m_ActionName: 'Player/QuickSlot3[/Keyboard/3]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1380755847}
+        m_TargetAssemblyTypeName: HeroItemUse, Assembly-CSharp
+        m_MethodName: OnQuickSlot4
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 544dca48-101f-4fae-ac26-57bf63f04083
+    m_ActionName: 'Player/QuickSlot4[/Keyboard/4]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
@@ -84936,7 +85052,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd11fb6cb0da4d24e8fb06b9c1426192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroInteraction
-  heroMove: {fileID: 0}
+  HeroMoveControl: {fileID: 0}
 --- !u!212 &1380755846
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -84995,6 +85111,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1380755847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380755837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fbba5a0d93e2ff4e89244a68aa127db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroItemUse
+  HeroMoveControl: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -85005,3 +85134,4 @@ SceneRoots:
   - {fileID: 965909448}
   - {fileID: 1231151907}
   - {fileID: 715778161}
+  - {fileID: 1215500393}
