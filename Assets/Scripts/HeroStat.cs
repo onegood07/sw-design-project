@@ -13,15 +13,22 @@ public class HeroStat : MonoBehaviour
         }
         Instance = this;
     }
-    public int hp;
-    public int speed;
-    private int hunger;
+    public float hp;
+    public float maxHp = 1000f;
+    public float hunger;
+    public float maxHunger = 1000f;
+    public float speed;
 
     private bool isSurvival;
 
     void SpeedControl()
     {
         if (hunger <= 100) speed = 100;
+    }
+    public void decreaseHp(float zombiePower)
+    {
+        hp -= zombiePower;
+        if (hp <= 0) isSurvival = false; // 사망 시 로직 구현 필요
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

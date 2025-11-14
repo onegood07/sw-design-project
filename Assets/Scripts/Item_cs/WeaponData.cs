@@ -1,7 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewWeaponData", menuName = "ItemData/WeaponData")]
-public class WeaponData : ItemData
+public abstract class WeaponData : ItemData
 {
     // 무기 공격력
     public float power;

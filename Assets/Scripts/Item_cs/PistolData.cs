@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewPistolData", menuName = "ItemData/WeaponData/PistolData")]
+[CreateAssetMenu(fileName = "NewPistol", menuName = "ItemData/WeaponData/PistolData")]
 public class PistolData : WeaponData,IUsable
 {
     private GameObject bulletObject;

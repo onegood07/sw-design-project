@@ -19,6 +19,7 @@ public class ZombieMove : MonoBehaviour
     bool findTarget = false;
     bool find = false;
     bool stepping = false;
+    private GameObject heroGo;
 
     public Rigidbody2D target;
     Rigidbody2D zombie;
@@ -62,11 +63,7 @@ public class ZombieMove : MonoBehaviour
         return true;
     }
 
-    void DoAttack() 
-    { 
 
-        Debug.Log("Zombie Attack!"); 
-    }
 
     void Awake()
     {
@@ -77,7 +74,7 @@ public class ZombieMove : MonoBehaviour
         if (colGo != null) collisionTilemap = colGo.GetComponent<Tilemap>();
 
         // 널가드
-        var heroGo = GameObject.Find("Hero");
+        heroGo = GameObject.Find("Hero");
         if (heroGo != null) target = heroGo.GetComponent<Rigidbody2D>();
 
         // 현재 위치를 셀 중앙으로 스냅하고, 점유 등록 시 명시 변환 사용
@@ -91,7 +88,12 @@ public class ZombieMove : MonoBehaviour
 
         spawnGrid = Vector2Int.FloorToInt(zombie.position);
     }
-
+    void DoAttack()
+    {
+        heroGo.GetComponent<HeroStat>().decreaseHp(GetComponent<ZombieStat>().power);
+        Debug.Log(heroGo.GetComponent<HeroStat>().hp);
+        Debug.Log("Zombie Attack!"); 
+    }
     void OnDestroy()
     {
         // 파괴 시 점유 반납 (예약해둔 셀도 동시 반납)

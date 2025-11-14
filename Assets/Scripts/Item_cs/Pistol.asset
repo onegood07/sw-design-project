@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a56d52ab5592584dab853341136e12f, type: 3}
-  m_Name: PistolData
+  m_Name: Pistol
   m_EditorClassIdentifier: Assembly-CSharp::PistolData
   ID: pistol
   ItemName: "\uAD8C\uCD1D"

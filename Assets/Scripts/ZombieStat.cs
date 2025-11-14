@@ -4,7 +4,7 @@ public class ZombieStat : MonoBehaviour
 {
     float hp = 1000;
     float speed;
-    float power = 1000;
+    public float power = 40;
     private HeroStat heroStat;
   
     void Start()
