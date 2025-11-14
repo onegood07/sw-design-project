@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a56d52ab5592584dab853341136e12f, type: 3}
+  m_Name: PistolData
+  m_EditorClassIdentifier: Assembly-CSharp::PistolData
+  ID: pistol
+  ItemName: "\uAD8C\uCD1D"
+  Description: "\uAD8C\uCD1D"
+  Icon: {fileID: 0}
+  MaxStackCount: 1
+  isAvailable: 0
+  power: 80
+  coolTime: 1
+  bulletPrefab: {fileID: 6512657209323098972, guid: a5a1129b75efa1f47b5ae7a283227a66, type: 3}
+  range: 8
