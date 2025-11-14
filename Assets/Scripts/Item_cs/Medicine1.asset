@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d656abfcabef1d44a8e0a7fc2af245cc, type: 3}
   m_Name: Medicine1
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
-  ID: 
-  ItemName: 
-  Description: 
+  ID: medicine1
+  ItemName: "\uC57D 1"
+  Description: "\uC774\uB984 \uBAA8\uB97C \uC57D"
   Icon: {fileID: 0}
-  MaxStackCount: 1
-  isAvailable: 0
-  healAmount: 0
-  whichStat: 
+  MaxStackCount: 99
+  isAvailable: 1
+  healAmount: 100
+  whichStat: hp
