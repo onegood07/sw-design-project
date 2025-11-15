@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6080489984366828158}
   - component: {fileID: 1927192982837481114}
   m_Layer: 0
-  m_Name: LampItem
+  m_Name: LanternItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

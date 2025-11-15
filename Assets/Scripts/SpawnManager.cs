@@ -2,6 +2,15 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 
+[System.Serializable]
+public struct ItemSpawnInfo
+{
+    public GameObject prefab; // Heal, Weapon, Lantern 프리팹
+    public ItemType type;
+    [Range(0f, 1f)]
+    public float ratio; // 총 스폰 중 비율
+}
+
 public class SpawnManager : MonoBehaviour
 {
     // Tilemap 세팅
@@ -9,11 +18,18 @@ public class SpawnManager : MonoBehaviour
     public Tilemap groundTilemap;
     public Tilemap collisionTilemap;
 
+    // Item
+    [Header("Item Prefabs")]
+    public ItemSpawnInfo[] itemInfos;
+
     // Prefab 세팅
-    [Header("Prefabs")]
-    public GameObject itemPrefab;
+    [Header("Other Prefabs")]
     public GameObject zombiePrefab;
     public GameObject npcPrefab;
+
+    // Manager 세팅
+    [Header("Managers")]
+    public ItemManager itemManager;
 
     // 스폰 가능한 전체 좌표 저장
     private List<Vector3> allSpawnPositions = new List<Vector3>();
@@ -48,7 +64,6 @@ public class SpawnManager : MonoBehaviour
             for (int y = 0; y < bounds.size.y; y++)
             {
                 Vector3Int cellPos = new Vector3Int(x + bounds.x, y + bounds.y, 0);
-
                 TileBase groundTile = allGroundTiles[x + y * bounds.size.x];
                 TileBase collisionTile = collisionTilemap.GetTile(cellPos);
 
@@ -63,11 +78,7 @@ public class SpawnManager : MonoBehaviour
     }
 
     // 게임 오브젝트 소환하는 로직
-    public List<Vector3> SpawnObjects(
-        GameObject prefab,
-        int count,
-        List<Vector3> availablePositions,
-        List<GameObject> outputList)
+    private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> availablePositions, List<GameObject> outputList, ItemType? type = null)
     {
         List<Vector3> usedPositions = new List<Vector3>();
         List<Vector3> copy = new List<Vector3>(availablePositions);
@@ -78,9 +89,11 @@ public class SpawnManager : MonoBehaviour
 
             int index = Random.Range(0, copy.Count);
             Vector3 spawnPos = copy[index];
-
             GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
             outputList.Add(obj);
+
+            if (type.HasValue && itemManager != null)
+                itemManager.RegisterSpawnedItem(obj, type.Value);
 
             usedPositions.Add(spawnPos);
             copy.RemoveAt(index);
@@ -89,27 +102,28 @@ public class SpawnManager : MonoBehaviour
         return usedPositions;
     }
 
-    // 스폰 로직
-    public void StartSpawnProcess(int itemCount, int zombieCount, int npcCount)
+    // 전체 스폰
+    public void StartSpawnProcess(int totalItemCount, int npcCount, int zombieCount)
     {
-        // 전체 스폰 좌표 복사
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
 
-        // 아이템 스폰
-        List<Vector3> usedItemPositions =
-            SpawnObjects(itemPrefab, itemCount, remainingPositions, spawnedItems);
-        remainingPositions.RemoveAll(pos => usedItemPositions.Contains(pos));
+        // 아이템 종류별 비율 스폰
+        foreach (var info in itemInfos)
+        {
+            int count = Mathf.RoundToInt(totalItemCount * info.ratio);
+            List<Vector3> usedPositions = SpawnObjects(info.prefab, count, remainingPositions, spawnedItems, info.type);
+            remainingPositions.RemoveAll(pos => usedPositions.Contains(pos));
+        }
 
-         // NPC 스폰
-        List<Vector3> usedNpcPositions =
-            SpawnObjects(npcPrefab, npcCount, remainingPositions, spawnedNPCs);
+        // NPC 스폰
+        List<Vector3> usedNpcPositions = SpawnObjects(npcPrefab, npcCount, remainingPositions, spawnedNPCs);
         remainingPositions.RemoveAll(pos => usedNpcPositions.Contains(pos));
 
         // 좀비 스폰
-        List<Vector3> usedZombiePositions =
-            SpawnObjects(zombiePrefab, zombieCount, remainingPositions, spawnedZombies);
+        List<Vector3> usedZombiePositions = SpawnObjects(zombiePrefab, zombieCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
     }
+
 
     // 전체 삭제
     public void ClearAll()
@@ -118,6 +132,7 @@ public class SpawnManager : MonoBehaviour
         foreach (var item in spawnedItems)
             if (item != null) Destroy(item);
         spawnedItems.Clear();
+        itemManager?.ClearItems();
 
         // 좀비 삭제
         foreach (var zombie in spawnedZombies)
