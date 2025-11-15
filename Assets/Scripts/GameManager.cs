@@ -1,48 +1,32 @@
 using UnityEngine;
 using System.Collections;
 
-// 게임 엔딩
-public enum GameEnding
-{
-    Happy,
-    GameOver,
-    Bad
-}
-
-// 게임 일차
-public enum GameDays
-{
-    FirstDay,
-    SecondDay,
-    ThirdDay,
-    FourthDay
-}
-
-// 낮과 밤 페이즈
-public enum Phase
-{
-    Day,
-    Night
-}
+public enum GameEnding { Happy, GameOver, Bad }
+public enum GameDays { FirstDay, SecondDay, ThirdDay, FourthDay }
+public enum Phase { Day, Night }
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
     public GameDays CurrentDay { get; private set; }
-    public GameEnding? Ending { get; private set; } = null;
     public Phase CurrentPhase { get; private set; }
+
+    [Header("Scores")]
     public int ShelterItemScore { get; private set; } = 0;
     public int SurvivorScore { get; private set; } = 0;
 
-    // 스폰 관련 세팅
     [Header("Spawn Settings")]
     public SpawnManager spawnManager;
     public int ItemSpawnCount = 5;
     public int NPCSpawnCount = 3;
-    public int ZombieSpawnCount = 10;
+    public int BaseZombieSpawnCount = 10;
+    private int CurrentZombieSpawnCount;
 
-    // 싱글톤 
+    [Header("Phase Duration")]
+    public float dayDuration = 30f;
+    public float nightDuration = 20f;
+
     void Awake()
     {
         if (Instance == null)
@@ -55,80 +39,116 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // 1일차 낮 시작
         CurrentDay = GameDays.FirstDay;
         CurrentPhase = Phase.Day;
 
-        // 처음 스폰
-        spawnManager.StartSpawnProcess(
-            ItemSpawnCount,
-            ZombieSpawnCount,
-            NPCSpawnCount
-        );
+        CurrentZombieSpawnCount = BaseZombieSpawnCount;
 
-        StartCoroutine(GameProgressCoroutine());
+        StartCoroutine(GameLoopCoroutine());
     }
 
-    // 게임 진행 로직
-    IEnumerator GameProgressCoroutine()
+    // 전체 게임 루프: 낮 → 밤 → 다음 날
+    IEnumerator GameLoopCoroutine()
     {
-        while (CurrentDay != GameDays.FourthDay)
+        while (CurrentDay != GameDays.FourthDay + 1)
         {
-            // 낮
+            // 낮 페이즈
             CurrentPhase = Phase.Day;
-            Debug.Log($"[☀️ {CurrentDay}] 낮 시작!");
+            Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
+            StartDayPhase();
+            yield return new WaitForSeconds(dayDuration);
 
-            yield return new WaitForSeconds(30f);
-
-            // 밤
+            // 밤 페이즈
             CurrentPhase = Phase.Night;
-            ZombieSpawnCount += 20;
+            CurrentZombieSpawnCount += 20;
             Debug.Log($"🌙 [{CurrentDay}] 밤 시작!");
+            StartNightPhase();
+            yield return new WaitForSeconds(nightDuration);
 
-            // 기존 객체 모두 삭제
-            spawnManager.ClearAll(); 
-
-            spawnManager.StartSpawnProcess(
-                ItemSpawnCount,
-                ZombieSpawnCount,
-                NPCSpawnCount
-            );
-
-            yield return new WaitForSeconds(5f);
-
-            // 다음 날
+            // 다음 날 진행
             NextDay();
         }
 
-        Debug.Log("모든 날이 끝났습니다!");
+        Debug.Log("모든 날이 종료되었습니다!");
     }
 
-    // 다음 일차 로직
-    public void NextDay()
+    // 낮 시작 시 처리
+    void StartDayPhase()
     {
         spawnManager.ClearAll();
 
+        // 일차별 낮 아이템 비율
         switch (CurrentDay)
         {
-            case GameDays.FirstDay:
-                CurrentDay = GameDays.SecondDay;
-                ZombieSpawnCount += 10;
+            case GameDays.FirstDay: 
+                SetItemRatios(0.7f, 0.2f, 0.1f); 
                 break;
-            case GameDays.SecondDay:
-                CurrentDay = GameDays.ThirdDay;
-                ZombieSpawnCount += 10;
+            case GameDays.SecondDay: 
+                SetItemRatios(0.5f, 0.3f, 0.2f); 
                 break;
-            case GameDays.ThirdDay:
-                CurrentDay = GameDays.FourthDay;
+            case GameDays.ThirdDay: 
+                SetItemRatios(0.3f, 0.4f, 0.3f); 
+                break;
+            case GameDays.FourthDay: 
+                SetItemRatios(0.2f, 0.3f, 0.5f); 
                 break;
         }
-        
-        Debug.Log($"[다음 일차] Day: {CurrentDay}, 좀비 수: {ZombieSpawnCount}");
 
-        spawnManager.StartSpawnProcess(
-            ItemSpawnCount,
-            ZombieSpawnCount,
-            NPCSpawnCount
-        );
+        // 아이템, NPC, 현재 좀비 수
+        spawnManager.StartSpawnProcess(ItemSpawnCount, NPCSpawnCount, CurrentZombieSpawnCount);
+    }
+
+    // 밤 시작 시 처리
+    void StartNightPhase()
+    {
+        spawnManager.ClearAll();
+
+        // 밤에는 좀비 중심, 아이템 소폭 조정 가능
+        switch (CurrentDay)
+        {
+            case GameDays.FirstDay: 
+                SetItemRatios(0.5f, 0.3f, 0.2f); 
+                break;
+            case GameDays.SecondDay: 
+                SetItemRatios(0.4f, 0.3f, 0.3f); 
+                break;
+            case GameDays.ThirdDay: 
+                SetItemRatios(0.3f, 0.3f, 0.4f); 
+                break;
+            case GameDays.FourthDay: 
+                SetItemRatios(0.2f, 0.3f, 0.5f); 
+                break;
+        }
+
+        // 좀비 수 증가, 아이템은 낮보다 적게
+        spawnManager.StartSpawnProcess(Mathf.Max(1, ItemSpawnCount / 2), NPCSpawnCount, CurrentZombieSpawnCount);
+    }
+
+    void SetItemRatios(float heal, float weapon, float lantern)
+    {
+        if (spawnManager.itemInfos.Length >= 3)
+        {
+            spawnManager.itemInfos[0].ratio = heal;
+            spawnManager.itemInfos[1].ratio = weapon;
+            spawnManager.itemInfos[2].ratio = lantern;
+        }
+    }
+
+    void NextDay()
+    {
+        switch (CurrentDay)
+        {
+            case GameDays.FirstDay: 
+                CurrentDay = GameDays.SecondDay; 
+                CurrentZombieSpawnCount += 10; 
+                break;
+            case GameDays.SecondDay: 
+                CurrentDay = GameDays.ThirdDay; 
+                CurrentZombieSpawnCount += 10; break;
+            case GameDays.ThirdDay: CurrentDay = GameDays.FourthDay; break;
+            case GameDays.FourthDay: CurrentDay++; break; // 종료용
+        }
+
+        Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
     }
 }
