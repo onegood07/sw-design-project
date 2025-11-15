@@ -4,104 +4,129 @@ using System.Collections.Generic;
 
 public class SpawnManager : MonoBehaviour
 {
-    [Header("Setting")]
-    // TileMap 및 좀비 Prefab
-    public Tilemap groundTilemap;  
-    public Tilemap collisionTilemap;   
-    public GameObject zombiePrefab;   
+    // Tilemap 세팅
+    [Header("Tilemap")]
+    public Tilemap groundTilemap;
+    public Tilemap collisionTilemap;
 
-    // 소환할 좌표 
-    private List<Vector3> spawnPositions = new List<Vector3>();
-    // 소환한 Prefab
+    // Prefab 세팅
+    [Header("Prefabs")]
+    public GameObject itemPrefab;
+    public GameObject zombiePrefab;
+    public GameObject npcPrefab;
+
+    // 스폰 가능한 전체 좌표 저장
+    private List<Vector3> allSpawnPositions = new List<Vector3>();
+
+    // 스폰된 객체 저장
+    private List<GameObject> spawnedItems = new List<GameObject>();
     private List<GameObject> spawnedZombies = new List<GameObject>();
+    private List<GameObject> spawnedNPCs = new List<GameObject>();
 
     void Awake()
     {
-        // 스폰 계산은 맨 처음에 한번만
+        // 맨 처음에 스폰 가능 좌표 구하기
         GetSpawnPositions();
     }
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-   // Tilemap에서 소환 가능 좌표 수집
+    // 스폰 가능 좌표 구하기
     void GetSpawnPositions()
     {
         BoundsInt bounds = groundTilemap.cellBounds;
         TileBase[] allGroundTiles = groundTilemap.GetTilesBlock(bounds);
-        
-        // collisionTilemap null인지 확인하여 예외처리
+
         if (collisionTilemap == null)
         {
-            Debug.LogError("[SpawnManager] GetSpawnPositions() - Collision Tilemap 할당 X");
+            Debug.LogError("[SpawnManager] Collision Tilemap이 없습니다.");
             return;
         }
 
-        spawnPositions.Clear();
+        allSpawnPositions.Clear();
 
         for (int x = 0; x < bounds.size.x; x++)
         {
             for (int y = 0; y < bounds.size.y; y++)
             {
-                // 현재 셀 위치 계산
                 Vector3Int cellPos = new Vector3Int(x + bounds.x, y + bounds.y, 0);
 
-                // groundTile에 타일이 있는지 확인
                 TileBase groundTile = allGroundTiles[x + y * bounds.size.x];
-
-                // collisionTilemap 확인
                 TileBase collisionTile = collisionTilemap.GetTile(cellPos);
-                
-                // groundTile이 존재하며 collisionTile이 없을 때 (건물이 없는 곳)
+
+                // groundTile이 있고 충돌 타일이 없는 곳만 스폰 가능
                 if (groundTile != null && collisionTile == null)
                 {
-                    // 월드 좌표로 변환
                     Vector3 worldPos = groundTilemap.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f, 0);
-                    spawnPositions.Add(worldPos);
+                    allSpawnPositions.Add(worldPos);
                 }
             }
         }
     }
 
-    // 기존 좀비 삭제
-    public void ClearZombies()
+    // 게임 오브젝트 소환하는 로직
+    public List<Vector3> SpawnObjects(
+        GameObject prefab,
+        int count,
+        List<Vector3> availablePositions,
+        List<GameObject> outputList)
     {
-        foreach (var zombie in spawnedZombies)
+        List<Vector3> usedPositions = new List<Vector3>();
+        List<Vector3> copy = new List<Vector3>(availablePositions);
+
+        for (int i = 0; i < count; i++)
         {
-            if (zombie != null) Destroy(zombie);
+            if (copy.Count == 0) break;
+
+            int index = Random.Range(0, copy.Count);
+            Vector3 spawnPos = copy[index];
+
+            GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
+            outputList.Add(obj);
+
+            usedPositions.Add(spawnPos);
+            copy.RemoveAt(index);
         }
 
-        spawnedZombies.Clear();
+        return usedPositions;
     }
-    
-    // 랜덤 좀비 소환
-    public void SpawnZombies(int spawnCount)
+
+    // 스폰 로직
+    public void StartSpawnProcess(int itemCount, int zombieCount, int npcCount)
     {
-        // 기존 좀비 삭제
-        ClearZombies();
+        // 전체 스폰 좌표 복사
+        List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
 
-        // 좌표 리스트를 새롭게 복제한 리스트
-        List<Vector3> availablePositions = new List<Vector3>(spawnPositions);
+        // 아이템 스폰
+        List<Vector3> usedItemPositions =
+            SpawnObjects(itemPrefab, itemCount, remainingPositions, spawnedItems);
+        remainingPositions.RemoveAll(pos => usedItemPositions.Contains(pos));
 
-        for (int i = 0; i < spawnCount; i++)
-        {
-            if (availablePositions.Count == 0) break;
+         // NPC 스폰
+        List<Vector3> usedNpcPositions =
+            SpawnObjects(npcPrefab, npcCount, remainingPositions, spawnedNPCs);
+        remainingPositions.RemoveAll(pos => usedNpcPositions.Contains(pos));
 
-            // 랜덤으로 위치 선정
-            int index = Random.Range(0, availablePositions.Count);
-            Vector3 spawnPos = availablePositions[index];
-            GameObject zombie = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
+        // 좀비 스폰
+        List<Vector3> usedZombiePositions =
+            SpawnObjects(zombiePrefab, zombieCount, remainingPositions, spawnedZombies);
+        remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
+    }
 
-            spawnedZombies.Add(zombie);
+    // 전체 삭제
+    public void ClearAll()
+    {
+        // 아이템 삭제
+        foreach (var item in spawnedItems)
+            if (item != null) Destroy(item);
+        spawnedItems.Clear();
 
-            availablePositions.RemoveAt(index);
-        }
+        // 좀비 삭제
+        foreach (var zombie in spawnedZombies)
+            if (zombie != null) Destroy(zombie);
+        spawnedZombies.Clear();
+
+        // NPC 삭제
+        foreach (var npc in spawnedNPCs)
+            if (npc != null) Destroy(npc);
+        spawnedNPCs.Clear();
     }
 }
