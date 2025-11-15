@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Scores")]
     public int ShelterItemScore { get; private set; } = 0;
-    public int SurvivorScore { get; private set; } = 0;
+    public int SurvivorScore { get; private set; } = 10;
 
     [Header("Spawn Settings")]
     public SpawnManager spawnManager;
