@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 3254905204633955936}
   - component: {fileID: 5957614340417785904}
   - component: {fileID: 8485666126516347220}
-  m_Layer: 0
+  - component: {fileID: -6231231810380015962}
+  m_Layer: 3
   m_Name: WeaponItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,3 +166,15 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.8125, y: 0.9375}
   m_EdgeRadius: 0
+--- !u!114 &-6231231810380015962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4665207699815735179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ed8c22921038d429b0f1d1b2a07172, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemInteraction

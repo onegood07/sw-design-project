@@ -27,7 +27,7 @@ public class bulletMove : MonoBehaviour
         if (other.gameObject.CompareTag("Zombie"))
         {
             other.gameObject.GetComponent<ZombieStat>().takeDamage(bulletDamage);
+            Destroy(gameObject);
         }
-        Destroy(gameObject);
     }
 }

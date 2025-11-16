@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1108430218484519842}
   - component: {fileID: 6080489984366828158}
   - component: {fileID: 1927192982837481114}
+  - component: {fileID: -4798992186021525037}
   m_Layer: 0
   m_Name: LanternItem
   m_TagString: Untagged
@@ -165,3 +166,15 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.375, y: 0.5}
   m_EdgeRadius: 0
+--- !u!114 &-4798992186021525037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4174347128712009735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ed8c22921038d429b0f1d1b2a07172, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemInteraction

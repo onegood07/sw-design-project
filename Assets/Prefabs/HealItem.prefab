@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 9034580696089886066}
   - component: {fileID: 2749950807691128153}
   - component: {fileID: 7284100909572210834}
-  m_Layer: 0
+  - component: {fileID: 8809446951044389506}
+  m_Layer: 3
   m_Name: HealItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,3 +166,15 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8809446951044389506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3972602249714406821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ed8c22921038d429b0f1d1b2a07172, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemInteraction
