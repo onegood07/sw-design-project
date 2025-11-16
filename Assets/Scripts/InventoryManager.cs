@@ -1,16 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Numerics;
+using UnityEngine.Events;
+using Unity.VisualScripting;
 public class InventoryManager : MonoBehaviour
 {
-
+    public static event System.Action OnQuickSlotChanged;
     public static InventoryManager Instance { get; private set; }
-    // 전체 인벤토리 
     private Dictionary<string, int> Inventory = new Dictionary<string, int>();
     [SerializeField]
     private ItemData[] QuickSlot = new ItemData[4];
-    // itemUse를 위해 플레이어 정보, viewDirection 을 사용해야 하므로 인벤토리 매니저에서 관리함
-    // viewDirection은 최신 값 반영을 위해 다이렉트로 인수로 넣음
     public Transform HeroTransform;
     public HeroMoveControl HeroMoveControl;
 
@@ -30,6 +28,10 @@ public class InventoryManager : MonoBehaviour
     public void setQuickSlot(ItemData item, int index)
     {
         QuickSlot[index] = item;
+    }
+    public ItemData[] getQuickSlot()
+    {
+        return (ItemData[])QuickSlot.Clone();
     }
     public void addItem(string itemName, int itemCnt)
     {
@@ -69,5 +71,13 @@ public class InventoryManager : MonoBehaviour
         if (Item is IUsable UsableItem) UsableItem.Use(HeroTransform, HeroMoveControl.CurrentViewDirection);
         else Debug.Log("사용할 수 없는 아이템");
 
+    }
+    public void changeQuickSlot(int index, ItemData inputItem)
+    {
+        QuickSlot[index] = inputItem;
+        if(OnQuickSlotChanged != null)
+        {
+            OnQuickSlotChanged.Invoke();
+        }
     }
 }

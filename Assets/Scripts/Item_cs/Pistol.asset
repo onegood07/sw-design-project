@@ -15,9 +15,9 @@ MonoBehaviour:
   ID: pistol
   ItemName: "\uAD8C\uCD1D"
   Description: "\uAD8C\uCD1D"
-  Icon: {fileID: 0}
+  Icon: {fileID: 4319395737909131107, guid: 6890018106e5f7447b4235e6666564e1, type: 3}
   MaxStackCount: 1
-  isAvailable: 0
+  isAvailable: 1
   power: 80
   coolTime: 1
   bulletPrefab: {fileID: 6512657209323098972, guid: a5a1129b75efa1f47b5ae7a283227a66, type: 3}
