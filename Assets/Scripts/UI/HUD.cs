@@ -24,6 +24,9 @@ public class HUD : MonoBehaviour
                 mySlider.value = curHP / maxHp;
                 break;
             case InfoType.Hunger:
+                float curHunger = HeroStat.Instance.hunger;
+                float maxHunger = HeroStat.Instance.maxHunger;
+                mySlider.value = curHunger / maxHunger;
                 break;
             case InfoType.Time:
                 break;
