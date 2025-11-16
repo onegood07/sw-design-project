@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour
     public float nightDuration = 20.0f;
     
     [Header("Scene Settings")]
-    public string MainWorldSceneName = "Main"; 
+    public string MainWorldSceneName = "Main";
+    public string ShelterSceneName = "InsideShelter"; 
+
 
     private Coroutine gameLoopCoroutine; 
 
@@ -53,13 +55,30 @@ public class GameManager : MonoBehaviour
 
         CurrentZombieSpawnCount = BaseZombieSpawnCount;
 
-        if (LightController.Instance != null)
-        {
-            LightController.Instance.UpdateGlobalLight(CurrentPhase);
-        }
+        ApplyGlobalLight();
 
         gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
     }
+
+    void ApplyGlobalLight()
+{
+    string currentScene = SceneManager.GetActiveScene().name;
+
+    if (currentScene == ShelterSceneName)
+    {
+        Debug.Log($"[GameManager] {currentScene} 씬은 쉘터이므로 조명을 변경하지 않습니다.");
+        return;
+    }
+
+    if (currentScene == MainWorldSceneName)
+    {
+        LightController.Instance?.UpdateGlobalLight(CurrentPhase);
+    }
+    else
+    {
+        Debug.Log($"[GameManager] {currentScene} 씬은 월드가 아니므로 조명을 변경하지 않습니다.");
+    }
+}
 
     // 전체 게임 루프
     IEnumerator GameLoopCoroutine()
@@ -70,7 +89,7 @@ public class GameManager : MonoBehaviour
             CurrentPhase = Phase.Day;
             Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
 
-            LightController.Instance?.UpdateGlobalLight(CurrentPhase);
+            ApplyGlobalLight();
 
             StartDayPhase(); 
             yield return new WaitForSeconds(dayDuration);
@@ -80,7 +99,7 @@ public class GameManager : MonoBehaviour
             CurrentZombieSpawnCount += 20;
             Debug.Log($"🌙 [{CurrentDay}] 밤 시작!");
 
-            LightController.Instance?.UpdateGlobalLight(CurrentPhase);
+            ApplyGlobalLight();
     
             StartNightPhase(); 
             yield return new WaitForSeconds(nightDuration);
@@ -105,7 +124,8 @@ public class GameManager : MonoBehaviour
             
             // 조명을 낮으로 바로 전환하고 새로운 루프 시작
             CurrentPhase = Phase.Day;
-            LightController.Instance?.UpdateGlobalLight(CurrentPhase);
+            
+            ApplyGlobalLight();
             
             Debug.Log("💤 밤 스킵 완료! 다음 날 낮 시작!");
             gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
@@ -155,11 +175,6 @@ public class GameManager : MonoBehaviour
 
             // 좀비 수 증가, 아이템은 낮보다 적게 스폰 시작
             spawnManager.StartSpawnProcess(Mathf.Max(1, ItemSpawnCount / 2), NPCSpawnCount, CurrentZombieSpawnCount);
-        }
-        else
-        {
-            // 쉘터 내부에서는 좀비가 스폰되지 않고 조명만 조정
-            Debug.Log($"[GameManager] 현재 씬 ({SceneManager.GetActiveScene().name})은 월드 씬이 아니므로 밤 스폰을 건너뛰고 쉘터 내부 조명만 조정합니다.");
         }
     }
 

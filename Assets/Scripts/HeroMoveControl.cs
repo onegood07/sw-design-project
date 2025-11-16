@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
+using UnityEngine.SceneManagement; 
 
 public class HeroMoveControl : MonoBehaviour
 {
+    // 💡 싱글톤 인스턴스 추가
+    public static HeroMoveControl Instance { get; private set; }
+
     private Vector2 currentViewDirection = new Vector2(0f, -1f);
     public Vector2 CurrentViewDirection => currentViewDirection;
 
@@ -43,6 +47,20 @@ public class HeroMoveControl : MonoBehaviour
 
     void Awake()
     {
+        // 💡 싱글톤 구현 및 DontDestroyOnLoad 적용
+        if (Instance == null)
+        {
+            Instance = this;
+            // 씬이 전환되어도 오브젝트를 파괴하지 않음
+            DontDestroyOnLoad(gameObject); 
+        }
+        else
+        {
+            // 이미 인스턴스가 존재하면 새로 생성된 오브젝트는 파괴
+            Destroy(gameObject);
+            return;
+        }
+
         animator = GetComponent<Animator>();
 
         if (collisionTilemap == null)
@@ -71,8 +89,15 @@ public class HeroMoveControl : MonoBehaviour
         UpdateAnimation(false);   // 아래 idle(D)로 시작
     }
 
+    void OnEnable()
+    {
+        // 💡 씬 로드 리스너 추가
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
     void OnDisable()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         if (moveAction != null) moveAction.Disable();
         ReleaseReservation();
     }
@@ -80,6 +105,40 @@ public class HeroMoveControl : MonoBehaviour
     void OnDestroy()
     {
         ReleaseReservation();
+    }
+
+    // 💡 씬 로드 시 호출되어 타일맵을 다시 연결하고 위치를 보정하는 함수
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"[Hero] 씬 로드 완료: {scene.name}");
+        
+        // 새로운 씬에서 "collision" 타일맵 오브젝트를 찾습니다.
+        var colGo = GameObject.Find("collision");
+        if (colGo != null)
+        {
+            collisionTilemap = colGo.GetComponent<Tilemap>();
+            Debug.Log($"[Hero] 새로운 collision Tilemap 연결됨.");
+        }
+        else
+        {
+            // 💡 collision이 없는 씬임을 명확히 알림. (이동은 허용됨)
+            collisionTilemap = null;
+            Debug.LogWarning($"[Hero] 씬 '{scene.name}'에서 'collision' Tilemap을 찾을 수 없습니다. (충돌/점유 체크 비활성화)");
+        }
+
+        if (rb != null)
+        {
+            // 캐릭터의 현재 위치를 새 타일맵 그리드 중앙으로 스냅
+            Vector2 snap = GetCellCenter(rb.position);
+            rb.MovePosition(snap);
+            targetPosition = snap;
+            
+            // collisionTilemap이 null이면 내부에서 null 체크를 통해 예약 로직이 건너뛰어짐
+            EnsureCurrentCellReserved(); 
+        }
+        
+        UpdateAnimation(false);
+        isMoving = false;
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -99,6 +158,7 @@ public class HeroMoveControl : MonoBehaviour
             Vector3 c = collisionTilemap.GetCellCenterWorld(cell);
             return new Vector2(c.x, c.y);
         }
+        // Tilemap이 없어도 그리드 단위 이동을 위해 0.5f 그리드 중앙으로 스냅 로직 유지
         return new Vector2(Mathf.Floor(worldPos.x) + 0.5f, Mathf.Floor(worldPos.y) + 0.5f);
     }
 
@@ -122,20 +182,23 @@ public class HeroMoveControl : MonoBehaviour
 
     bool IsBlockedCell(Vector2 worldPos)
     {
+        // 💡 Tilemap이 없으면 충돌하지 않는 것으로 간주 (이동 허용)
         if (collisionTilemap == null) return false;
+        
         Vector3Int cell = collisionTilemap.WorldToCell(worldPos);
         return collisionTilemap.HasTile(cell);
     }
 
     bool CanStepTileOnly(Vector2 dirUnit)
     {
+        // IsBlockedCell이 null 체크를 포함하므로 이 함수는 항상 안전함
         Vector2 nextCenter = GetCellCenter(rb.position + dirUnit);
         return !IsBlockedCell(nextCenter);
     }
 
     void EnsureCurrentCellReserved()
     {
-        if (collisionTilemap == null) return;
+        if (collisionTilemap == null) return; 
 
         Vector2Int cell = WorldToCell(rb.position);
 
@@ -196,6 +259,9 @@ public class HeroMoveControl : MonoBehaviour
     // ====== 메인 이동 루프 ======
     void FixedUpdate()
     {
+        // 💡 Tilemap이 없더라도 Grid 기반 이동 자체는 계속 실행됨
+        bool attemptReservation = collisionTilemap != null;
+
         moveSpeed = 1f / stepTime;
         moveSpeed = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
 
@@ -207,25 +273,50 @@ public class HeroMoveControl : MonoBehaviour
 
             if (Vector2.Distance(rb.position, targetPosition) < 0.001f)
             {
+                // 목표 위치 도달 후 스냅
+                rb.MovePosition(targetPosition); 
+
                 // 연속 입력
                 if (moveInput.sqrMagnitude > 0.1f)
                 {
                     Vector2 dir = moveInput.normalized;
                     dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y));
 
+                    // Tilemap이 없으면 CanStepTileOnly는 항상 true (IsBlockedCell에서 처리)
                     if (dir.sqrMagnitude > 0.1f && CanStepTileOnly(dir))
                     {
                         Vector2 curCenter = CellCenterWorld(currentReservedCell);
                         Vector2Int nextCell = WorldToCell(curCenter + dir);
 
-                        if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
+                        bool reservedSuccessfully = !attemptReservation; // Tilemap이 없으면 예약 없이 성공
+
+                        if (attemptReservation) // Tilemap이 있을 때만 Grid Occupancy 실행
                         {
+                            if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
+                            {
+                                if (hasCurrentReservation)
+                                    GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
+
+                                currentReservedCell = nextCell;
+                                hasCurrentReservation = true;
+                                reservedSuccessfully = true;
+                            }
+                            else
+                            {
+                                reservedSuccessfully = false;
+                            }
+                        }
+                        else
+                        {
+                            // Tilemap이 없을 때, 혹시 모를 이전 씬의 예약을 해제
                             if (hasCurrentReservation)
-                                GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
+                                ReleaseReservation();
+                        }
 
-                            currentReservedCell = nextCell;
-                            hasCurrentReservation = true;
 
+                        if (reservedSuccessfully)
+                        {
+                            // 이동 시작
                             targetPosition = CellCenterWorld(nextCell);
                             currentViewDirection = dir.normalized;
 
@@ -235,8 +326,7 @@ public class HeroMoveControl : MonoBehaviour
                         }
                         else
                         {
-                            // 다음 셀 점유 실패 → 방향만 바꾸고 멈춤
-                            rb.MovePosition(targetPosition);
+                            // Grid Mode에서 점유 실패 → 방향만 바꾸고 멈춤
                             if (dir.sqrMagnitude > 0.1f)
                             {
                                 lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
@@ -248,8 +338,7 @@ public class HeroMoveControl : MonoBehaviour
                     }
                     else
                     {
-                        // 벽 등으로 더 못감 → 방향만 돌고 멈춤
-                        rb.MovePosition(targetPosition);
+                        // 벽 등으로 더 못감 (Grid Mode에서만 발생) → 방향만 돌고 멈춤
                         if (dir.sqrMagnitude > 0.1f)
                         {
                             lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
@@ -262,7 +351,6 @@ public class HeroMoveControl : MonoBehaviour
                 else
                 {
                     // 입력 없음 → 마지막 방향으로 서 있기
-                    rb.MovePosition(targetPosition);
                     isMoving = false;
                     UpdateAnimation(false);
                 }
@@ -277,19 +365,40 @@ public class HeroMoveControl : MonoBehaviour
             Vector2 dir = moveInput.normalized;
             dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y));
 
+            // Tilemap이 없으면 CanStepTileOnly는 항상 true (IsBlockedCell에서 처리)
             if (dir.sqrMagnitude > 0.1f && CanStepTileOnly(dir))
             {
                 Vector2 curCenter = GetCellCenter(rb.position);
                 Vector2Int nextCell = WorldToCell(curCenter + dir);
 
-                if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
+                bool reservedSuccessfully = !attemptReservation; // Tilemap이 없으면 예약 없이 성공
+
+                if (attemptReservation) // Tilemap이 있을 때만 Grid Occupancy 실행
                 {
+                    if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
+                    {
+                        if (hasCurrentReservation)
+                            GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
+
+                        currentReservedCell = nextCell;
+                        hasCurrentReservation = true;
+                        reservedSuccessfully = true;
+                    }
+                    else
+                    {
+                        reservedSuccessfully = false;
+                    }
+                }
+                else
+                {
+                    // Tilemap이 없을 때, 혹시 모를 이전 씬의 예약을 해제
                     if (hasCurrentReservation)
-                        GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
+                        ReleaseReservation();
+                }
 
-                    currentReservedCell = nextCell;
-                    hasCurrentReservation = true;
-
+                if (reservedSuccessfully)
+                {
+                    // 이동 시작
                     rb.MovePosition(curCenter);
                     targetPosition = CellCenterWorld(nextCell);
 
@@ -301,7 +410,7 @@ public class HeroMoveControl : MonoBehaviour
                 }
                 else
                 {
-                    // 점유 때문에 못 움직임 → 방향만 돌리기
+                    // Grid Mode에서 점유 실패 → 방향만 돌리기
                     Vector2 center = GetCellCenter(rb.position);
                     rb.MovePosition(center);
                     targetPosition = center;
@@ -318,7 +427,7 @@ public class HeroMoveControl : MonoBehaviour
             }
             else
             {
-                // 벽 때문에 못 움직임 → 방향만 돌리기
+                // 벽 때문에 못 움직임 (Grid Mode에서만 발생) → 방향만 돌리기
                 Vector2 curCenter = GetCellCenter(rb.position);
                 rb.MovePosition(curCenter);
                 targetPosition = curCenter;
