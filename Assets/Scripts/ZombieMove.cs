@@ -50,24 +50,17 @@ public class ZombieMove : MonoBehaviour
         bool down  = false;
         bool right = false;
 
-        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-        {
-            if (dir.x < 0)
-            {
-                left = true;
-                GetComponent<SpriteRenderer>().flipX = false;   // 왼쪽
-            }
-            else if (dir.x > 0)
-            {
-                right = true;
-                GetComponent<SpriteRenderer>().flipX = true;    // 오른쪽
-            }
-        }
-        else if (dir.y != 0)
-        {
-            if (dir.y > 0)  up   = true;
-            else            down = true;
-        }
+        // X축 이동 판단
+        if (dir.x < 0)
+            left = true;
+        else if (dir.x > 0)
+            right = true;
+
+        // Y축 이동 판단
+        if (dir.y > 0)
+            up = true;
+        else if (dir.y < 0)
+            down = true;
 
         animator.SetBool("RIGHT", right);
         animator.SetBool("LEFT",  left);
