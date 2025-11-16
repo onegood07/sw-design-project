@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 3b27b448c2e24ac49b21a3fd7c876968
+guid: 58d9d3f0c33919042ba7990b0818e709
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6608079382404434276
-    second: EquipLabel_num.png_0
-  - first:
-      213: -8712252086507971788
-    second: EquipLabel_num.png_1
-  - first:
-      213: -433841985567431454
-    second: EquipLabel_num.png_2
-  - first:
-      213: -4277627889926055385
-    second: EquipLabel_num.png_3
+      213: 995033996954910307
+    second: LeaderNPC_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -60,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -148,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EquipLabel_num.png_0
+      name: LeaderNPC_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 8
-        width: 15
-        height: 16
+        x: 23
+        y: 11
+        width: 16
+        height: 43
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -163,74 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c96733410d26b44a0800000000000000
-      internalID: -6608079382404434276
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: EquipLabel_num.png_1
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 8
-        width: 15
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 43b590603ecd71780800000000000000
-      internalID: -8712252086507971788
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: EquipLabel_num.png_2
-      rect:
-        serializedVersion: 2
-        x: 73
-        y: 8
-        width: 15
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2e46a91430faaf9f0800000000000000
-      internalID: -433841985567431454
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: EquipLabel_num.png_3
-      rect:
-        serializedVersion: 2
-        x: 105
-        y: 8
-        width: 15
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 72a57a31910d2a4c0800000000000000
-      internalID: -4277627889926055385
+      spriteID: 36e3fe7f5221fcd00800000000000000
+      internalID: 995033996954910307
       vertices: []
       indices: 
       edges: []
@@ -239,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 65daf9d546642fb438e61b5546b2ade0
+    spriteID: 91e125a7cdd2cd04db34be2bcf3600dc
     internalID: 0
     vertices: []
     indices: 
@@ -249,10 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      EquipLabel_num.png_0: -6608079382404434276
-      EquipLabel_num.png_1: -8712252086507971788
-      EquipLabel_num.png_2: -433841985567431454
-      EquipLabel_num.png_3: -4277627889926055385
+      LeaderNPC_0: 995033996954910307
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

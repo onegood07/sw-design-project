@@ -1,19 +1,25 @@
 fileFormatVersion: 2
-guid: 3b27b448c2e24ac49b21a3fd7c876968
+guid: 1755e078504fe0044a69af5a16dc3895
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6608079382404434276
-    second: EquipLabel_num.png_0
+      213: -7674789731738132572
+    second: Sleeping_bag_0
   - first:
-      213: -8712252086507971788
-    second: EquipLabel_num.png_1
+      213: -7393658817473576529
+    second: Sleeping_bag_1
   - first:
-      213: -433841985567431454
-    second: EquipLabel_num.png_2
+      213: -3080596846257926836
+    second: Sleeping_bag_2
   - first:
-      213: -4277627889926055385
-    second: EquipLabel_num.png_3
+      213: -6991132104103352151
+    second: Sleeping_bag_3
+  - first:
+      213: -2998802715200438305
+    second: Sleeping_bag_4
+  - first:
+      213: 3455719103502711180
+    second: Sleeping_bag_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -60,7 +66,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -148,13 +154,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EquipLabel_num.png_0
+      name: Sleeping_bag_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 8
-        width: 15
-        height: 16
+        x: 2
+        y: 1
+        width: 28
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -163,20 +169,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c96733410d26b44a0800000000000000
-      internalID: -6608079382404434276
+      spriteID: 4afdee9d66bad7590800000000000000
+      internalID: -7674789731738132572
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EquipLabel_num.png_1
+      name: Sleeping_bag_1
       rect:
         serializedVersion: 2
-        x: 41
-        y: 8
-        width: 15
-        height: 16
+        x: 34
+        y: 1
+        width: 28
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -185,20 +191,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 43b590603ecd71780800000000000000
-      internalID: -8712252086507971788
+      spriteID: fa18d029a72746990800000000000000
+      internalID: -7393658817473576529
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EquipLabel_num.png_2
+      name: Sleeping_bag_2
       rect:
         serializedVersion: 2
-        x: 73
-        y: 8
-        width: 15
-        height: 16
+        x: 66
+        y: 33
+        width: 28
+        height: 13
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -207,20 +213,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2e46a91430faaf9f0800000000000000
-      internalID: -433841985567431454
+      spriteID: c4d8b927d758f35d0800000000000000
+      internalID: -3080596846257926836
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EquipLabel_num.png_3
+      name: Sleeping_bag_3
       rect:
         serializedVersion: 2
-        x: 105
-        y: 8
-        width: 15
-        height: 16
+        x: 97
+        y: 33
+        width: 14
+        height: 25
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -229,8 +235,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 72a57a31910d2a4c0800000000000000
-      internalID: -4277627889926055385
+      spriteID: 9a8271554628afe90800000000000000
+      internalID: -6991132104103352151
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sleeping_bag_4
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 33
+        width: 14
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdf3001a1dc1266d0800000000000000
+      internalID: -2998802715200438305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sleeping_bag_5
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 2
+        width: 60
+        height: 28
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c897fc7273e25ff20800000000000000
+      internalID: 3455719103502711180
       vertices: []
       indices: 
       edges: []
@@ -239,7 +289,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 65daf9d546642fb438e61b5546b2ade0
+    spriteID: 40c58685b49e46245b60d9392519ae95
     internalID: 0
     vertices: []
     indices: 
@@ -249,10 +299,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      EquipLabel_num.png_0: -6608079382404434276
-      EquipLabel_num.png_1: -8712252086507971788
-      EquipLabel_num.png_2: -433841985567431454
-      EquipLabel_num.png_3: -4277627889926055385
+      Sleeping_bag_0: -7674789731738132572
+      Sleeping_bag_1: -7393658817473576529
+      Sleeping_bag_2: -3080596846257926836
+      Sleeping_bag_3: -6991132104103352151
+      Sleeping_bag_4: -2998802715200438305
+      Sleeping_bag_5: 3455719103502711180
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
