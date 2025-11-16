@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1748653102499982354}
   - component: {fileID: 7311329755542496525}
   - component: {fileID: 1282663266681317822}
+  - component: {fileID: 8502266315819089574}
   m_Layer: 3
   m_Name: MedicineItem
   m_TagString: Untagged
@@ -178,3 +179,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8ed8c22921038d429b0f1d1b2a07172, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemInteraction
+--- !u!114 &8502266315819089574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3486718950983754090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fdfa22a50422f14f9d2103397f2d230, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemOccupancy
+  tilemap: {fileID: 0}
