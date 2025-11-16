@@ -5,10 +5,10 @@ using System.Collections.Generic;
 [System.Serializable]
 public struct ItemSpawnInfo
 {
-    public GameObject prefab; // Heal, Weapon, Lantern 프리팹
+    public GameObject prefab;
     public ItemType type;
     [Range(0f, 1f)]
-    public float ratio; // 총 스폰 중 비율
+    public float ratio;
 }
 
 public class SpawnManager : MonoBehaviour
@@ -48,14 +48,14 @@ public class SpawnManager : MonoBehaviour
     // 스폰 가능 좌표 구하기
     void GetSpawnPositions()
     {
-        BoundsInt bounds = groundTilemap.cellBounds;
-        TileBase[] allGroundTiles = groundTilemap.GetTilesBlock(bounds);
-
-        if (collisionTilemap == null)
+        if (groundTilemap == null || collisionTilemap == null)
         {
-            Debug.LogError("[SpawnManager] Collision Tilemap이 없습니다.");
+            Debug.LogError("[SpawnManager] Ground 또는 Collision Tilemap이 Inspector에 할당되지 않았습니다. 스폰 위치 초기화 실패.");
             return;
         }
+
+        BoundsInt bounds = groundTilemap.cellBounds;
+        TileBase[] allGroundTiles = groundTilemap.GetTilesBlock(bounds);
 
         allSpawnPositions.Clear();
 
@@ -92,6 +92,19 @@ public class SpawnManager : MonoBehaviour
             GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
             outputList.Add(obj);
 
+            // if (prefab == zombiePrefab) 
+            // {
+            //     ZombieMove zombieMove = obj.GetComponent<ZombieMove>();
+            //     if (zombieMove != null)
+            //     {
+            //         zombieMove.collisionTilemap = this.collisionTilemap; 
+            //     }
+            //     else
+            //     {
+            //         Debug.LogError("Zombie 프리팹에 ZombieMove 스크립트가 없습니다. 참조 주입 실패.");
+            //     }
+            // }
+
             if (type.HasValue && itemManager != null)
                 itemManager.RegisterSpawnedItem(obj, type.Value);
 
@@ -105,6 +118,12 @@ public class SpawnManager : MonoBehaviour
     // 전체 스폰
     public void StartSpawnProcess(int totalItemCount, int npcCount, int zombieCount)
     {
+        if (allSpawnPositions.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없어 스폰을 건너뜁니다. Tilemap 설정을 확인하세요.");
+            return;
+        }
+
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
 
         // 아이템 종류별 비율 스폰

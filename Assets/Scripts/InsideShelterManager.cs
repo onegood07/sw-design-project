@@ -5,83 +5,101 @@ using System.Collections.Generic;
 
 public class InsideShelterManager : MonoBehaviour
 {
+    [Header("Hero Spawn Settings")]
+    public Vector3 heroDefaultSpawn = new Vector3(0f, -3.0f, 0f); 
     [Header("NPC Prefab")]
     public GameObject survivorPrefab;
 
-    [Header("Tilemaps")]
-    public Tilemap groundTilemap;      
+    // [Header("Tilemaps")]
+    // public Tilemap groundTilemap;
+    // // public Tilemap collisionTilemap;
 
-    // [Header("Hero Spawn Settings")]
-    // public Vector3 heroDefaultSpawn = new Vector3(0.5f, 0.5f, 0f); // Hero 초기 위치
-
-//     IEnumerator Start()
-//     {
-//         if (GameManager.Instance == null)
-//         {
-//             Debug.LogError("씬에 GameManager가 존재하지 않습니다!");
-//         }
-//         else
-//         {
-//             Debug.Log("GameManager 발견! SurvivorScore: " + GameManager.Instance.SurvivorScore);
-//         }
-
-//         while (GameManager.Instance == null)
-//             yield return null;
-
-//         // 타일맵 자동 세팅
-//         if (collisionTilemap == null)
-//             collisionTilemap = GameObject.Find("collision")?.GetComponent<Tilemap>();
-
+    // IEnumerator Start()
+    // {
+    //     if (GameManager.Instance == null)
+    //     {
+    //         Debug.LogError("씬에 GameManager가 존재하지 않습니다!");
+    //     }
         
+    //     while (GameManager.Instance == null)
+    //         yield return null;
 
-//         SpawnSurvivors();
-//     }
+    //     Debug.Log("GameManager 발견! SurvivorScore: " + GameManager.Instance.SurvivorScore);
+
+    //     AdjustHeroPosition();
+        
+    //     // if (collisionTilemap == null)
+    //     // {
+    //     //     GameObject collisionObj = GameObject.Find("collision");
+    //     //     if (collisionObj != null)
+    //     //         collisionTilemap = collisionObj.GetComponent<Tilemap>();
+    //     // }
+
+    //     // SpawnSurvivors();
+    // }
     
-//     void SpawnSurvivors()
-//     {
-//         List<Vector3> spawnPositions = GetSpawnPositions();
+    // // Hero 위치 조정 함수
+    // void AdjustHeroPosition()
+    // {
+    //     HeroMoveControl heroController = HeroMoveControl.Instance;
 
-//         int survivorCount = GameManager.Instance.SurvivorScore;
-//         int spawnCount = Mathf.Min(survivorCount, spawnPositions.Count);
+    //     if (heroController != null)
+    //     {
+    //         heroController.transform.position = heroDefaultSpawn;
+    //         Debug.Log($"Hero의 위치를 쉘터 시작 지점 ({heroDefaultSpawn})로 설정했습니다.");
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError("HeroMoveControl 인스턴스를 찾을 수 없습니다!");
+    //     }
+    // }
+    
+    // // 기존 Survivor 스폰 로직 (주석 해제)
+    // void SpawnSurvivors()
+    // {
+    //     List<Vector3> spawnPositions = GetSpawnPositions();
 
-//         for (int i = 0; i < spawnCount; i++)
-//         {
-//             int index = Random.Range(0, spawnPositions.Count);
-//             Vector3 spawnPos = spawnPositions[index];
-//             Instantiate(survivorPrefab, spawnPos, Quaternion.identity);
-//             spawnPositions.RemoveAt(index);
-//         }
-//     }
+    //     int survivorCount = GameManager.Instance.SurvivorScore;
+    //     int spawnCount = Mathf.Min(survivorCount, spawnPositions.Count);
 
-//     List<Vector3> GetSpawnPositions()
-//     {
-//         List<Vector3> positions = new List<Vector3>();
+    //     for (int i = 0; i < spawnCount; i++)
+    //     {
+    //         int index = Random.Range(0, spawnPositions.Count);
+    //         Vector3 spawnPos = spawnPositions[index];
+    //         Instantiate(survivorPrefab, spawnPos, Quaternion.identity);
+    //         spawnPositions.RemoveAt(index);
+    //     }
+    // }
 
-//         if (groundTilemap == null || collisionTilemap == null)
-//         {
-//             Debug.LogError("Tilemap이 할당되지 않았습니다!");
-//             return positions;
-//         }
+    // List<Vector3> GetSpawnPositions()
+    // {
+    //     List<Vector3> positions = new List<Vector3>();
 
-//         BoundsInt bounds = groundTilemap.cellBounds;
-//         TileBase[] allGroundTiles = groundTilemap.GetTilesBlock(bounds);
+    //     if (groundTilemap == null || collisionTilemap == null)
+    //     {
+    //         Debug.LogError("Tilemap이 할당되지 않았습니다!");
+    //         return positions;
+    //     }
 
-//         for (int x = 0; x < bounds.size.x; x++)
-//         {
-//             for (int y = 0; y < bounds.size.y; y++)
-//             {
-//                 Vector3Int cellPos = new Vector3Int(x + bounds.x, y + bounds.y, 0);
-//                 TileBase groundTile = allGroundTiles[x + y * bounds.size.x];
-//                 TileBase collisionTile = collisionTilemap.GetTile(cellPos);
+    //     BoundsInt bounds = groundTilemap.cellBounds;
+    //     TileBase[] allGroundTiles = groundTilemap.GetTilesBlock(bounds);
 
-//                 if (groundTile != null && collisionTile == null)
-//                 {
-//                     Vector3 worldPos = groundTilemap.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f, 0);
-//                     positions.Add(worldPos);
-//                 }
-//             }
-//         }
+    //     for (int x = 0; x < bounds.size.x; x++)
+    //     {
+    //         for (int y = 0; y < bounds.size.y; y++)
+    //         {
+    //             Vector3Int cellPos = new Vector3Int(x + bounds.x, y + bounds.y, 0);
+    //             TileBase groundTile = allGroundTiles[x + y * bounds.size.x];
+    //             TileBase collisionTile = collisionTilemap.GetTile(cellPos);
 
-//         return positions;
-//     }
+    //             if (groundTile != null && collisionTile == null)
+    //             {
+    //                 Vector3 worldPos = groundTilemap.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f, 0);
+    //                 positions.Add(worldPos);
+    //             }
+    //         }
+    //     }
+
+    //     return positions;
+    // }
 }
