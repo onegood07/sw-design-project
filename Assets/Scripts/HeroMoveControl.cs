@@ -4,74 +4,93 @@ using UnityEngine.Tilemaps;
 
 public class HeroMoveControl : MonoBehaviour
 {
-    private Vector2 currentViewDirection = new Vector2(0f, -1f); // 시야 방향. 외부 참조 변수
+    private Vector2 currentViewDirection = new Vector2(0f, -1f);
     public Vector2 CurrentViewDirection => currentViewDirection;
 
-    public float moveSpeed = 5f; // 초기 이동 속도
-    private Rigidbody2D rb;       // 2D 물리 엔진 컴포넌트 참조
-    private Vector2 targetPosition; // 이동 목표(그리드 센터)
+    [SerializeField] private float stepTime = 0.4f;
+    public float moveSpeed = 2.5f;
+    private const float minMoveSpeed = 0.5f;
+    private const float maxMoveSpeed = 3f;
 
-    // Input Actions Asset을 public으로 참조
+    private Rigidbody2D rb;
+    private Vector2 targetPosition;
+
     public InputActionAsset inputActions;
     private InputAction moveAction;
     private Vector2 moveInput;
 
-    private bool isMoving = false; // 그리드 단위 이동 중 여부
+    private bool isMoving = false;
 
-    [SerializeField] private Vector2 initHeroPosition = new Vector2(0.5f, 0.5f); // Hero 초기화 좌표
+    [SerializeField] private Vector2 initHeroPosition = new Vector2(0.5f, 0.5f);
     [SerializeField] private Tilemap collisionTilemap;
 
-    // 점유 관리용 변수
-    private Vector2Int currentReservedCell;     // 내가 현재 점유 중인 셀
-    private bool hasCurrentReservation = false; // 현재 셀을 점유했는가
-    private Vector2Int? nextReservedCell = null; // 다음 셀을 선점했으면 저장
+    private Vector2Int currentReservedCell;
+    private bool hasCurrentReservation = false;
+
+    private Animator animator;
+    private Vector2Int lastMoveDir = Vector2Int.down;
+
+    // Animator 상태 이름 (Animator의 State 이름과 정확히 일치해야 함)
+    private readonly int stIdleUp    = Animator.StringToHash("U");
+    private readonly int stIdleDown  = Animator.StringToHash("D");
+    private readonly int stIdleLeft  = Animator.StringToHash("L");
+    private readonly int stIdleRight = Animator.StringToHash("R");
+
+    private readonly int stWalkUp    = Animator.StringToHash("hero_Up");
+    private readonly int stWalkDown  = Animator.StringToHash("hero_Down");
+    private readonly int stWalkLeft  = Animator.StringToHash("hero_Left");
+    private readonly int stWalkRight = Animator.StringToHash("hero_Right");
 
     void Awake()
     {
-        // 충돌맵 찾아서 넣어주기
-        collisionTilemap = GameObject.Find("collision")?.GetComponent<Tilemap>();
+        animator = GetComponent<Animator>();
 
-        // Action Map에서 Move 액션 가져오기
+        if (collisionTilemap == null)
+        {
+            var colGo = GameObject.Find("collision");
+            if (colGo != null) collisionTilemap = colGo.GetComponent<Tilemap>();
+        }
+
         moveAction = inputActions.FindActionMap("Player")?.FindAction("Move");
         if (moveAction != null) moveAction.Enable();
-        else Debug.LogError("Move 액션을 찾을 수 없습니다");
+        else Debug.LogError("Move 액션을 찾을 수 없습니다.");
     }
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.MovePosition(initHeroPosition); // 그리드 내부로 Hero 위치 초기화
 
-        // 시작 위치 스냅 + 현재 셀 예약 보장
+        rb.MovePosition(initHeroPosition);
         Vector2 snap = GetCellCenter(rb.position);
         rb.MovePosition(snap);
-        EnsureCurrentCellReserved(); // 현재 서 있는 칸을 점유
         targetPosition = snap;
+
+        EnsureCurrentCellReserved();
+
+        lastMoveDir = Vector2Int.down;
+        UpdateAnimation(false);   // 아래 idle(D)로 시작
     }
 
     void OnDisable()
     {
         if (moveAction != null) moveAction.Disable();
-
-        // 비활성화 시 보유 중인 점유를 모두 반납
-        ReleaseAllReservations();
+        ReleaseReservation();
     }
 
     void OnDestroy()
     {
-        // 파괴 시에도 안전하게 반납
-        ReleaseAllReservations();
+        ReleaseReservation();
     }
 
-    // Input System 이벤트에서 호출
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        // InputSystem 내부에서 4방향 통제 불가로 인한 후처리
-        if (moveInput.x != 0f && moveInput.y != 0f) moveInput.x = 0f;
+        if (moveInput.x != 0f && moveInput.y != 0f)
+            moveInput.x = 0f; // 대각선 방지
     }
 
-    // 그리드 셀 중앙 좌표 반환 (타일맵 기준, 없으면 1x1 가정)
+    // ====== 유틸 ======
+
     Vector2 GetCellCenter(Vector2 worldPos)
     {
         if (collisionTilemap != null)
@@ -80,45 +99,40 @@ public class HeroMoveControl : MonoBehaviour
             Vector3 c = collisionTilemap.GetCellCenterWorld(cell);
             return new Vector2(c.x, c.y);
         }
-        // 타일맵 없으면 격자 1x1 가정
         return new Vector2(Mathf.Floor(worldPos.x) + 0.5f, Mathf.Floor(worldPos.y) + 0.5f);
     }
 
-    // 월드 <-> 셀 변환 
     Vector2Int WorldToCell(Vector2 worldPos)
     {
         if (collisionTilemap == null)
             return new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
+
         Vector3Int c = collisionTilemap.WorldToCell(worldPos);
         return new Vector2Int(c.x, c.y);
     }
 
-    // 셀 센터 월드 좌표 유틸
     Vector2 CellCenterWorld(Vector2Int cell)
     {
         if (collisionTilemap == null)
             return new Vector2(cell.x + 0.5f, cell.y + 0.5f);
+
         Vector3 c = collisionTilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
         return new Vector2(c.x, c.y);
     }
 
-    // 해당 월드 좌표가 막힌 셀인가?
     bool IsBlockedCell(Vector2 worldPos)
     {
         if (collisionTilemap == null) return false;
         Vector3Int cell = collisionTilemap.WorldToCell(worldPos);
-        return collisionTilemap.HasTile(cell); // 타일 있으면 '막힘'
+        return collisionTilemap.HasTile(cell);
     }
 
-    // 타일(벽)만 확인하는 한 칸 가능 검사
-    // 점유(좀비) 충돌은 "시작 시 TryReserve"로 처리한다
     bool CanStepTileOnly(Vector2 dirUnit)
     {
-        Vector2 nextCenter = GetCellCenter(rb.position + dirUnit); // 한 칸 이동 가정
+        Vector2 nextCenter = GetCellCenter(rb.position + dirUnit);
         return !IsBlockedCell(nextCenter);
     }
 
-    // 현재 셀 예약 보장(없으면 예약, 바뀌었으면 갱신)
     void EnsureCurrentCellReserved()
     {
         if (collisionTilemap == null) return;
@@ -134,7 +148,6 @@ public class HeroMoveControl : MonoBehaviour
             }
             else
             {
-                // 이론상 거의 올 일 없음(내가 서 있는 칸이 타인 점유?)
                 Debug.LogWarning($"[Hero] 현재 셀 예약 실패: {cell}");
             }
         }
@@ -152,57 +165,49 @@ public class HeroMoveControl : MonoBehaviour
         }
     }
 
-    // ===== [ADD] 보유 중인 모든 예약 반납
-    void ReleaseAllReservations()
+    void ReleaseReservation()
     {
-        if (collisionTilemap == null) return;
-
-        if (hasCurrentReservation)
-        {
-            GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
-            hasCurrentReservation = false;
-        }
-        if (nextReservedCell.HasValue)
-        {
-            GridOccupancy.Release(collisionTilemap, nextReservedCell.Value, this);
-            nextReservedCell = null;
-        }
+        if (!hasCurrentReservation || collisionTilemap == null) return;
+        GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
+        hasCurrentReservation = false;
     }
+
     void changeViewDirection(Vector2 inputDir)
     {
-        // input direction 과 currentViewDirection 이 다른 경우 변경을 진행 함.
-        if (currentViewDirection != inputDir.normalized)
-        {
-            currentViewDirection = inputDir.normalized;
-        } 
+        if (inputDir.sqrMagnitude < 0.0001f) return;
+        Vector2 n = inputDir.normalized;
+        if (currentViewDirection != n)
+            currentViewDirection = n;
     }
 
-    // 그리드 단위 이동
+    // === 애니메이션 직접 제어 ===
+    void UpdateAnimation(bool moving)
+    {
+        int hashToPlay = stIdleDown; // 기본값
+
+        if (lastMoveDir.y > 0)       hashToPlay = moving ? stWalkUp    : stIdleUp;
+        else if (lastMoveDir.y < 0)  hashToPlay = moving ? stWalkDown  : stIdleDown;
+        else if (lastMoveDir.x < 0)  hashToPlay = moving ? stWalkLeft  : stIdleLeft;
+        else if (lastMoveDir.x > 0)  hashToPlay = moving ? stWalkRight : stIdleRight;
+
+        animator.CrossFade(hashToPlay, 0.05f);
+    }
+
+    // ====== 메인 이동 루프 ======
     void FixedUpdate()
     {
-        // 이동 중인 경우
+        moveSpeed = 1f / stepTime;
+        moveSpeed = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
+
+        // ---------- 이동 중 ----------
         if (isMoving)
         {
             Vector2 newPos = Vector2.MoveTowards(rb.position, targetPosition, moveSpeed * Time.fixedDeltaTime);
-
-            // 타일 막힘은 이동 시작 전에만 검사(여기선 스냅만 처리)
             rb.MovePosition(newPos);
 
-            // 목표 그리드 도착 판정
             if (Vector2.Distance(rb.position, targetPosition) < 0.001f)
             {
-                // 도착: 이전 셀 반납, 다음 셀 -> 현재 셀로 이동
-                if (nextReservedCell.HasValue)
-                {
-                    if (hasCurrentReservation)
-                        GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
-
-                    currentReservedCell = nextReservedCell.Value;
-                    hasCurrentReservation = true;
-                    nextReservedCell = null;
-                }
-
-                // 입력이 있으면 연속 이동 시도(다음 셀 선점 포함)
+                // 연속 입력
                 if (moveInput.sqrMagnitude > 0.1f)
                 {
                     Vector2 dir = moveInput.normalized;
@@ -210,49 +215,63 @@ public class HeroMoveControl : MonoBehaviour
 
                     if (dir.sqrMagnitude > 0.1f && CanStepTileOnly(dir))
                     {
-                        // 다음 셀 계산 + 선점 시도
-                        Vector2 curCenter = GetCellCenter(rb.position);
-                        Vector2Int nextCell = WorldToCell(curCenter + dir * 1.0f);
+                        Vector2 curCenter = CellCenterWorld(currentReservedCell);
+                        Vector2Int nextCell = WorldToCell(curCenter + dir);
 
-                        if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this)) // ★ 선점 핵심
+                        if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
                         {
-                            nextReservedCell = nextCell;
+                            if (hasCurrentReservation)
+                                GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
 
-                            rb.MovePosition(curCenter); // 스냅 정렬
+                            currentReservedCell = nextCell;
+                            hasCurrentReservation = true;
+
                             targetPosition = CellCenterWorld(nextCell);
-                            currentViewDirection = (targetPosition - rb.position).normalized;
-                            isMoving = true; // 계속 이동
+                            currentViewDirection = dir.normalized;
+
+                            lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
+                            isMoving = true;
+                            UpdateAnimation(true);  // 계속 걷기
                         }
                         else
                         {
-                            // 좀비 등 점유 중 → 연속 이동 차단
+                            // 다음 셀 점유 실패 → 방향만 바꾸고 멈춤
+                            rb.MovePosition(targetPosition);
+                            if (dir.sqrMagnitude > 0.1f)
+                            {
+                                lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
+                                changeViewDirection(dir);
+                            }
                             isMoving = false;
-                            rb.MovePosition(curCenter);
-                            targetPosition = curCenter;
+                            UpdateAnimation(false); // 해당 방향 idle
                         }
                     }
                     else
                     {
+                        // 벽 등으로 더 못감 → 방향만 돌고 멈춤
+                        rb.MovePosition(targetPosition);
+                        if (dir.sqrMagnitude > 0.1f)
+                        {
+                            lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
+                            changeViewDirection(dir);
+                        }
                         isMoving = false;
-                        Vector2 snap = GetCellCenter(rb.position);
-                        rb.MovePosition(snap);
-                        targetPosition = snap;
+                        UpdateAnimation(false);
                     }
                 }
                 else
                 {
-                    // 입력 없음 → 멈춤 & 스냅
+                    // 입력 없음 → 마지막 방향으로 서 있기
+                    rb.MovePosition(targetPosition);
                     isMoving = false;
-                    Vector2 snap = GetCellCenter(rb.position);
-                    rb.MovePosition(snap);
-                    targetPosition = snap;
+                    UpdateAnimation(false);
                 }
             }
 
             return;
         }
 
-        // 정지 상태: 첫 한 칸 시작(벽 체크 + 다음 셀 선점)
+        // ---------- 정지 상태 ----------
         if (moveInput.sqrMagnitude > 0.1f)
         {
             Vector2 dir = moveInput.normalized;
@@ -261,50 +280,62 @@ public class HeroMoveControl : MonoBehaviour
             if (dir.sqrMagnitude > 0.1f && CanStepTileOnly(dir))
             {
                 Vector2 curCenter = GetCellCenter(rb.position);
-                Vector2Int nextCell = WorldToCell(curCenter + dir * 1.0f);
+                Vector2Int nextCell = WorldToCell(curCenter + dir);
 
                 if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
                 {
-                    nextReservedCell = nextCell;
+                    if (hasCurrentReservation)
+                        GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
 
-                    //  현재 셀도 반드시 예약되어 있어야 함(좀비가 못 들어오게)
-                    EnsureCurrentCellReserved();
+                    currentReservedCell = nextCell;
+                    hasCurrentReservation = true;
 
-                    rb.MovePosition(curCenter);                 // 스냅 정렬
-                    isMoving = true;
-                    targetPosition = CellCenterWorld(nextCell); // 다음 칸 중앙을 타깃으로
-                    
+                    rb.MovePosition(curCenter);
+                    targetPosition = CellCenterWorld(nextCell);
+
+                    lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
                     changeViewDirection(dir);
+
+                    isMoving = true;
+                    UpdateAnimation(true); // 걷기 시작
                 }
                 else
                 {
-                    // 좀비가 선점 중 → 시작 자체를 막음
+                    // 점유 때문에 못 움직임 → 방향만 돌리기
                     Vector2 center = GetCellCenter(rb.position);
                     rb.MovePosition(center);
                     targetPosition = center;
 
-                    changeViewDirection(dir);          // <<< 여기 때문에 "정지 방향 전환" 됨
+                    if (dir.sqrMagnitude > 0.1f)
+                    {
+                        lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
+                        changeViewDirection(dir);
+                    }
 
                     isMoving = false;
+                    UpdateAnimation(false);
                 }
             }
             else
             {
+                // 벽 때문에 못 움직임 → 방향만 돌리기
                 Vector2 curCenter = GetCellCenter(rb.position);
                 rb.MovePosition(curCenter);
                 targetPosition = curCenter;
 
                 if (dir.sqrMagnitude > 0.1f)
                 {
-                    changeViewDirection(dir);       
+                    lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
+                    changeViewDirection(dir);
                 }
 
                 isMoving = false;
+                UpdateAnimation(false);
             }
         }
         else
         {
-            // 입력이 없어도 현재 셀 예약은 항상 보장
+            // 입력 없음 → 현재 셀 점유만 유지, idle 방향 유지
             EnsureCurrentCellReserved();
         }
     }
