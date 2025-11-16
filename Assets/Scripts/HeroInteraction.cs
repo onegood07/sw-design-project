@@ -9,7 +9,6 @@ public class HeroInteraction : MonoBehaviour
     // rayCast의 성능 향상을 위해 interactableLayer를 가진 요소만 충돌요소로 본다.
     private LayerMask interactableLayer; 
     
-
     void Start()
     {
         interactableLayer = LayerMask.GetMask("Interactable");

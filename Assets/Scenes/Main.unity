@@ -89620,7 +89620,7 @@ Transform:
   m_GameObject: {fileID: 1318826384}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.5, y: -1.55, z: 0}
+  m_LocalPosition: {x: -3.5, y: -1.92, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -89962,7 +89962,7 @@ MonoBehaviour:
   maxHp: 1000
   hunger: 0
   maxHunger: 1000
-  speed: 0
+  speed: 50
 --- !u!114 &1380755845
 MonoBehaviour:
   m_ObjectHideFlags: 0
