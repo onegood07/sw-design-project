@@ -61,24 +61,24 @@ public class GameManager : MonoBehaviour
     }
 
     void ApplyGlobalLight()
-{
-    string currentScene = SceneManager.GetActiveScene().name;
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
 
-    if (currentScene == ShelterSceneName)
-    {
-        Debug.Log($"[GameManager] {currentScene} 씬은 쉘터이므로 조명을 변경하지 않습니다.");
-        return;
-    }
+        if (currentScene == ShelterSceneName)
+        {
+            Debug.Log($"[GameManager] {currentScene} 씬은 쉘터이므로 조명을 변경하지 않습니다.");
+            return;
+        }
 
-    if (currentScene == MainWorldSceneName)
-    {
-        LightController.Instance?.UpdateGlobalLight(CurrentPhase);
+        if (currentScene == MainWorldSceneName)
+        {
+            LightController.Instance?.UpdateGlobalLight(CurrentPhase); 
+        }
+        else
+        {
+            Debug.Log($"[GameManager] {currentScene} 씬은 월드가 아니므로 조명을 변경하지 않습니다.");
+        }
     }
-    else
-    {
-        Debug.Log($"[GameManager] {currentScene} 씬은 월드가 아니므로 조명을 변경하지 않습니다.");
-    }
-}
 
     // 전체 게임 루프
     IEnumerator GameLoopCoroutine()
@@ -110,6 +110,12 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("모든 날이 종료되었습니다!");
     }
+
+    public void SkipNightConfirmed()
+    {
+        ForceEndNightPhase();
+    }
+
 
     // 외부에서 밤 페이즈를 강제 종료하고 다음 날로 넘어가는 함수
     public void ForceEndNightPhase()
