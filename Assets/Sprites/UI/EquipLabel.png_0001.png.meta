@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 21d2afb5e2930df4dbac7021cee35e79
+guid: 5138f60f022f65343965632daa382d8c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3736619520553653961
-    second: HotkeyBox_34x34_0
+      213: -6534418959164403446
+    second: EquipLabel.png_0001_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,23 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: HotkeyBox_34x34_0
+      name: EquipLabel.png_0001_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 34
-        height: 34
+        x: 10
+        y: 9
+        width: 13
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9c6146f08a32bd330800000000000000
-      internalID: 3736619520553653961
+      spriteID: a019d65d3941155a0800000000000000
+      internalID: -6534418959164403446
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 90f9dfe8bb8c6c94eaf68ea818f6735c
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      HotkeyBox_34x34_0: 3736619520553653961
+      EquipLabel.png_0001_0: -6534418959164403446
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
