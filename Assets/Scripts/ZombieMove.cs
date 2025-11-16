@@ -3,15 +3,15 @@ using UnityEngine.Tilemaps;
 
 public class ZombieMove : MonoBehaviour
 {
-    [SerializeField] public float speed = 2.5f;
+    [SerializeField] public float speed = 1f;   // speed를 "속도 배수"로 사용 (1 = 기본속도)
     [SerializeField] public int grid = 5;
     [SerializeField] public int limitGrid = 5;
     [SerializeField] float attackDelay = 1f;
     [SerializeField] Tilemap collisionTilemap;
 
     Animator animator;
-    float Duration = 0.2f;
-    float stepDuration = 0.5f;
+    float baseDuration = 0.666f;   // 애니메이션 기준 한 칸 이동 기본 시간
+    float stepDuration = 0.5f;     // 실제 한 칸 이동에 사용할 시간 (매번 baseDuration / speed 로 세팅)
     float stepElapsed = 0f;
     float attackTimer = 0f;
     float attackMoveLockTime = 1f; // 공격 후 이동 금지 시간(초)
@@ -50,6 +50,7 @@ public class ZombieMove : MonoBehaviour
         bool down  = false;
         bool right = false;
 
+        // ★ 수정: X, Y 각각 단순하게 방향 판별
         // X축 이동 판단
         if (dir.x < 0)
             left = true;
@@ -108,10 +109,6 @@ public class ZombieMove : MonoBehaviour
         return true;
     }
 
-    // =====================================================
-    // 생명 주기
-    // =====================================================
-
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -156,15 +153,12 @@ public class ZombieMove : MonoBehaviour
         attackMoveLockTimer = attackMoveLockTime;
     }
 
-    // =====================================================
     // 메인 루프
-    // =====================================================
-
     void FixedUpdate()
     {
         if (!isLive) return;
 
-        // ---------------- 공격 후 이동 잠금 ----------------
+        // 공격 후 이동 잠금
         if (attackMoveLockTimer > 0f)
         {
             attackMoveLockTimer -= Time.fixedDeltaTime;
@@ -175,7 +169,7 @@ public class ZombieMove : MonoBehaviour
             return;
         }
 
-        // ---------------- 한 칸 이동 중(스텝) ----------------
+        // 한 칸 이동 중(스텝)
         if (stepping)
         {
             stepElapsed += Time.fixedDeltaTime;
@@ -198,7 +192,7 @@ public class ZombieMove : MonoBehaviour
             return;
         }
 
-        // ---------------- 플레이어 위치/거리 계산 ----------------
+        // 플레이어 위치/거리 계산
         if (target == null)
         {
             zombie.linearVelocity = Vector2.zero;
@@ -246,14 +240,12 @@ public class ZombieMove : MonoBehaviour
             inAttackRange = false;
         }
 
-        // ---------------- 추적 범위 판단 ----------------
+        // 추적 범위 판단
         findTarget = (gridDist <= grid);
         if (!findTarget && find) spawnGrid = currentCell;
         find = findTarget;
 
-        // =====================================================
         // 1) 플레이어 추적 모드
-        // =====================================================
         if (findTarget)
         {
             // 우선 방향(가로/세로)과 보조 방향
@@ -288,7 +280,7 @@ public class ZombieMove : MonoBehaviour
                 stepStartPos  = CellCenterWorld(currentCell);  // 현재 셀 센터
                 stepTargetPos = CellCenterWorld(nextCell);     // 다음 셀 센터
                 stepElapsed   = 0f;
-                stepDuration  = Duration;
+                stepDuration  = baseDuration / speed;  // speed를 반영해 한 칸 이동 시간 계산
                 stepping      = true;
                 zombie.linearVelocity = Vector2.zero;
 
@@ -304,10 +296,7 @@ public class ZombieMove : MonoBehaviour
             return;
         }
 
-        // =====================================================
         // 2) 배회(랜덤 이동) 모드
-        // =====================================================
-        speed = 2.5f;
         if (stepping) return;
 
         Timer += Time.fixedDeltaTime;
@@ -340,7 +329,7 @@ public class ZombieMove : MonoBehaviour
             stepStartPos  = CellCenterWorld(currentCell);
             stepTargetPos = CellCenterWorld(nextCell);
             stepElapsed   = 0f;
-            stepDuration  = Duration;
+            stepDuration  = baseDuration / speed;  // ★ 수정: 배회 모드에서도 동일하게 speed 반영
             stepping      = true;
             zombie.linearVelocity = Vector2.zero;
 
