@@ -29,8 +29,10 @@ public class HUD : MonoBehaviour
                 mySlider.value = curHunger / maxHunger;
                 break;
             case InfoType.Time:
+                // 로직 추가 필요
                 break;
             case InfoType.Days:
+                myText.text = string.Format("Day {0}", (int)GameManager.Instance.CurrentDay + 1);
                 break;
         }
     }
