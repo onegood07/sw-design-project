@@ -3521,7 +3521,7 @@ MonoBehaviour:
   heroMinDistance: 0.1
   outsidePosition: {x: 10.5, y: 2.5, z: 0}
   survivorPrefab: {fileID: 4375253768732716613, guid: a9fc57bc648024cb58cf67018e5c9eb7, type: 3}
-  leaderPrefab: {fileID: 3791189837564599446, guid: 860f6813938d94626a72484632f1ff7e, type: 3}
+  leaderPrefab: {fileID: 7134797969655362848, guid: d3c8000dac2824b66b581eb0acc3beb4, type: 3}
   groundTilemap: {fileID: 709600619}
   collisionTilemap: {fileID: 2078227946}
   leaderTilemap: {fileID: 1271194015}
