@@ -11,6 +11,11 @@ GameObject:
   - component: {fileID: 4454324047378695824}
   - component: {fileID: 146560218885577532}
   - component: {fileID: 2488951544932369081}
+  - component: {fileID: -9002128192358810038}
+  - component: {fileID: -4550077925376885746}
+  - component: {fileID: 2495115393771752226}
+  - component: {fileID: 3188567100556306310}
+  m_Layer: 0
   - component: {fileID: 8732285005287096876}
   m_Layer: 3
   m_Name: RebelNPC
@@ -119,7 +124,47 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!61 &8732285005287096876
+--- !u!114 &-9002128192358810038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4375253768732716613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fdfa22a50422f14f9d2103397f2d230, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemOccupancy
+  tilemap: {fileID: 0}
+--- !u!114 &-4550077925376885746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4375253768732716613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6347ad1052ddb41f5b8810487c014110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RebelNPC
+  dialogueData: {fileID: 11400000, guid: 6594bb34b7c224ef78d9e3d8b837c7a1, type: 2}
+  dialogueData: {fileID: 11400000, guid: 6594bb34b7c224ef78d9e3d8b837c7a1, type: 2}
+--- !u!114 &2495115393771752226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4375253768732716613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 807f945dce80a41c4beab9d426b9ed64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueNPC
+  dialogueData: {fileID: 11400000, guid: 6594bb34b7c224ef78d9e3d8b837c7a1, type: 2}
+--- !u!61 &3188567100556306310
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149,7 +194,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
