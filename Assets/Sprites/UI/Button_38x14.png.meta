@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 97cfe8a368cd4a24085957690c5a4c8c
+guid: c4b9cecbf6837aa4780a1a06a03d29e6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4041595323842263105
-    second: TopPatternPanel_01_33x15_0
-  - first:
-      213: 2703197434640537772
-    second: TopPatternPanel_01_33x15_1
+      213: 1378961055502533777
+    second: Button_38x14_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -54,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 128
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -142,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TopPatternPanel_01_33x15_0
+      name: Button_38x14_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 34
-        height: 15
+        width: 38
+        height: 14
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -157,30 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1487f73a881a61830800000000000000
-      internalID: 4041595323842263105
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: TopPatternPanel_01_33x15_1
-      rect:
-        serializedVersion: 2
-        x: 33
-        y: 0
-        width: 34
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ca81f71aebfa38520800000000000000
-      internalID: 2703197434640537772
+      spriteID: 194835026cd032310800000000000000
+      internalID: 1378961055502533777
       vertices: []
       indices: 
       edges: []
@@ -199,8 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TopPatternPanel_01_33x15_0: 4041595323842263105
-      TopPatternPanel_01_33x15_1: 2703197434640537772
+      Button_38x14_0: 1378961055502533777
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
