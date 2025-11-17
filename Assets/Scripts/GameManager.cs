@@ -9,9 +9,12 @@ public enum Phase { Day, Night }
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
+    
     public GameDays CurrentDay { get; private set; }
     public Phase CurrentPhase { get; private set; }
+
+    public bool IsInShelter { get; set; } = false;
+
 
     // 점수 관련 (납입품, 생존자수)
     [Header("Scores")]
@@ -43,7 +46,6 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else 
         {
@@ -143,7 +145,7 @@ public class GameManager : MonoBehaviour
     // 낮 시작 시 처리
     void StartDayPhase()
     {
-        if (SceneManager.GetActiveScene().name == MainWorldSceneName)
+        if (!IsInShelter)   
         {
             spawnManager.ClearAll();
 
@@ -169,14 +171,14 @@ public class GameManager : MonoBehaviour
         } 
         else
         {
-            Debug.Log($"[GameManager] 현재 씬 ({SceneManager.GetActiveScene().name})은 월드 씬이 아니므로 스폰을 건너뜁니다.");
+           Debug.Log("[GameManager] 쉘터에서는 낮 스폰 생략");
         }
     }
 
     // 밤 시작 시 처리
     void StartNightPhase()
     {
-        if (SceneManager.GetActiveScene().name == MainWorldSceneName)
+        if (!IsInShelter)
         {
             switch (CurrentDay)
             {
@@ -196,6 +198,9 @@ public class GameManager : MonoBehaviour
 
             // 좀비만 추가로 스폰하기
             spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount);
+        } else
+        {
+            Debug.Log("[GameManager] 쉘터에서는 밤 스폰 생략");
         }
     }
 
@@ -233,15 +238,17 @@ public class GameManager : MonoBehaviour
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
     }
 
-    // 씬 로드 후
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == MainWorldSceneName)
-        {
-            spawnManager = Object.FindFirstObjectByType<SpawnManager>();
-        }
+        if (scene.name == ShelterSceneName)
+            IsInShelter = true;
+        else
+            IsInShelter = false;
 
-        ApplyGlobalLight(); // Phase에 맞는 조명 적용
+        if (scene.name == MainWorldSceneName)
+            spawnManager = Object.FindFirstObjectByType<SpawnManager>();
+
+        ApplyGlobalLight();
     }
 
     void OnEnable()

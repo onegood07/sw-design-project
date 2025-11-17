@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class HeroMoveControl : MonoBehaviour
 {
-    // 💡 싱글톤 인스턴스 추가
     public static HeroMoveControl Instance { get; private set; }
 
     private Vector2 currentViewDirection = new Vector2(0f, -1f);
@@ -34,7 +33,6 @@ public class HeroMoveControl : MonoBehaviour
     private Animator animator;
     private Vector2Int lastMoveDir = Vector2Int.down;
 
-    // Animator 상태 이름 (Animator의 State 이름과 정확히 일치해야 함)
     private readonly int stIdleUp    = Animator.StringToHash("U");
     private readonly int stIdleDown  = Animator.StringToHash("D");
     private readonly int stIdleLeft  = Animator.StringToHash("L");
@@ -176,7 +174,6 @@ public class HeroMoveControl : MonoBehaviour
 
     bool IsBlockedCell(Vector2 worldPos)
     {
-        // 💡 Tilemap이 없으면 충돌하지 않는 것으로 간주 (이동 허용)
         if (collisionTilemap == null) return false;
         
         Vector3Int cell = collisionTilemap.WorldToCell(worldPos);

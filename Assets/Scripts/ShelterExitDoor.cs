@@ -10,7 +10,7 @@ public class ShelterExitDoor : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log($"플레이어 쉘터 퇴장 : '{nextSceneName}' 씬으로 전환");
+            Debug.Log($"플레이어가 쉘터 문에 닿음. '{nextSceneName}' 씬으로 전환합니다.");
             FadeManager.Instance.FadeOutToScene(nextSceneName);
         }
     }

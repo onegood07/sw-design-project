@@ -15,7 +15,7 @@ public class SceneChanger : MonoBehaviour
             Debug.Log($"플레이어가 트리거에 진입했습니다. '{nextSceneName}' 씬으로 전환합니다.");
             
             // 지정된 씬 이름으로 화면 전환
-            FadeManager.Instance.FadeOutToScene(nextSceneName);
+            SceneManager.LoadScene(nextSceneName);
         }
     }
 }
