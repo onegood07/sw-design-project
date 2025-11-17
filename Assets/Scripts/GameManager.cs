@@ -9,14 +9,19 @@ public enum Phase { Day, Night }
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
+    
     public GameDays CurrentDay { get; private set; }
     public Phase CurrentPhase { get; private set; }
 
+    public bool IsInShelter { get; set; } = false;
+
+
+    // 점수 관련 (납입품, 생존자수)
     [Header("Scores")]
     public int ShelterItemScore { get; private set; } = 0;
     public int SurvivorScore { get; private set; } = 10;
 
+    // 스폰 관련 세팅
     [Header("Spawn Settings")]
     public SpawnManager spawnManager;
     public int ItemSpawnCount = 5;
@@ -24,12 +29,15 @@ public class GameManager : MonoBehaviour
     public int BaseZombieSpawnCount = 10;
     private int CurrentZombieSpawnCount;
 
+    // 페이즈 시간
     [Header("Phase Duration")]
     public float dayDuration = 1.0f;
     public float nightDuration = 20.0f;
     
+    // 씬 세팅
     [Header("Scene Settings")]
-    public string MainWorldSceneName = "Main"; 
+    public string MainWorldSceneName = "Main";
+    public string ShelterSceneName = "InsideShelter"; 
 
     private Coroutine gameLoopCoroutine; 
 
@@ -46,6 +54,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     void Start()
     {
         CurrentDay = GameDays.FirstDay;
@@ -53,12 +62,29 @@ public class GameManager : MonoBehaviour
 
         CurrentZombieSpawnCount = BaseZombieSpawnCount;
 
-        if (LightController.Instance != null)
-        {
-            LightController.Instance.UpdateGlobalLight(CurrentPhase);
-        }
+        ApplyGlobalLight();
 
         gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
+    }
+
+    public void ApplyGlobalLight()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        if (currentScene == ShelterSceneName)
+        {
+            Debug.Log($"[GameManager] {currentScene} 씬은 쉘터이므로 조명을 변경하지 않습니다.");
+            return;
+        }
+
+        if (currentScene == MainWorldSceneName)
+        {
+            LightController.Instance?.UpdateGlobalLight(CurrentPhase); 
+        }
+        else
+        {
+            Debug.Log($"[GameManager] {currentScene} 씬은 월드가 아니므로 조명을 변경하지 않습니다.");
+        }
     }
 
     // 전체 게임 루프
@@ -70,7 +96,7 @@ public class GameManager : MonoBehaviour
             CurrentPhase = Phase.Day;
             Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
 
-            LightController.Instance?.UpdateGlobalLight(CurrentPhase);
+            ApplyGlobalLight();
 
             StartDayPhase(); 
             yield return new WaitForSeconds(dayDuration);
@@ -80,7 +106,7 @@ public class GameManager : MonoBehaviour
             CurrentZombieSpawnCount += 20;
             Debug.Log($"🌙 [{CurrentDay}] 밤 시작!");
 
-            LightController.Instance?.UpdateGlobalLight(CurrentPhase);
+            ApplyGlobalLight();
     
             StartNightPhase(); 
             yield return new WaitForSeconds(nightDuration);
@@ -91,6 +117,12 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("모든 날이 종료되었습니다!");
     }
+
+    public void SkipNightConfirmed()
+    {
+        ForceEndNightPhase();
+    }
+
 
     // 외부에서 밤 페이즈를 강제 종료하고 다음 날로 넘어가는 함수
     public void ForceEndNightPhase()
@@ -105,9 +137,9 @@ public class GameManager : MonoBehaviour
             
             // 조명을 낮으로 바로 전환하고 새로운 루프 시작
             CurrentPhase = Phase.Day;
-            LightController.Instance?.UpdateGlobalLight(CurrentPhase);
             
-            Debug.Log("💤 밤 스킵 완료! 다음 날 낮 시작!");
+            ApplyGlobalLight();
+            
             gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
         }
     }
@@ -115,17 +147,25 @@ public class GameManager : MonoBehaviour
     // 낮 시작 시 처리
     void StartDayPhase()
     {
-        if (SceneManager.GetActiveScene().name == MainWorldSceneName)
+        if (!IsInShelter)   
         {
             spawnManager.ClearAll();
 
             // 일차별 낮 아이템 비율
             switch (CurrentDay)
             {
-                case GameDays.FirstDay: SetItemRatios(0.7f, 0.2f, 0.1f); break;
-                case GameDays.SecondDay: SetItemRatios(0.5f, 0.3f, 0.2f); break;
-                case GameDays.ThirdDay: SetItemRatios(0.3f, 0.4f, 0.3f); break;
-                case GameDays.FourthDay: SetItemRatios(0.2f, 0.3f, 0.5f); break;
+                case GameDays.FirstDay: 
+                    SetItemRatios(0.7f, 0.2f, 0.1f); 
+                    break;
+                case GameDays.SecondDay: 
+                    SetItemRatios(0.5f, 0.3f, 0.2f); 
+                    break;
+                case GameDays.ThirdDay: 
+                    SetItemRatios(0.3f, 0.4f, 0.3f); 
+                    break;
+                case GameDays.FourthDay: 
+                    SetItemRatios(0.2f, 0.3f, 0.5f); 
+                    break;
             }
 
             // 아이템, NPC, 현재 좀비 수 스폰 시작
@@ -133,33 +173,36 @@ public class GameManager : MonoBehaviour
         } 
         else
         {
-            Debug.Log($"[GameManager] 현재 씬 ({SceneManager.GetActiveScene().name})은 월드 씬이 아니므로 스폰을 건너뜁니다.");
+           Debug.Log("[GameManager] 쉘터에서는 낮 스폰 생략");
         }
     }
 
     // 밤 시작 시 처리
     void StartNightPhase()
     {
-        if (SceneManager.GetActiveScene().name == MainWorldSceneName)
+        if (!IsInShelter)
         {
-            spawnManager.ClearAll();
-
-            // 밤에는 좀비 중심, 아이템 소폭 조정 가능
             switch (CurrentDay)
             {
-                case GameDays.FirstDay: SetItemRatios(0.5f, 0.3f, 0.2f); break;
-                case GameDays.SecondDay: SetItemRatios(0.4f, 0.3f, 0.3f); break;
-                case GameDays.ThirdDay: SetItemRatios(0.3f, 0.3f, 0.4f); break;
-                case GameDays.FourthDay: SetItemRatios(0.2f, 0.3f, 0.5f); break;
+                case GameDays.FirstDay: 
+                    SetItemRatios(0.5f, 0.3f, 0.2f); 
+                    break;
+                case GameDays.SecondDay: 
+                    SetItemRatios(0.4f, 0.3f, 0.3f); 
+                    break;
+                case GameDays.ThirdDay: 
+                    SetItemRatios(0.3f, 0.3f, 0.4f); 
+                    break;
+                case GameDays.FourthDay: 
+                    SetItemRatios(0.2f, 0.3f, 0.5f); 
+                    break;
             }
 
-            // 좀비 수 증가, 아이템은 낮보다 적게 스폰 시작
-            spawnManager.StartSpawnProcess(Mathf.Max(1, ItemSpawnCount / 2), NPCSpawnCount, CurrentZombieSpawnCount);
-        }
-        else
+            // 좀비만 추가로 스폰하기
+            spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount);
+        } else
         {
-            // 쉘터 내부에서는 좀비가 스폰되지 않고 조명만 조정
-            Debug.Log($"[GameManager] 현재 씬 ({SceneManager.GetActiveScene().name})은 월드 씬이 아니므로 밤 스폰을 건너뛰고 쉘터 내부 조명만 조정합니다.");
+            Debug.Log("[GameManager] 쉘터에서는 밤 스폰 생략");
         }
     }
 
@@ -196,4 +239,28 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
     }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == ShelterSceneName)
+            IsInShelter = true;
+        else
+            IsInShelter = false;
+
+        if (scene.name == MainWorldSceneName)
+            spawnManager = Object.FindFirstObjectByType<SpawnManager>();
+
+        ApplyGlobalLight();
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
 }

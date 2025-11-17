@@ -30,16 +30,16 @@ public class FadeManager : MonoBehaviour
     private IEnumerator FadeOutIn(string sceneName)
     {
         // 화면 어둡게 만들기
-        yield return StartCoroutine(Fade(0f, 1f));
+    yield return StartCoroutine(Fade(0f, 1f));
 
-        // 씬 전환
-        SceneManager.LoadScene(sceneName);
+    // 씬 전환
+    SceneManager.LoadScene(sceneName);
 
-        // 잠깐 대기
-        yield return null;
+    yield return null; 
+    GameManager.Instance?.ApplyGlobalLight();
 
-        // 화면 밝게
-        yield return StartCoroutine(Fade(1f, 0f));
+    // 화면 밝게
+    yield return StartCoroutine(Fade(1f, 0f));
     }
 
     private IEnumerator Fade(float start, float end)
