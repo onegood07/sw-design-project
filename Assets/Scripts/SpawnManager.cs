@@ -13,44 +13,49 @@ public struct ItemSpawnInfo
 
 public class SpawnManager : MonoBehaviour
 {
-    // Tilemap 세팅
+    public static SpawnManager Instance { get; private set; }
+
     [Header("Tilemap")]
     public Tilemap groundTilemap;
     public Tilemap collisionTilemap;
 
-    // Item
     [Header("Item Prefabs")]
     public ItemSpawnInfo[] itemInfos;
 
-    // Prefab 세팅
     [Header("Other Prefabs")]
     public GameObject zombiePrefab;
     public GameObject npcPrefab;
 
-    // Manager 세팅
     [Header("Managers")]
     public ItemManager itemManager;
 
-    // 스폰 가능한 전체 좌표 저장
     private List<Vector3> allSpawnPositions = new List<Vector3>();
 
-    // 스폰된 객체 저장
     private List<GameObject> spawnedItems = new List<GameObject>();
     private List<GameObject> spawnedZombies = new List<GameObject>();
     private List<GameObject> spawnedNPCs = new List<GameObject>();
 
     void Awake()
     {
-        // 맨 처음에 스폰 가능 좌표 구하기
-        GetSpawnPositions();
+        // 싱글톤 구현
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            GetSpawnPositions();
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
     }
 
-    // 스폰 가능 좌표 구하기
     void GetSpawnPositions()
     {
         if (groundTilemap == null || collisionTilemap == null)
         {
-            Debug.LogError("[SpawnManager] Ground 또는 Collision Tilemap이 Inspector에 할당되지 않았습니다. 스폰 위치 초기화 실패.");
+            Debug.LogWarning("[SpawnManager] Tilemap이 할당되지 않았습니다.");
             return;
         }
 
@@ -67,7 +72,6 @@ public class SpawnManager : MonoBehaviour
                 TileBase groundTile = allGroundTiles[x + y * bounds.size.x];
                 TileBase collisionTile = collisionTilemap.GetTile(cellPos);
 
-                // groundTile이 있고 충돌 타일이 없는 곳만 스폰 가능
                 if (groundTile != null && collisionTile == null)
                 {
                     Vector3 worldPos = groundTilemap.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f, 0);
@@ -77,7 +81,6 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    // 게임 오브젝트 소환하는 로직
     private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> availablePositions, List<GameObject> outputList, ItemType? type = null)
     {
         List<Vector3> usedPositions = new List<Vector3>();
@@ -90,20 +93,11 @@ public class SpawnManager : MonoBehaviour
             int index = Random.Range(0, copy.Count);
             Vector3 spawnPos = copy[index];
             GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
-            outputList.Add(obj);
 
-            // if (prefab == zombiePrefab) 
-            // {
-            //     ZombieMove zombieMove = obj.GetComponent<ZombieMove>();
-            //     if (zombieMove != null)
-            //     {
-            //         zombieMove.collisionTilemap = this.collisionTilemap; 
-            //     }
-            //     else
-            //     {
-            //         Debug.LogError("Zombie 프리팹에 ZombieMove 스크립트가 없습니다. 참조 주입 실패.");
-            //     }
-            // }
+            // 씬 전환에도 유지 (오브젝트들)
+            DontDestroyOnLoad(obj);
+
+            outputList.Add(obj);
 
             if (type.HasValue && itemManager != null)
                 itemManager.RegisterSpawnedItem(obj, type.Value);
@@ -115,12 +109,15 @@ public class SpawnManager : MonoBehaviour
         return usedPositions;
     }
 
-    // 전체 스폰
     public void StartSpawnProcess(int totalItemCount, int npcCount, int zombieCount)
     {
+        // 이미 스폰되어 있으면 재스폰하지 않음
+        if (spawnedItems.Count > 0 || spawnedNPCs.Count > 0 || spawnedZombies.Count > 0)
+            return;
+
         if (allSpawnPositions.Count == 0)
         {
-            Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없어 스폰을 건너뜁니다. Tilemap 설정을 확인하세요.");
+            Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없습니다.");
             return;
         }
 
@@ -143,22 +140,35 @@ public class SpawnManager : MonoBehaviour
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
     }
 
+    public void SpawnZombiesOnly(int zombieCount)
+    {
+        if (allSpawnPositions.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없습니다.");
+            return;
+        }
 
-    // 전체 삭제
+        List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
+
+        remainingPositions.RemoveAll(pos =>
+            spawnedItems.Exists(item => item != null && Vector3.Distance(item.transform.position, pos) < 0.1f) ||
+            spawnedNPCs.Exists(npc => npc != null && Vector3.Distance(npc.transform.position, pos) < 0.1f)
+        );
+
+        SpawnObjects(zombiePrefab, zombieCount, remainingPositions, spawnedZombies);
+    }
+
     public void ClearAll()
     {
-        // 아이템 삭제
         foreach (var item in spawnedItems)
             if (item != null) Destroy(item);
         spawnedItems.Clear();
         itemManager?.ClearItems();
 
-        // 좀비 삭제
         foreach (var zombie in spawnedZombies)
             if (zombie != null) Destroy(zombie);
         spawnedZombies.Clear();
 
-        // NPC 삭제
         foreach (var npc in spawnedNPCs)
             if (npc != null) Destroy(npc);
         spawnedNPCs.Clear();

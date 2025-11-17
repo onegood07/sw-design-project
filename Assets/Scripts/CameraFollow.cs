@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -16,5 +17,24 @@ public class CameraFollow : MonoBehaviour
         // offset을 적용한 위치 계산
         Vector3 desiredPosition = target.position + offset;
         transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (HeroMoveControl.Instance != null)
+        {
+            target = HeroMoveControl.Instance.transform;
+            Debug.Log("[CameraFollow] Hero를 타겟으로 재설정");
+        }
     }
 }

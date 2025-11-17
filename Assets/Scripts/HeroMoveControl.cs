@@ -47,7 +47,6 @@ public class HeroMoveControl : MonoBehaviour
 
     void Awake()
     {
-        // 💡 싱글톤 구현 및 DontDestroyOnLoad 적용
         if (Instance == null)
         {
             Instance = this;
@@ -56,7 +55,6 @@ public class HeroMoveControl : MonoBehaviour
         }
         else
         {
-            // 이미 인스턴스가 존재하면 새로 생성된 오브젝트는 파괴
             Destroy(gameObject);
             return;
         }
@@ -91,7 +89,6 @@ public class HeroMoveControl : MonoBehaviour
 
     void OnEnable()
     {
-        // 💡 씬 로드 리스너 추가
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -106,8 +103,6 @@ public class HeroMoveControl : MonoBehaviour
     {
         ReleaseReservation();
     }
-
-    // 💡 씬 로드 시 호출되어 타일맵을 다시 연결하고 위치를 보정하는 함수
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"[Hero] 씬 로드 완료: {scene.name}");
@@ -121,7 +116,6 @@ public class HeroMoveControl : MonoBehaviour
         }
         else
         {
-            // 💡 collision이 없는 씬임을 명확히 알림. (이동은 허용됨)
             collisionTilemap = null;
             Debug.LogWarning($"[Hero] 씬 '{scene.name}'에서 'collision' Tilemap을 찾을 수 없습니다. (충돌/점유 체크 비활성화)");
         }
@@ -259,7 +253,6 @@ public class HeroMoveControl : MonoBehaviour
     // ====== 메인 이동 루프 ======
     void FixedUpdate()
     {
-        // 💡 Tilemap이 없더라도 Grid 기반 이동 자체는 계속 실행됨
         bool attemptReservation = collisionTilemap != null;
 
         moveSpeed = 1f / stepTime;
@@ -447,5 +440,13 @@ public class HeroMoveControl : MonoBehaviour
             // 입력 없음 → 현재 셀 점유만 유지, idle 방향 유지
             EnsureCurrentCellReserved();
         }
+    }
+    public void SetTargetPosition(Vector2 pos)
+    {
+        targetPosition = pos;
+        rb.MovePosition(pos);
+        EnsureCurrentCellReserved();
+        isMoving = false;
+        UpdateAnimation(false);
     }
 }

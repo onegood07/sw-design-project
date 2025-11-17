@@ -13,10 +13,12 @@ public class GameManager : MonoBehaviour
     public GameDays CurrentDay { get; private set; }
     public Phase CurrentPhase { get; private set; }
 
+    // 점수 관련 (납입품, 생존자수)
     [Header("Scores")]
     public int ShelterItemScore { get; private set; } = 0;
     public int SurvivorScore { get; private set; } = 10;
 
+    // 스폰 관련 세팅
     [Header("Spawn Settings")]
     public SpawnManager spawnManager;
     public int ItemSpawnCount = 5;
@@ -24,14 +26,15 @@ public class GameManager : MonoBehaviour
     public int BaseZombieSpawnCount = 10;
     private int CurrentZombieSpawnCount;
 
+    // 페이즈 시간
     [Header("Phase Duration")]
     public float dayDuration = 1.0f;
     public float nightDuration = 20.0f;
     
+    // 씬 세팅
     [Header("Scene Settings")]
     public string MainWorldSceneName = "Main";
     public string ShelterSceneName = "InsideShelter"; 
-
 
     private Coroutine gameLoopCoroutine; 
 
@@ -60,7 +63,7 @@ public class GameManager : MonoBehaviour
         gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
     }
 
-    void ApplyGlobalLight()
+    public void ApplyGlobalLight()
     {
         string currentScene = SceneManager.GetActiveScene().name;
 
@@ -133,7 +136,6 @@ public class GameManager : MonoBehaviour
             
             ApplyGlobalLight();
             
-            Debug.Log("💤 밤 스킵 완료! 다음 날 낮 시작!");
             gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
         }
     }
@@ -148,10 +150,18 @@ public class GameManager : MonoBehaviour
             // 일차별 낮 아이템 비율
             switch (CurrentDay)
             {
-                case GameDays.FirstDay: SetItemRatios(0.7f, 0.2f, 0.1f); break;
-                case GameDays.SecondDay: SetItemRatios(0.5f, 0.3f, 0.2f); break;
-                case GameDays.ThirdDay: SetItemRatios(0.3f, 0.4f, 0.3f); break;
-                case GameDays.FourthDay: SetItemRatios(0.2f, 0.3f, 0.5f); break;
+                case GameDays.FirstDay: 
+                    SetItemRatios(0.7f, 0.2f, 0.1f); 
+                    break;
+                case GameDays.SecondDay: 
+                    SetItemRatios(0.5f, 0.3f, 0.2f); 
+                    break;
+                case GameDays.ThirdDay: 
+                    SetItemRatios(0.3f, 0.4f, 0.3f); 
+                    break;
+                case GameDays.FourthDay: 
+                    SetItemRatios(0.2f, 0.3f, 0.5f); 
+                    break;
             }
 
             // 아이템, NPC, 현재 좀비 수 스폰 시작
@@ -168,19 +178,24 @@ public class GameManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == MainWorldSceneName)
         {
-            spawnManager.ClearAll();
-
-            // 밤에는 좀비 중심, 아이템 소폭 조정 가능
             switch (CurrentDay)
             {
-                case GameDays.FirstDay: SetItemRatios(0.5f, 0.3f, 0.2f); break;
-                case GameDays.SecondDay: SetItemRatios(0.4f, 0.3f, 0.3f); break;
-                case GameDays.ThirdDay: SetItemRatios(0.3f, 0.3f, 0.4f); break;
-                case GameDays.FourthDay: SetItemRatios(0.2f, 0.3f, 0.5f); break;
+                case GameDays.FirstDay: 
+                    SetItemRatios(0.5f, 0.3f, 0.2f); 
+                    break;
+                case GameDays.SecondDay: 
+                    SetItemRatios(0.4f, 0.3f, 0.3f); 
+                    break;
+                case GameDays.ThirdDay: 
+                    SetItemRatios(0.3f, 0.3f, 0.4f); 
+                    break;
+                case GameDays.FourthDay: 
+                    SetItemRatios(0.2f, 0.3f, 0.5f); 
+                    break;
             }
 
-            // 좀비 수 증가, 아이템은 낮보다 적게 스폰 시작
-            spawnManager.StartSpawnProcess(Mathf.Max(1, ItemSpawnCount / 2), NPCSpawnCount, CurrentZombieSpawnCount);
+            // 좀비만 추가로 스폰하기
+            spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount);
         }
     }
 
@@ -217,4 +232,26 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
     }
+
+    // 씬 로드 후
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == MainWorldSceneName)
+        {
+            spawnManager = Object.FindFirstObjectByType<SpawnManager>();
+        }
+
+        ApplyGlobalLight(); // Phase에 맞는 조명 적용
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
 }
