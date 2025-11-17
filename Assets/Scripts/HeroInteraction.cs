@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,7 +9,9 @@ public class HeroInteraction : MonoBehaviour
     // 컴마로 구분해서 더 넣을 수 있음.
     // rayCast의 성능 향상을 위해 interactableLayer를 가진 요소만 충돌요소로 본다.
     private LayerMask interactableLayer; 
-    
+    public GameObject swordEffectPrefab;
+    public float attackCoolTime;
+    private float lastAttackTime = -1f;
     void Start()
     {
         interactableLayer = LayerMask.GetMask("Interactable");
@@ -47,9 +50,27 @@ public class HeroInteraction : MonoBehaviour
             IInteractable targetObj = hit.collider.GetComponent<IInteractable>();
             if(targetObj != null)
             {
+                if (hit.collider.CompareTag("Zombie"))
+                {
+                    if (Time.time < lastAttackTime + attackCoolTime)return;
+                    lastAttackTime = Time.time;
+                    createEffect(viewDirection);
+                    targetObj.OnInteract();
+                }
+                else targetObj.OnInteract();
                 // Debug.Log($"{targetObj} interaction target");
-                targetObj.OnInteract();
             }
+        }
+    }
+    void createEffect(Vector2 viewDirection)
+    {
+        Vector2 createPosition = transform.position + (Vector3)viewDirection.normalized;
+        GameObject effect = Instantiate(swordEffectPrefab,createPosition,quaternion.identity);
+        SwordEffect effectSetup = effect.GetComponent<SwordEffect>();
+        if(effect != null)
+        {
+            viewDirection = HeroMoveControl.CurrentViewDirection;
+            effectSetup.Setup(viewDirection);
         }
     }
 }

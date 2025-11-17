@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 2495115393771752226}
   - component: {fileID: 3188567100556306310}
   m_Layer: 0
+  - component: {fileID: 8732285005287096876}
+  m_Layer: 3
   m_Name: RebelNPC
   m_TagString: Untagged
   m_Icon: {fileID: 0}
