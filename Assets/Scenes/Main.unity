@@ -90097,6 +90097,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroInteraction
   HeroMoveControl: {fileID: 0}
+  swordEffectPrefab: {fileID: 3851628375419475565, guid: 28cdfd04d11c08640a2611f883f9372c, type: 3}
+  attackCoolTime: 0
 --- !u!212 &1380755846
 SpriteRenderer:
   m_ObjectHideFlags: 0
