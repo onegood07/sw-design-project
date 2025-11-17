@@ -446,4 +446,27 @@ public class HeroMoveControl : MonoBehaviour
         isMoving = false;
         UpdateAnimation(false);
     }
+    public void ForceMove(Vector2 newPos)
+    {
+        ReleaseReservation();
+
+        transform.position = newPos;
+        targetPosition = newPos;
+
+        isMoving = false;
+        UpdateAnimation(false);
+        
+        EnsureCurrentCellReserved();
+    }
+
+    public void SetCollisionTilemap(Tilemap tilemap)
+    {
+        collisionTilemap = tilemap;
+    }
+
+    public void ExitShelter(Vector3 outsidePos)
+    {
+        ForceMove(outsidePos);
+    }
+
 }

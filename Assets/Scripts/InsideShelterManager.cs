@@ -8,6 +8,7 @@ public class InsideShelterManager : MonoBehaviour
     [Header("Hero Spawn Settings")]
     public Tilemap spawnTilemap;           
     public float heroMinDistance = 0.1f;   
+     public Vector3 outsidePosition = new Vector3(10.5f, 2.5f, 0f);
 
     [Header("NPC Prefab")]
     public GameObject survivorPrefab;
@@ -37,43 +38,22 @@ public class InsideShelterManager : MonoBehaviour
 
     void SpawnHero()
     {
-        if (spawnTilemap == null)
-        {
-            Debug.LogWarning("Spawn Tilemap이 없습니다. HeroDefaultSpawn 사용");
-            return;
-        }
+        if (spawnTilemap == null || HeroMoveControl.Instance == null) return;
 
-        if (HeroMoveControl.Instance == null)
-        {
-            Debug.LogError("Hero 객체가 없습니다!");
-            return;
-        }
+        HeroMoveControl.Instance.SetCollisionTilemap(collisionTilemap);
 
-        // spawnTilemap의 첫 번째 타일 위치 가져오기
         Vector3 spawnPos = Vector3.zero;
-        bool found = false;
-
-        BoundsInt bounds = spawnTilemap.cellBounds;
-        foreach (var pos in bounds.allPositionsWithin)
+        foreach (var pos in spawnTilemap.cellBounds.allPositionsWithin)
         {
             if (!spawnTilemap.HasTile(pos)) continue;
-
             spawnPos = spawnTilemap.CellToWorld(pos) + new Vector3(0.5f, 0.5f, 0f);
-            found = true;
             break;
         }
 
-        if (!found)
-        {
-            Debug.LogWarning("Spawn Tilemap에 유효한 타일이 없습니다. 기존 위치 유지");
-            return;
-        }
-
-        // 기존 Hero 객체 이동
-        HeroMoveControl.Instance.transform.position = spawnPos;
-        HeroMoveControl.Instance.SetTargetPosition(spawnPos);
+        HeroMoveControl.Instance.ForceMove(spawnPos);
         Debug.Log($"Hero 위치 재설정 완료: {spawnPos}");
     }
+
 
     void SpawnLeader()
     {
@@ -147,5 +127,13 @@ public class InsideShelterManager : MonoBehaviour
         }
 
         Debug.Log($"{survivorCount}명의 생존자를 스폰했습니다.");
+    }
+
+    public void OnHeroExitShelter()
+    {
+        if(HeroMoveControl.Instance != null)
+        {
+            HeroMoveControl.Instance.ExitShelter(outsidePosition);
+        }
     }
 }

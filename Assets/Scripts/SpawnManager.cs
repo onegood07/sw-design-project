@@ -94,8 +94,8 @@ public class SpawnManager : MonoBehaviour
             Vector3 spawnPos = copy[index];
             GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-            // 씬 전환에도 유지 (오브젝트들)
-            DontDestroyOnLoad(obj);
+            // // 씬 전환에도 유지 (오브젝트들)
+            // DontDestroyOnLoad(obj);
 
             outputList.Add(obj);
 
