@@ -17,7 +17,6 @@ public class HUD : MonoBehaviour
     public Sprite Clock_Night;          // 밤 이미지 스프라이트 연결 변수 추가
 
 
-
     void Awake()
     {
         myText = GetComponent<Text>();
