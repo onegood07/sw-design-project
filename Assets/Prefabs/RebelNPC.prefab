@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 146560218885577532}
   - component: {fileID: 2488951544932369081}
   - component: {fileID: 8732285005287096876}
+  - component: {fileID: -9002128192358810038}
   m_Layer: 0
   m_Name: RebelNPC
   m_TagString: Untagged
@@ -165,3 +166,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.25, y: 0.6875}
   m_EdgeRadius: 0
+--- !u!114 &-9002128192358810038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4375253768732716613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fdfa22a50422f14f9d2103397f2d230, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemOccupancy
+  tilemap: {fileID: 0}
