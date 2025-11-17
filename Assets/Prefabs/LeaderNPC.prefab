@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4254017645381208601}
   - component: {fileID: 4159123275448015289}
   - component: {fileID: 3960183984937552087}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeaderNPC
   m_TagString: Untagged
   m_Icon: {fileID: 0}

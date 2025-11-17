@@ -11,7 +11,7 @@ public class HeroInteraction : MonoBehaviour
     private LayerMask interactableLayer; 
     public GameObject swordEffectPrefab;
     public float attackCoolTime;
-    private float lastAttackTime;
+    private float lastAttackTime = -1f;
     void Start()
     {
         interactableLayer = LayerMask.GetMask("Interactable");
@@ -52,10 +52,13 @@ public class HeroInteraction : MonoBehaviour
             {
                 if (hit.collider.CompareTag("Zombie"))
                 {
+                    if (Time.time < lastAttackTime + attackCoolTime)return;
+                    lastAttackTime = Time.time;
                     createEffect(viewDirection);
+                    targetObj.OnInteract();
                 }
+                else targetObj.OnInteract();
                 // Debug.Log($"{targetObj} interaction target");
-                targetObj.OnInteract();
             }
         }
     }
