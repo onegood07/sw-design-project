@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 4375253768732716613}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.03, y: -2.63, z: 0}
+  m_LocalPosition: {x: -12.06581, y: -3.51766, z: 0}
   m_LocalScale: {x: 1.4, y: 1.4, z: 1.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -148,7 +148,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RebelNPC
   dialogueData: {fileID: 11400000, guid: 6594bb34b7c224ef78d9e3d8b837c7a1, type: 2}
-  dialogueData: {fileID: 11400000, guid: 6594bb34b7c224ef78d9e3d8b837c7a1, type: 2}
 --- !u!114 &2495115393771752226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,7 +195,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.00082343817, y: 0.00000014901161}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -206,5 +205,5 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.25, y: 0.6875}
+  m_Size: {x: 0.28785777, y: 0.71712834}
   m_EdgeRadius: 0
