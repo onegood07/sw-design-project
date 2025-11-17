@@ -89648,7 +89648,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   spawnManager: {fileID: 715778162}
   ItemSpawnCount: 5
-  NPCSpawnCount: 3
+  NPCSpawnCount: 15
   BaseZombieSpawnCount: 10
   dayDuration: 30
   nightDuration: 20

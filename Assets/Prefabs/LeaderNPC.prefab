@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4254017645381208601}
   - component: {fileID: 4159123275448015289}
   - component: {fileID: 3960183984937552087}
+  - component: {fileID: 6757040268250404406}
   m_Layer: 3
   m_Name: LeaderNPC
   m_TagString: Untagged
@@ -165,7 +166,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.25, y: 0.671875}
   m_EdgeRadius: 0
---- !u!114 &4015830021949694199
+--- !u!114 &6757040268250404406
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
