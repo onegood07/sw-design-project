@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class RebelNPC : MonoBehaviour
+public class RebelNPC : DialogueNPC
 {
-    public DialogueData dialogueData;
+
 }
