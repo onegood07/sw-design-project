@@ -17,7 +17,9 @@ public class PistolData : WeaponData,IUsable
         HeroTransform.position,
         Quaternion.identity
         );
-        bulletObject.GetComponent<bulletMove>().setVelocity(currentViewDirection);
-        bulletObject.GetComponent<bulletMove>().shoot();
+
+        BulletMove bullet = bulletObject.GetComponent<BulletMove>();
+        bullet.bulletSetting(currentViewDirection,bulletSpeed,power);
+        bullet.shoot();
     }
 }

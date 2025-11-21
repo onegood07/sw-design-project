@@ -1,11 +1,10 @@
 using UnityEngine;
 
-public class bulletMove : MonoBehaviour
+public class BulletMove : MonoBehaviour
 {
     private Rigidbody2D rb;
     private Vector2 velocity;
-    [SerializeField]private float speed = 10f;
-    [SerializeField]private float bulletDamage = 300f;
+    private float bulletPower;
     [SerializeField]private float destroyTime = 3f;
 
     void Awake()
@@ -24,9 +23,10 @@ public class bulletMove : MonoBehaviour
     - 인자 : hero 시야 방향
     - 반환 값 : 없음.
     */
-    public void setVelocity(Vector2 viewDirection)
+    public void bulletSetting(Vector2 viewDirection, float bulletSpeed, float power)
     {
-        velocity = viewDirection.normalized * speed;
+        velocity = viewDirection * bulletSpeed;
+        bulletPower = power;
     }
     /*
     - shoot : velocity 를 가지고 이동
@@ -43,7 +43,7 @@ public class bulletMove : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.CompareTag("Zombie"))
         {
-            other.gameObject.GetComponent<ZombieStat>().takeDamage(bulletDamage);
+            other.gameObject.GetComponent<ZombieStat>().takeDamage(bulletPower);
             Destroy(gameObject);
         }
     }

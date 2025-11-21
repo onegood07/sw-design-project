@@ -5,9 +5,9 @@ using UnityEngine;
 public abstract class ItemData : ScriptableObject
 {
     // 아이템을 코드에서 식별할 때 사용할 고유 ID - 문자열
-    [Header("Base Item Data - 아이템 이름으로 지정")]
-    [SerializeField]private string ItemName;
-    public string getItemName
+    [Header("아이템 ID - 정수 지정")]
+    [SerializeField]private int ItemName;
+    public int getItemName
     {
         get
         {
