@@ -2,123 +2,117 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement; 
 
-public enum GameEnding { None, Happy, GameOver, Bad }
-public enum GameDays { FirstDay, SecondDay, ThirdDay, FourthDay }
-public enum Phase { Day, Night }
+// 게임 상태 관련 Enum 정의
+public enum GameEnding { None, Happy, GameOver, Bad } // 엔딩 종류
+public enum GameDays { FirstDay, SecondDay, ThirdDay, FourthDay } // 게임 일차
+public enum Phase { Day, Night } // 낮/밤 페이즈
 
 public class GameManager : MonoBehaviour
 {
+    // 싱글톤 인스턴스
     public static GameManager Instance;
 
-    // 현재 게임 엔딩 변수
-    public GameEnding CurrentEnding { get; private set; }
-    // 현재 게임 일차 변수
-    public GameDays CurrentDay { get; private set; }
-    // 현재 게임 페이즈 변수
-    public Phase CurrentPhase { get; private set; }
+    // 게임 상태 변수
+    public GameEnding CurrentEnding { get; private set; } // 현재 엔딩 상태
+    public GameDays CurrentDay { get; private set; } // 현재 일차
+    public Phase CurrentPhase { get; private set; } // 현재 페이즈
 
-    // 현재 씬이 쉘터인지 확인
-    public bool IsInShelter { get; set; } = false;
+    public bool IsInShelter { get; set; } = false; // 현재 씬이 쉘터 내부인지 확인
 
-    // 점수 관련 (납입품, 생존자수)
+    // 점수 관련
     [Header("Scores")]
-    public int ShelterItemScore { get; private set; } = 0; // 납입품
-    public int SurvivorScore { get; private set; } = 10; // 생존자수
+    public int ShelterItemScore { get; private set; } = 0; // 납입품 점수
+    public int SurvivorScore { get; private set; } = 10; // 생존자 수 점수
 
-    // 스폰 관련 세팅
+    // 스폰 관련 설정
     [Header("Spawn Settings")]
-    public SpawnManager spawnManager;
-    public int ItemSpawnCount = 5;
-    public int NPCSpawnCount = 3;
-    public int BaseZombieSpawnCount = 10;
-    private int CurrentZombieSpawnCount;
+    public SpawnManager spawnManager; // 스폰 관리 매니저
+    public int ItemSpawnCount = 5;    // 낮/밤 아이템 스폰 수
+    public int NPCSpawnCount = 3;     // NPC 스폰 수
+    public int BaseZombieSpawnCount = 10; // 초기 좀비 스폰 수
+    private int CurrentZombieSpawnCount;  // 현재 좀비 스폰 수
 
-    // 페이즈 시간
+    // 페이즈 지속 시간
     [Header("Phase Duration")]
     public float dayDuration = 1.0f;
     public float nightDuration = 20.0f;
     
-    // 씬 세팅
+    // 씬 이름 설정
     [Header("Scene Settings")]
     public string MainWorldSceneName = "Main";
     public string ShelterSceneName = "InsideShelter"; 
 
-    // 게임엔딩 세팅
+    // 게임엔딩 UI
     [Header("GameEnding Settings")]
-    public GameObject gameOverPanel;
-    public GameObject uiRoot;    
+    public GameObject gameOverPanel; // 게임오버 UI
+    public GameObject uiRoot;        // 기본 UI 루트
 
-    private Coroutine gameLoopCoroutine; 
+    private Coroutine gameLoopCoroutine; // 전체 게임 루프 코루틴
 
     void Awake()
     {
-        // 시작 시 게임엔딩은 우선 존재하지 않음
+        // 게임 시작 시 엔딩 초기화
         CurrentEnding = GameEnding.None;
 
-        // 싱글톤 선언
+        // 싱글톤 초기화
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 다음 씬 전환해도 파괴 안됨
+            DontDestroyOnLoad(gameObject); // 씬 전환 시 파괴되지 않음
         }
         else 
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // 중복 제거
         }
     }
 
     void Start()
     {
-        // 시작 시 기본 세팅 (1일차, 낮 페이즈)
+        // 초기 게임 상태 설정 -> 1일차 낮
         CurrentDay = GameDays.FirstDay;
         CurrentPhase = Phase.Day;
 
-        // 현재 좀비 스폰 수를 기존 좀비 스폰 수로 설정
-        CurrentZombieSpawnCount = BaseZombieSpawnCount;
+        CurrentZombieSpawnCount = BaseZombieSpawnCount; // 초기 좀비 수
 
-        // 조명 반영
-        ApplyGlobalLight();
+        ApplyGlobalLight(); // 조명 반영
 
-        // 게임 진행 루프 코루틴 동작하기
+        // 게임 전체 루프 시작
         gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
     }
 
-    // 플레이어 사망 시 실행할 함수 로직
-  public void PlayerDied()
+    // MARK: 플레이어 사망 처리
+    public void PlayerDied()
     {
         CurrentEnding = GameEnding.GameOver;
         Debug.Log("[GameManager] 게임 오버 엔딩");
 
-        // 기존 UI 비활성화 (체력바, 시간 표기, 허기바, 슬롯 등)
+        // 기존 UI 비활성화
         if (uiRoot != null)
-        uiRoot.SetActive(false);
+            uiRoot.SetActive(false);
 
         // 게임 오버 UI 표시
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
 
-        // 게임 루프 멈추기
+        // 게임 루프 중단
         if (gameLoopCoroutine != null)
             StopCoroutine(gameLoopCoroutine);
     }
 
+    // MARK: 글로벌 라이트 적용
     public void ApplyGlobalLight()
     {
-        // 현재 씬 매니저가 액티브한 씬의 이름 파악
         string currentScene = SceneManager.GetActiveScene().name;
 
-        // 현재 씬 이름이 쉘터라면
         if (currentScene == ShelterSceneName)
         {
-            // 조명 변경 X
             Debug.Log($"[GameManager] {currentScene} 씬은 쉘터이므로 조명을 변경하지 않습니다.");
-            return;
+            return; // 쉘터에서는 조명 변경하지 않음
         }
 
-        // 현재 씬 이름이 메인이라면
         if (currentScene == MainWorldSceneName)
         {
-            // 현재 페이즈값 반영하여 조명 업데이트
+            // 낮/밤 페이즈에 따라 조명 업데이트
             LightController.Instance?.UpdateGlobalLight(CurrentPhase); 
         }
         else
@@ -127,82 +121,61 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 전체 게임 루프
+    // MARK: 전체 게임 루프 코루틴
     IEnumerator GameLoopCoroutine()
     {
-        // 마지막 날(=4일차)가 될 때까지 지속
+        // 마지막 날(4일차)까지 반복
         while (CurrentDay <= GameDays.FourthDay)
         {
-            // 낮 페이즈
+            // 낮 페이즈 시작
             CurrentPhase = Phase.Day;
             Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
+            ApplyGlobalLight(); // 조명 반영
+            StartDayPhase();    // 낮 페이즈 로직 시작
+            yield return new WaitForSeconds(dayDuration); // 낮 지속
 
-            // 낮페이즈 - 조명 반영
-            ApplyGlobalLight();
-
-             // 낮페이즈 - 시작
-            StartDayPhase(); 
-            // 밤페이즈가 올 때까지 대기
-            yield return new WaitForSeconds(dayDuration);
-
-            // 밤 페이즈
+            // 밤 페이즈 시작
             CurrentPhase = Phase.Night;
-            // 밤이 오면 좀비 스폰 수 증가
-            CurrentZombieSpawnCount += 20;
+            CurrentZombieSpawnCount += 20; // 밤마다 좀비 증가
             Debug.Log($"🌙 [{CurrentDay}] 밤 시작!");
-
-            // 밤페이즈 - 조명 반영
             ApplyGlobalLight();
+            StartNightPhase();
+            yield return new WaitForSeconds(nightDuration); // 밤 지속
 
-            // 밤페이즈 로직 시작
-            StartNightPhase(); 
-            yield return new WaitForSeconds(nightDuration);
-
-            // 밤이 끝나면 다음 날 진행
+            // 다음 날로 전환
             NextDay();
         }
 
         Debug.Log("모든 날이 종료되었습니다!");
     }
 
-    // 쉘터 내부의 침대와 상호작용했을 때 스킵하시겠습니까?에 yes 버튼을 눌렀을 때 동작
+    // 밤 스킵 처리
     public void SkipNightConfirmed()
     {
-        // 밤페이즈 스킵
-        ForceEndNightPhase();
+        ForceEndNightPhase(); // 강제 밤 종료
     }
 
-
-    // 외부에서 밤 페이즈를 강제 종료하고 다음 날로 넘어가는 함수
+    // 외부에서 밤 페이즈 강제 종료 
     public void ForceEndNightPhase()
     {
         if (CurrentPhase == Phase.Night && gameLoopCoroutine != null)
         {
-            // 현재 실행 중인 GameLoopCoroutine을 중단
-            StopCoroutine(gameLoopCoroutine);
-            
-            // 다음 날로 전환
-            NextDay();
-            
-            // 조명을 낮으로 바로 전환
-            CurrentPhase = Phase.Day;
-            ApplyGlobalLight();
-            
-            // 새로운 루프 시작
-            gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
+            StopCoroutine(gameLoopCoroutine); // 기존 루프 중단
+            NextDay(); // 다음 날로 진행
+            CurrentPhase = Phase.Day; // 페이즈를 낮으로
+            ApplyGlobalLight(); // 조명 적용
+            gameLoopCoroutine = StartCoroutine(GameLoopCoroutine()); // 새로운 루프 시작
         }
     }
 
-    // 낮 시작 시 처리
+    // MARK: 낮 페이즈 로직
     void StartDayPhase()
     {
-        // 쉘터 내부가 아니라면
-        if (!IsInShelter)   
+        if (!IsInShelter)
         {
-            // 모든 스폰 오브젝트 초기화
-            spawnManager.ClearAll();
+            spawnManager.ClearAll(); // 기존 스폰 초기화
 
-            // 일차별 낮 아이템 비율 조정
+            // 일차별 낮 아이템 비율 설정
             switch (CurrentDay)
             {
                 case GameDays.FirstDay: 
@@ -219,22 +192,21 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
-            // 아이템, NPC, 현재 좀비 수에 맞게 스폰 시작
+            // 아이템/NPC/좀비 스폰
             spawnManager.StartSpawnProcess(ItemSpawnCount, NPCSpawnCount, CurrentZombieSpawnCount);
         } 
         else
         {
-           Debug.Log("[GameManager] 쉘터에서는 낮 스폰 생략");
+            Debug.Log("[GameManager] 쉘터에서는 낮 스폰 생략");
         }
     }
 
-    // 밤 시작 시 처리
+    // MARK: 밤 페이즈 로직
     void StartNightPhase()
     {
-        // 쉘터 내부가 아니라면
         if (!IsInShelter)
         {
-             // 일차별 밤 아이템 비율 조정
+            // 일차별 밤 아이템 비율 설정
             switch (CurrentDay)
             {
                 case GameDays.FirstDay: 
@@ -251,18 +223,17 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
-            // 좀비만 추가로 스폰하기
-            spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount);
-        } else
+            spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount); // 좀비만 스폰
+        } 
+        else
         {
             Debug.Log("[GameManager] 쉘터에서는 밤 스폰 생략");
         }
     }
     
-    // 아이템별 스폰 비율 조정 함수
+    // MARK: 아이템별 스폰 비율 설정
     void SetItemRatios(float heal, float weapon, float lantern)
     {
-        // itemInfos 배열이 null이 아니고 충분한 크기인지 확인
         if (spawnManager != null && spawnManager.itemInfos != null && spawnManager.itemInfos.Length >= 3)
         {
             spawnManager.itemInfos[0].ratio = heal;
@@ -271,7 +242,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 다음 일차 변경 함수 (+ 좀비 수 변경까지 담당)
+    // MARK: 다음 날로 전환
     void NextDay()
     {
         switch (CurrentDay)
@@ -295,30 +266,27 @@ public class GameManager : MonoBehaviour
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
     }
 
-    // 씬이 로드될 때 호출되는 함수
+    // MARK: 씬 로드 시 실행
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 쉘터 내부라면
-        if (scene.name == ShelterSceneName)
-            IsInShelter = true; // true로 변경
-        else
-            IsInShelter = false; // 아니면 false
+        // 쉘터 내부 여부 확인
+        IsInShelter = (scene.name == ShelterSceneName);
 
-        // main 씬이라면
+        // 월드 씬이면 스폰 매니저 연결
         if (scene.name == MainWorldSceneName)
-            spawnManager = Object.FindFirstObjectByType<SpawnManager>(); // 스폰매니저 찾아서 연결
+            spawnManager = Object.FindFirstObjectByType<SpawnManager>();
 
-        ApplyGlobalLight();
+        ApplyGlobalLight(); // 씬 로드 시 조명 반영
     }
 
     void OnEnable()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded; // 씬 로드 이벤트 구독
     }
 
     void OnDisable()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded -= OnSceneLoaded; // 이벤트 구독 해제
     }
 
 }
