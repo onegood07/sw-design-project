@@ -4,54 +4,60 @@ using System.Collections;
 
 public class DialogueUI : MonoBehaviour
 {
+    // 싱글톤
     public static DialogueUI Instance;
 
     [Header("UI Elements")]
-    public GameObject rootPanel;         // 전체 대화 UI
-    public Text dialogueText;           
-    public Transform choicesParent;      // 선택지 부모
-    public GameObject choiceButtonPrefab;
+    public GameObject rootPanel; // 대화 UI 전체 패널
+    public Text dialogueText; // 대화 내용을 보여줄 Text UI
+    public Transform choicesParent; // 선택지 버튼들을 담을 부모 오브젝트
+    public GameObject choiceButtonPrefab; // 선택지 버튼 프리팹
 
-    private Coroutine typingCoroutine;
+    private Coroutine typingCoroutine; // 타이핑 코루틴 참조
 
     void Awake()
     {
-        Instance = this;
-        Hide();
+        Instance = this;  // 싱글톤 초기화
+        Hide();           // 시작 시 UI 숨김
     }
 
+    // 대화 UI 보이기
     public void Show()
     {
         rootPanel.SetActive(true);
     }
 
+    // 대화 UI 숨기기
     public void Hide()
     {
         rootPanel.SetActive(false);
     }
 
+    // DialogueNode를 UI에 표시
     public void DisplayNode(DialogueNode node)
     {
-        // 선택지 초기화
+        // 이전 선택지 버튼 제거
         foreach (Transform child in choicesParent)
             Destroy(child.gameObject);
 
-        // 텍스트를 타이핑
+        // 기존 타이핑 코루틴이 있으면 중단
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
 
+        // 새로운 대화 텍스트 타이핑 시작
         typingCoroutine = StartCoroutine(TypeText(node.text, node.typingSpeed));
 
-        // 선택지가 있을 경우 버튼 생성
+        // 선택지가 존재할 경우 버튼 생성
         if (node.hasChoices && node.choices != null)
         {
             foreach (var choice in node.choices)
             {
-                GameObject btnObj = Instantiate(choiceButtonPrefab, choicesParent);
+                GameObject btnObj = Instantiate(choiceButtonPrefab, choicesParent); // 버튼 생성
                 Text btnText = btnObj.GetComponentInChildren<Text>(); 
-                btnText.text = choice.choiceText;
+                btnText.text = choice.choiceText; // 버튼 텍스트 설정
 
                 Button btn = btnObj.GetComponent<Button>();
+                // 버튼 클릭 시 해당 노드로 이동
                 btn.onClick.AddListener(() =>
                 {
                     DialogueManager.Instance.GoToNextNode(choice.nextNodeIndex);
@@ -60,7 +66,7 @@ public class DialogueUI : MonoBehaviour
         }
         else
         {
-            // 선택지가 없으면 nextNodeIndex로 넘어감
+            // 선택지가 없으면 nextNodeIndex를 따라 다음 노드로 이동
             this.GetComponent<Button>().onClick.RemoveAllListeners();
             this.GetComponent<Button>().onClick.AddListener(() =>
             {
@@ -69,13 +75,14 @@ public class DialogueUI : MonoBehaviour
         }
     }
 
+    // 글자 하나씩 타이핑 효과
     IEnumerator TypeText(string text, float speed)
     {
-        dialogueText.text = "";
+        dialogueText.text = ""; // 기존 텍스트 초기화
         foreach (char c in text)
         {
-            dialogueText.text += c;
-            yield return new WaitForSeconds(speed);
+            dialogueText.text += c;          // 글자 추가
+            yield return new WaitForSeconds(speed); // 지정 속도만큼 대기
         }
     }
 }
