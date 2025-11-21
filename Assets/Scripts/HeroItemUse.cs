@@ -2,13 +2,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// 현재 퀵슬롯 아이템 사용만 구현된 상태. 
-// 인벤토리에서 직접 사용은 UI가 나와야 할 수 있을 것 같음
+// 인벤토리 매니저 기능 과다로 인한 기능분리
+// 아이템 사용 시, 아이템 내용은 매니저로부터 참조하여 해당 스크립트에서 사용한다.
 public class HeroItemUse : MonoBehaviour
 {
 
-    public HeroMoveControl HeroMoveControl;
-    private Vector2 viewDirection;
+    private HeroMoveControl HeroMoveControl;
+    
     void Start()
     {
         // 이중으로 받아옴. 인스펙터에 지정하지 않아도 됨.
