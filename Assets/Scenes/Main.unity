@@ -89811,8 +89811,8 @@ MonoBehaviour:
   QuickSlot:
   - {fileID: 11400000, guid: 01fc2da11691b7d45b6e4d9a45d091fb, type: 2}
   - {fileID: 11400000, guid: bb7ff0028a0fd97448e32d79d1f2f86c, type: 2}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 43256f2a9282e59489a441e455b7cd72, type: 2}
+  - {fileID: 11400000, guid: 9c1138427c389d541bd0800745e86e5d, type: 2}
   HeroTransform: {fileID: 1380755839}
   HeroMoveControl: {fileID: 0}
 --- !u!4 &1215500393
@@ -90632,7 +90632,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fbba5a0d93e2ff4e89244a68aa127db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroItemUse
-  HeroMoveControl: {fileID: 0}
 --- !u!70 &1380755848
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
