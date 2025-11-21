@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 504307aad5e1cc5408d419bbfe23ce5e, type: 3}
+  m_Name: ShotGun_102
+  m_EditorClassIdentifier: Assembly-CSharp::ShotGunData
+  ItemName: 102
+  Description: "\uC0F7\uAC74"
+  Icon: {fileID: 4319395737909131107, guid: 6890018106e5f7447b4235e6666564e1, type: 3}
+  MaxStackCount: 1
+  isAvailable: 1
+  coolTime: 2
+  power: 300
+  bulletPrefab: {fileID: 6512657209323098972, guid: a5a1129b75efa1f47b5ae7a283227a66, type: 3}
+  bulletSpeed: 10
+  wides:
+  - -0.4
+  - -0.2
+  - 0
+  - 0.2
+  - 0.4
+  wide: {x: 0, y: 0.4}
