@@ -11,9 +11,11 @@ public class HeroMoveControl : MonoBehaviour
     public Vector2 CurrentViewDirection => currentViewDirection;
 
     [SerializeField] private float stepTime = 0.4f;
-    public float moveSpeed = 2.5f;
+    // 이동속도 heroStat 에서 가져와야 함. 원래는 2.5f였음
+    private float moveSpeed;
     private const float minMoveSpeed = 0.5f;
-    private const float maxMoveSpeed = 3f;
+    // maxMoveSpeed 수정 기존 값 3f 였음.
+    private const float maxMoveSpeed = 6f;
 
     private Rigidbody2D rb;
     private Vector2 targetPosition;
@@ -252,7 +254,8 @@ public class HeroMoveControl : MonoBehaviour
     {
         bool attemptReservation = collisionTilemap != null;
 
-        moveSpeed = 1f / stepTime;
+        // 수정. stepTime 에 관계 없이 heroStat의 속도 배율만큼 증가함.
+        moveSpeed = 1f / stepTime * GetComponent<HeroStat>().speed/1000f;
         moveSpeed = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
 
         // ---------- 이동 중 ----------

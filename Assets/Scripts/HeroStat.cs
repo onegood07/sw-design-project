@@ -17,6 +17,9 @@ public class HeroStat : MonoBehaviour
     public float speed;
     public bool isSurvival;
 
+    // 부스트 코루틴 활성 여부
+    private Coroutine activeBoostCoroutine;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -61,6 +64,39 @@ public class HeroStat : MonoBehaviour
     void Update()
     {
         SpeedControl();
+    }
+    /*
+    - HeroSpeedBoostCoroutine
+    - 인자 : 진행 시간, 상향 혹은 하향 퍼센티지
+    - 반환 값 : 없음.
+    */
+    IEnumerator HeroSpeedBoostCoroutine(float duration, float percentage)
+    {
+        var mul = speed*percentage/100;
+        Debug.Log("이동속도 증가");
+        speed += mul;
+
+        // 지정 시간 동안 지속
+        yield return new WaitForSeconds(duration);
+
+        speed -= mul;
+        Debug.Log("돌아옴");
+    }
+    /*
+    - ActiveHeroSpeedBoost
+    - 인자 : 진행 시간, 상향 혹은 하향 퍼센티지
+    - 반환 값 : 없음
+    */
+    public void ActiveHeroSpeedBoost(float duration, float percentage)
+    {
+        // 작동 중이었다면
+        if(activeBoostCoroutine != null)
+        {
+            // 코루틴을 중지하고
+            StopCoroutine(activeBoostCoroutine);
+        }
+        // 다시 시작하거나, 첫 시작을 함.
+        activeBoostCoroutine = StartCoroutine(HeroSpeedBoostCoroutine(duration,percentage));
     }
 
     // 일정 시간마다 허기 감소 코루틴
