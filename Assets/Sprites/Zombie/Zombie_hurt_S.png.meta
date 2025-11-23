@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 43cbf5b4c7bdfdf4884f05db6b35a570
+guid: 9ecf923b79bf09049a0c71c2e6bb47a3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8846046561276996766
-    second: MenusBox_128x64_0
+      213: 5118335522376006410
+    second: Zombie_hurt_S_0
+  - first:
+      213: 5368943662066729017
+    second: Zombie_hurt_S_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,23 +142,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MenusBox_128x64_0
+      name: Zombie_hurt_S_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 128
-        height: 64
+        x: 24
+        y: 11
+        width: 17
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e9c2b77aa7873ca70800000000000000
-      internalID: 8846046561276996766
+      spriteID: a0b3c7c1a0bf70740800000000000000
+      internalID: 5118335522376006410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zombie_hurt_S_1
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 11
+        width: 17
+        height: 42
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 930829490d1528a40800000000000000
+      internalID: 5368943662066729017
       vertices: []
       indices: 
       edges: []
@@ -164,7 +189,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d26b39b8dcaa0bd4498ab8e7f105e57a
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +199,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MenusBox_128x64_0: 8846046561276996766
+      Zombie_hurt_S_0: 5118335522376006410
+      Zombie_hurt_S_1: 5368943662066729017
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

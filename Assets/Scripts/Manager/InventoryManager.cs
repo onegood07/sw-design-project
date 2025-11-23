@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Numerics;
+
 public class InventoryManager : MonoBehaviour
 {
 
@@ -8,7 +8,7 @@ public class InventoryManager : MonoBehaviour
     // 전체 인벤토리 
     private Dictionary<string, int> Inventory = new Dictionary<string, int>();
     [SerializeField]
-    private ItemData[] QuickSlot = new ItemData[4];
+    public ItemData[] QuickSlot = new ItemData[4];
     // itemUse를 위해 플레이어 정보, viewDirection 을 사용해야 하므로 인벤토리 매니저에서 관리함
     // viewDirection은 최신 값 반영을 위해 다이렉트로 인수로 넣음
     public Transform HeroTransform;

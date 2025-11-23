@@ -2,20 +2,25 @@ using UnityEngine;
 
 public class SwordEffect : MonoBehaviour
 {
-    private Animator animator; // 애니메이터 컴포넌트
-    private SpriteRenderer spriteRenderer; // 스프라이트 렌더러 컴포넌트
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
 
-    // 플레이어 공격 스크립트에서 호출될 메서드: 이펙트의 방향을 설정합니다.
-    // 4방향에 따라 검기의 이미지 방향(회전)이 달라질 때 사용합니다.
+    // 플레이어 공격 스크립트에서 호출될 메서드: 이펙트의 방향을 설정함.
+    // 4방향에 따라 검기의 이미지 방향(회전)이 달라지기에 사용함
+    // 생성과 소멸 시간 설정이 포함되어 있음
+    /*
+    - Setup
+    - 인수 : Hero가 보고있는 방향
+    - 반환값 : 없음
+    */
     public void Setup(Vector2 direction)
     {
         if (animator == null || spriteRenderer == null) return;
         
         // 1. 방향에 따른 회전 설정
-        // 검기 이미지가 오른쪽을 바라보도록 만들어졌다고 가정합니다.
+        // 초기 이미지는 오른쪽을 보고있음.
         if (direction == Vector2.left)
         {
-            // 왼쪽을 바라보게 X축으로 뒤집습니다.
             spriteRenderer.flipX = true;
         }
         else if (direction == Vector2.right)
@@ -56,21 +61,5 @@ public class SwordEffect : MonoBehaviour
         
         if (animator == null) Debug.LogError("SwordEffect 스크립트는 Animator 컴포넌트가 필요합니다.");
         if (spriteRenderer == null) Debug.LogError("SwordEffect 스크립트는 SpriteRenderer 컴포넌트가 필요합니다.");
-        
-        // **중요**: 검기는 이동하지 않으므로, 충돌 처리를 하려면 여기에 Collider를 추가하거나 확인해야 합니다.
-        // GetComponent<Collider2D>().enabled = true; 
     }
-    
-    // 이펙트는 이동하지 않으므로 Update는 필요 없습니다.
-
-    // 옵션: 검기가 적과 충돌하여 데미지를 주어야 한다면 이 메서드를 사용합니다.
-    /*
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Enemy"))
-        {
-            // 데미지 처리 로직
-        }
-    }
-    */
 }
