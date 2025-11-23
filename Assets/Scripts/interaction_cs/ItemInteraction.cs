@@ -2,17 +2,29 @@ using UnityEngine;
 
 public class ItemInteraction : MonoBehaviour, IInteractable
 {
-    // 가방을 드롭하고 드롭 시점에 확률 반영해서 인벤토리에 추가
-    // 아이템 리스트는 인벤토리 매니저로부터 가져옴
-    // 확률 반영해서 추출된 아이템명, 갯수 반영해서 인벤토리에 추가.
-    private string ItemName = "test";
-    private int ItemCnt = 1;
+    private FieldItems fieldItems;
+
+    private void Awake()
+    {
+        fieldItems = GetComponent<FieldItems>();
+    }
+
     public void OnInteract()
     {
-        if(InventoryManager.Instance != null)
+        if (fieldItems == null) return;
+
+        Item itemData = fieldItems.GetItem();
+        int itemCnt   = fieldItems.GetCount();
+
+        // 슬롯 인벤토리로 넣기
+        if (Inventory.instance != null && itemData != null)
         {
-            InventoryManager.Instance.addItem(ItemName, ItemCnt);
-            Destroy(gameObject);
+            for (int i = 0; i < itemCnt; i++)
+            {
+                Inventory.instance.AddItem(itemData);
+            }
         }
+
+        fieldItems.DestroyItem();
     }
 }

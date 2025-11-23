@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 1927192982837481114}
   - component: {fileID: -4798992186021525037}
   - component: {fileID: -8716454082104855041}
+  - component: {fileID: -7234725743834073140}
+  - component: {fileID: 7609228181890290987}
   m_Layer: 3
   m_Name: LanternItem
   m_TagString: Untagged
@@ -192,3 +194,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemOccupancy
   tilemap: {fileID: 0}
+--- !u!114 &-7234725743834073140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4174347128712009735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e977184393f80439fe57a9d879ff2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Item
+  itemType: 2
+  itemName: Lamp
+  itemImage: {fileID: -3535221090349844623, guid: 7ecc8f309a9f0ec4aba3879200ed0e6e, type: 3}
+--- !u!114 &7609228181890290987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4174347128712009735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e05586a9c91e10c47beaac541c4109f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldItems
+  count: 1
