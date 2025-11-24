@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf30bdc4b87940dbad87861622577bc, type: 3}
+  m_Name: DenOwnerNPCDialogueData
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  nodes:
+  - text: "\uB0A9\uC785\uD488? \uADF8\uAC70 \uCC59\uACA8\uC11C \uBE68\uB9AC \uAEBC\uC838.
+      \uB0B4 \uBB3C\uAC74 \uAC74\uB4DC\uB9AC\uC9C0 \uB9C8."
+    typingSpeed: 0.1
+    hasChoices: 0
+    choices:
+    - choiceText: "\uC800\uB3C4 \uC81C \uAD6C\uC5ED\uC744 \uC9C0\uD0A4\uACE0 \uC2F6\uC744
+        \uBFD0\uC774\uC5D0\uC694. "
+      nextNodeIndex: 1
+    - choiceText: "\uB2F9\uC2E0 \uC740\uC2E0\uCC98\uB294 \uB2E4 \uBB34\uB108\uC9C0\uAC8C
+        \uC0DD\uACBC\uB294\uB370. \uC81C\uAC00 \uC65C \uD0D0\uB0B4\uACA0\uC5B4\uC694?"
+      nextNodeIndex: 2
+    - choiceText: "\uC54C\uACA0\uC5B4\uC694. \uBC14\uB85C \uB098\uAC08\uAC8C\uC694."
+      nextNodeIndex: 3
+    nextNodeIndex: 0
+  - text: "\uC608\uC758\uB294 \uC788\uAD6C\uB098? \uBB50, \uB2E4\uC2E0 \uBCF4\uC9C0
+      \uB9D0\uC790\uACE0. "
+    typingSpeed: 0.1
+    hasChoices: 1
+    choices:
+    - choiceText: "\uADF8\uB7EC\uC8E0."
+      nextNodeIndex: -1
+    nextNodeIndex: 0
+  - text: "\uBB50? \uB2F9\uC7A5 \uC369 \uB098\uAC00. \uAEBC\uC838! "
+    typingSpeed: 0.1
+    hasChoices: 1
+    choices:
+    - choiceText: "\uC131\uC9C8 \uC880 \uC8FD\uC5EC\uC694."
+      nextNodeIndex: -1
+    nextNodeIndex: 0
+  - text: "\uC88B\uC544. \uB2E4\uC2DC\uB294 \uC774 \uADFC\uCC98\uC5D0 \uC5BC\uCA61\uAC70\uB9AC\uC9C0\uB9C8."
+    typingSpeed: 0.1
+    hasChoices: 1
+    choices:
+    - choiceText: "\uADF8\uB7EC\uC8E0."
+      nextNodeIndex: -1
+    nextNodeIndex: 0
+  startNodeIndex: -1
