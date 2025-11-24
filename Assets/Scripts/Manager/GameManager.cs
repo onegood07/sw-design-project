@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement; 
+using System.Collections.Generic; 
+using Random = UnityEngine.Random;
 
 // 게임 상태 관련 Enum 정의
 public enum GameEnding { None, Happy, GameOver, Bad } // 엔딩 종류
@@ -19,10 +21,26 @@ public class GameManager : MonoBehaviour
 
     public bool IsInShelter { get; set; } = false; // 현재 씬이 쉘터 내부인지 확인
 
+    // MARK: 납입품 관련 설정
+    [Header("Item Submission Settings")]
+    // 일차별로 생성된 납입 요구 아이템 목록 (아이템 타입, 요구 수량)
+    public Dictionary<ItemType, int> CurrentRequiredItems { get; private set; } = new Dictionary<ItemType, int>();
+    public int BaseRequiredAmount = 5; // 기본 요구 수량
+    public int MaxRequiredIncrease = 3; // 일차별 최대 증가 수량
+
+    // MARK: 좀비 능력치 배율 설정 (밤페이즈 특수 좀비용도)
+    [Header("Zombie Multipliers")]
+    // 밤에 적용할 이동 속도 배율 (ex. 1.5면 50% 증가)
+    public float NightSpeedMultiplier = 1.3f; 
+    // 밤에 적용할 체력 배율 
+    public float NightHpMultiplier = 1.2f; 
+    // 밤에 적용할 공격력 배율 
+    public float NightPowerMultiplier = 1.5f; 
+
     // 점수 관련
     [Header("Scores")]
-    public int ShelterItemScore { get; private set; } = 0; // 납입품 점수
-    public int SurvivorScore { get; private set; } = 10; // 생존자 수 점수
+    public int ShelterItemScore = 0; // 납입품 점수
+    public int SurvivorScore = 10; // 생존자 수 점수
 
     // 스폰 관련 설정
     [Header("Spawn Settings")]
@@ -75,6 +93,7 @@ public class GameManager : MonoBehaviour
         CurrentZombieSpawnCount = BaseZombieSpawnCount; // 초기 좀비 수
 
         ApplyGlobalLight(); // 조명 반영
+        GenerateRequiredItems();  // 아이템 납입 리스트 생성
 
         // 게임 전체 루프 시작
         gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
@@ -147,25 +166,6 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("모든 날이 종료되었습니다!");
-    }
-
-    // 밤 스킵 처리
-    public void SkipNightConfirmed()
-    {
-        ForceEndNightPhase(); // 강제 밤 종료
-    }
-
-    // 외부에서 밤 페이즈 강제 종료 
-    public void ForceEndNightPhase()
-    {
-        if (CurrentPhase == Phase.Night && gameLoopCoroutine != null)
-        {
-            StopCoroutine(gameLoopCoroutine); // 기존 루프 중단
-            NextDay(); // 다음 날로 진행
-            CurrentPhase = Phase.Day; // 페이즈를 낮으로
-            ApplyGlobalLight(); // 조명 적용
-            gameLoopCoroutine = StartCoroutine(GameLoopCoroutine()); // 새로운 루프 시작
-        }
     }
 
     // MARK: 낮 페이즈 로직
@@ -242,6 +242,54 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // MARK: 일차별 랜덤 납입품 목록 생성 로직
+    void GenerateRequiredItems()
+    {
+        CurrentRequiredItems.Clear(); // 이전 날의 목록 초기화
+
+        // 현재 일차에 따른 요구 수량 증가 폭 계산
+        int dayIndex = (int)CurrentDay; // 0, 1, 2, 3
+        
+        // 요구 수량 - 기본 수량 + 일차에 비례한 랜덤 증가량
+        int baseAmount = BaseRequiredAmount + Random.Range(0, dayIndex * MaxRequiredIncrease);
+
+        // 납입 요구 아이템 타입 목록 (현재는 모든 타입)
+        ItemType[] allTypes = (ItemType[])System.Enum.GetValues(typeof(ItemType));
+        
+        // 요구할 아이템 개수를 랜덤하게 결정
+        int requiredItemCount = Random.Range(1, allTypes.Length); 
+        
+        // 아이템 타입 리스트를 섞기 (랜덤하게 선택하기 위해)
+        List<ItemType> shuffledTypes = new List<ItemType>(allTypes);
+        // 셔플 알고리즘 간소화
+        for (int i = 0; i < shuffledTypes.Count; i++)
+        {
+            ItemType temp = shuffledTypes[i];
+            int randomIndex = Random.Range(i, shuffledTypes.Count);
+            shuffledTypes[i] = shuffledTypes[randomIndex];
+            shuffledTypes[randomIndex] = temp;
+        }
+
+        // 섞인 목록에서 필요한 개수만큼 선택
+        for (int i = 0; i < requiredItemCount; i++)
+        {
+            ItemType type = shuffledTypes[i];
+            
+            // 요구 수량에 약간의 랜덤 변화 주기
+            int finalAmount = baseAmount + Random.Range(-1, 2); // +-1 정도의 변화
+            if (finalAmount < 1) finalAmount = 1; // 최소 1개 이상 요구
+            
+            CurrentRequiredItems.Add(type, finalAmount);
+        }
+        
+        // 디버그 출력
+        Debug.Log($"[GameManager] {CurrentDay} 납입 요구 목록 생성:");
+        foreach (var item in CurrentRequiredItems)
+        {
+            Debug.Log($" - {item.Key} : {item.Value}개");
+        }
+    }
+
     // MARK: 다음 날로 전환
     void NextDay()
     {
@@ -264,6 +312,12 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
+
+        // 다음 날 낮페이즈가 시작되기 전 목록 준비
+        if (CurrentDay <= GameDays.FourthDay)
+        {
+            GenerateRequiredItems();
+        }
     }
 
     // MARK: 씬 로드 시 실행
