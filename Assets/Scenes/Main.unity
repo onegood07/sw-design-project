@@ -283,7 +283,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1219622893}
   m_Father: {fileID: 1720860191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -311,7 +312,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 3848a720ae4873147b9448b068bed129, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -76719,8 +76720,19 @@ MonoBehaviour:
   - prefab: {fileID: 4665207699815735179, guid: 0feb895004e5a448b98cd5dbcae4ee9b, type: 3}
     type: 1
     ratio: 0.45
-  zombiePrefab: {fileID: 6989195092527803693, guid: 714bdc41231db45f1aa00d96ac6e3a4e, type: 3}
-  npcPrefab: {fileID: 4375253768732716613, guid: a9fc57bc648024cb58cf67018e5c9eb7, type: 3}
+  npcPrefabs:
+  - {fileID: 4375253768732716613, guid: a9fc57bc648024cb58cf67018e5c9eb7, type: 3}
+  - {fileID: 4375253768732716613, guid: 66647ea37ffbf40019a7b0d0aaf968c0, type: 3}
+  - {fileID: 4375253768732716613, guid: 3bf32f63369014589ab76684806dd01e, type: 3}
+  - {fileID: 4375253768732716613, guid: be4f216ec52a74711ac4bab6983f4fe5, type: 3}
+  - {fileID: 4375253768732716613, guid: aad02db8044564b62924b85ba7ae7f57, type: 3}
+  - {fileID: 4375253768732716613, guid: aa20e50f6c59b4136bf088f639756fab, type: 3}
+  - {fileID: 4375253768732716613, guid: ba039183f56464929ae9b5ca2c50d04a, type: 3}
+  - {fileID: 4375253768732716613, guid: ba8cd01867df74558b6918746ab6ca4b, type: 3}
+  normalZombiePrefab: {fileID: 6989195092527803693, guid: 714bdc41231db45f1aa00d96ac6e3a4e, type: 3}
+  highHpZombiePrefab: {fileID: 6989195092527803693, guid: 0e99156093f6446c595a44e844104c56, type: 3}
+  highSpeedZombiePrefab: {fileID: 6989195092527803693, guid: 85084d05ee5a04b73b6829d7671b536a, type: 3}
+  highPowerZombiePrefab: {fileID: 6989195092527803693, guid: e84c3eff87872464f866f3519b024e4e, type: 3}
   itemManager: {fileID: 600492179}
 --- !u!224 &729535037 stripped
 RectTransform:
@@ -91891,6 +91903,81 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1219622892
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1219622893}
+  - component: {fileID: 1219622895}
+  - component: {fileID: 1219622894}
+  m_Layer: 5
+  m_Name: GameOverText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1219622893
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219622892}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 85223628}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -10}
+  m_SizeDelta: {x: 600, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1219622894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219622892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 8608014274811872374, guid: e25d5d646f11c8d4e957d2564acf3839, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1219622895
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219622892}
+  m_CullTransparentMesh: 1
 --- !u!1001 &1219927694
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92019,10 +92106,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2096171257}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 100}
-  m_SizeDelta: {x: 0, y: 100}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 120, y: 200}
+  m_SizeDelta: {x: 1200, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1227108194
 MonoBehaviour:
@@ -92033,23 +92120,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1227108192}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
     m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 7
-  m_Spacing: 30
+  m_ChildAlignment: 3
+  m_Spacing: 20
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 1
-  m_ReverseArrangement: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 1
 --- !u!1 &1231151905
 GameObject:
   m_ObjectHideFlags: 0
@@ -92079,6 +92166,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e378b6646ce8040de85e5311edbf4788, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  NightSpeedMultiplier: 1.3
+  NightHpMultiplier: 1.2
+  NightPowerMultiplier: 1.5
+  ShelterItemScore: 0
+  SurvivorScore: 10
   spawnManager: {fileID: 715778162}
   ItemSpawnCount: 50
   NPCSpawnCount: 3
@@ -94195,7 +94287,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 0.36078432}
+  m_Color: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 0.89411765}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -95526,7 +95618,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 200}
+  m_SizeDelta: {x: 1200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2096171259
 MonoBehaviour:
