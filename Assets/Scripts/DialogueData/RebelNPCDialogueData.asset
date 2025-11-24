@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbf30bdc4b87940dbad87861622577bc, type: 3}
-  m_Name: NPCDialogueData
+  m_Name: RebelNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
-  - text: "\uAC70\uAE30 \uB108. \uB098\uB97C \uC880 \uB3C4\uC640\uC918\uC57C\uACA0\uB294\uB370."
+  - text: "\uAC70\uAE30 \uB108. \uB098\uB97C \uC880 \uB3C4\uC640\uC918\uC57C\uACA0\uB294\uB370. "
     typingSpeed: 0.1
     hasChoices: 1
     choices:

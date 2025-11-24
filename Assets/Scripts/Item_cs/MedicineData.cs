@@ -30,32 +30,49 @@ public class MedicineData : ItemData, IUsable
     {
         heroStat = HeroTransform.GetComponent<HeroStat>();
 
+        // hp 회복 아이템 사용 시.
         if (whichStat.Contains("hp"))
         {
             currentStat = heroStat.hp;
             maxAmount = heroStat.maxHp;
+            // 현재 스탯이 maxAmount 인 경우 사용을 막는다
             if (currentStat == maxAmount)
             {
                 Debug.Log("한계치 초과");
+                return;
+            }
+            // 현재 스탯에 회복량을 더했을 때 최고치를 넘는 경우 최대치로 스탯을 조정
+            else if (currentStat + healAmount[0] >= maxAmount)
+            {
+                heroStat.hp = maxAmount;
                 return;
             }
             heroStat.hp += healAmount[0];
             Debug.Log("hp회복");
         }
+        // hp 회복 아이템 사용 시.
         if (whichStat.Contains("hunger"))
         {
             currentStat = heroStat.hunger;
             maxAmount = heroStat.maxHunger;
-            if (currentStat == maxAmount)
+            // 현재 스탯이 maxAmount 인 경우 사용을 막는다
+            if (currentStat>=maxAmount)
             {
                 Debug.Log("한계치 초과");
                 return;
             }
+            else if (currentStat + healAmount[1] >= maxAmount)
+            {
+                heroStat.hunger = maxAmount;
+                return;
+            }
+            // 현재 스탯에 회복량을 더했을 때 최고치를 넘는 경우 최대치로 스탯을 조정
             heroStat.hunger += healAmount[1];
             Debug.Log("포만감 회복");
         }
         if (whichStat.Contains("speed"))
         {
+            // 이동속도 증가 코루틴 적용.
             heroStat.ActiveHeroSpeedBoost(buffDuration,healAmount[2]);
         }
     }

@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf30bdc4b87940dbad87861622577bc, type: 3}
+  m_Name: LostFatherNPCDialogueData
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  nodes:
+  - text: "\uD639\uC2DC\u2026 \uC791\uC740 \uC2E0\uBC1C \uD55C \uC9DD\uC774\uB77C\uB3C4
+      \uBD24\uB098\u2026? \uC544\uC774 \uD754\uC801\uC744 \uCC3E\uACE0 \uC2F6\uB2E4."
+    typingSpeed: 0.1
+    hasChoices: 1
+    choices:
+    - choiceText: "\uD639\uC2DC \uC774\uAC74\uAC00\uC694?"
+      nextNodeIndex: 1
+    - choiceText: "\uC81C\uAC00 \uCC3E\uC544\uBCFC\uAC8C\uC694. \uC6B0\uC120 \uC800\uB791
+        \uAC19\uC774 \uC258\uD130\uB85C \uAC00\uC2DC\uC8E0."
+      nextNodeIndex: 2
+    - choiceText: "\u2026\uC544\uBB34\uAC83\uB3C4 \uBABB \uBD24\uC5B4\uC694. "
+      nextNodeIndex: 3
+    nextNodeIndex: 0
+  - text: "\uC544\u2026 \uACE0\uB9D9\uB2E4\u2026 \uC815\uB9D0 \uACE0\uB9D9\uB2E4\u2026"
+    typingSpeed: 0.1
+    hasChoices: 1
+    choices:
+    - choiceText: "\uC774\uC81C \uC258\uD130\uB85C \uAC00\uC2DC\uC8E0."
+      nextNodeIndex: -1
+    nextNodeIndex: 0
+  - text: "\uC544\uB2C8\u2026 \uB09C \uB05D\uAE4C\uC9C0 \uCC3E\uC544\uC57C\uB9CC
+      \uD574\u2026"
+    typingSpeed: 0.1
+    hasChoices: 1
+    choices:
+    - choiceText: "...\uCC3E\uC744 \uAC70\uC5D0\uC694."
+      nextNodeIndex: -1
+    nextNodeIndex: 0
+  - text: "\uADF8\uB807\uAD70\u2026 \uADF8\uB798\uB3C4 \uACE0\uB9D9\uB2E4\u2026"
+    typingSpeed: 0.1
+    hasChoices: 1
+    choices:
+    - choiceText: "...\uB124."
+      nextNodeIndex: -1
+    nextNodeIndex: 0
+  startNodeIndex: 0

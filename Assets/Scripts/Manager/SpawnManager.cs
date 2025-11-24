@@ -24,9 +24,15 @@ public class SpawnManager : MonoBehaviour
     [Header("Item Prefabs")]
     public ItemSpawnInfo[] itemInfos; // 아이템 종류별 정보
 
-    [Header("Other Prefabs")]
-    public GameObject zombiePrefab;   // 좀비 프리팹
-    public GameObject npcPrefab;      // NPC 프리팹
+    [Header("NPC Prefabs")]
+    public GameObject[] npcPrefabs;     // NPC 프리팹 담을 리스트
+
+    // MARK: - 좀비 프리팹을 타입별로 분리하여 관리
+    [Header("Zombie Prefabs")]
+    public GameObject normalZombiePrefab;   // Normal 좀비
+    public GameObject highHpZombiePrefab;   // HighHp 좀비 
+    public GameObject highSpeedZombiePrefab; // HighSpeed 좀비 
+    public GameObject highPowerZombiePrefab; // HighPower 좀비 
 
     [Header("Managers")]
     public ItemManager itemManager;   // 아이템 등록 및 관리 매니저
@@ -141,23 +147,60 @@ public class SpawnManager : MonoBehaviour
         }
 
         // NPC 스폰
-        List<Vector3> usedNpcPositions = SpawnObjects(npcPrefab, npcCount, remainingPositions, spawnedNPCs);
-        remainingPositions.RemoveAll(pos => usedNpcPositions.Contains(pos));
+        int actualNpcCount = Mathf.Min(npcCount, npcPrefabs.Length); // NPC 종류 수보다 많이 스폰하지 않도록 제한
+
+        if (npcPrefabs.Length == 0) // npc 프리팹이 없는 경우
+        {
+            Debug.LogWarning("[SpawnManager] 스폰할 NPC 프리팹이 지정되지 않았습니다.");
+        }
+        else
+        {
+            // 스폰할 NPC 프리팹을 랜덤하게 선택
+            List<GameObject> npcsToSpawn = new List<GameObject>();
+            
+            // 프리팹 리스트 복사 후 셔플 (중복 방지하고 랜덤하게 선택)
+            List<GameObject> availableNpcs = new List<GameObject>(npcPrefabs);
+            
+            // 원하는 NPC 수만큼 랜덤하게 선택
+            for (int i = 0; i < actualNpcCount; i++)
+            {
+                if (availableNpcs.Count == 0) break;
+
+                int randomIndex = Random.Range(0, availableNpcs.Count);
+                npcsToSpawn.Add(availableNpcs[randomIndex]);
+                availableNpcs.RemoveAt(randomIndex); // 이미 선택된 NPC는 제외
+            }
+
+            // 선택된 NPC들을 스폰
+            foreach (GameObject npcPrefab in npcsToSpawn)
+            {
+                 // 1명씩 스폰하므로 count는 1
+                List<Vector3> usedNpcPositions = SpawnObjects(npcPrefab, 1, remainingPositions, spawnedNPCs); 
+                remainingPositions.RemoveAll(pos => usedNpcPositions.Contains(pos));
+            }
+        }
 
         // 좀비 스폰
-        List<Vector3> usedZombiePositions = SpawnObjects(zombiePrefab, zombieCount, remainingPositions, spawnedZombies);
+        List<Vector3> usedZombiePositions = SpawnObjects(normalZombiePrefab, zombieCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
     }
 
     // MARK: 좀비만 스폰
     public void SpawnZombiesOnly(int zombieCount)
     {
+        ClearZombies();
+
         if (allSpawnPositions.Count == 0)
         {
-            Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없습니다.");
-            return;
+            GetSpawnPositions(); 
+            if (allSpawnPositions.Count == 0)
+            {
+                Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없습니다. 밤 좀비 스폰 생략.");
+                return;
+            }
         }
 
+       // 아이템/NPC 위치를 피하기 위해 남은 위치를 계산
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
 
         // 기존 아이템/NPC 위치 근처 제외
@@ -166,7 +209,29 @@ public class SpawnManager : MonoBehaviour
             spawnedNPCs.Exists(npc => npc != null && Vector3.Distance(npc.transform.position, pos) < 0.1f)
         );
 
-        SpawnObjects(zombiePrefab, zombieCount, remainingPositions, spawnedZombies);
+        // 밤에는 특수 좀비 (HighHp, HighSpeed, HighPower)를 1/3씩 균등하게 분배
+        int highHpCount = zombieCount / 3;
+        int highSpeedCount = zombieCount / 3;
+        int highPowerCount = zombieCount - highHpCount - highSpeedCount; 
+
+        int totalSpawned = 0;
+
+        // HighHp 좀비 스폰
+        List<Vector3> usedHpPositions = SpawnObjects(highHpZombiePrefab, highHpCount, remainingPositions, spawnedZombies);
+        remainingPositions.RemoveAll(pos => usedHpPositions.Contains(pos));
+        totalSpawned += usedHpPositions.Count;
+
+        // HighSpeed 좀비 스폰
+        List<Vector3> usedSpeedPositions = SpawnObjects(highSpeedZombiePrefab, highSpeedCount, remainingPositions, spawnedZombies);
+        remainingPositions.RemoveAll(pos => usedSpeedPositions.Contains(pos));
+        totalSpawned += usedSpeedPositions.Count;
+
+        // HighPower 좀비 스폰
+        List<Vector3> usedPowerPositions = SpawnObjects(highPowerZombiePrefab, highPowerCount, remainingPositions, spawnedZombies);
+        remainingPositions.RemoveAll(pos => usedPowerPositions.Contains(pos));
+        totalSpawned += usedPowerPositions.Count;
+
+        Debug.Log($"[SpawnManager] 밤 스폰 완료 - 좀비 총 {totalSpawned}마리 스폰 (HP: {usedHpPositions.Count}, Speed: {usedSpeedPositions.Count}, Power: {usedPowerPositions.Count})");
     }
 
     // MARK: 모든 스폰 오브젝트 제거
@@ -185,4 +250,31 @@ public class SpawnManager : MonoBehaviour
             if (npc != null) Destroy(npc);
         spawnedNPCs.Clear();
     }
+
+    // MARK: 아이템만 제거
+    private void ClearItems()
+    {
+        foreach (var item in spawnedItems) 
+            if (item != null) Destroy(item);
+        spawnedItems.Clear();
+        // FIXME: 만약 아이템 매니저에서도 제거 필요하면 제거하기
+        // itemManager?.ClearItems();
+    }
+
+    // MARK: 좀비만 제거
+    private void ClearZombies()
+    {
+        foreach (var zombie in spawnedZombies)
+            if (zombie != null) Destroy(zombie);
+        spawnedZombies.Clear();
+    }
+
+    // MARK: NPC만 제거
+    private void ClearNPCs()
+    {
+        foreach (var npc in spawnedNPCs)
+            if (npc != null) Destroy(npc);
+        spawnedNPCs.Clear();
+    }
 }
+
