@@ -19,7 +19,6 @@ public class ZombieStat : MonoBehaviour
     public GameObject dropItem;
     [Header("drop rate - float")]
     public float dropRate;
-    [Header("점유 해제 타일 맵")]
 
 
 

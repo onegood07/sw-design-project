@@ -156,7 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ZombieStat
   type: 0
   dropItem: {fileID: 2287141480163034400, guid: 7f140e7a38ddecd48bccfdb655f6529b, type: 3}
-  dropRate: 80
+  dropRate: 0.8
   BaseHp: 1000
   BaseSpeedFactor: 1.1
   BasePower: 40
