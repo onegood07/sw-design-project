@@ -4,7 +4,8 @@ public enum ItemView
 {
     Heal,
     Weapon,
-    Lantern
+    Lantern,
+    Unused
 }
 
 [System.Serializable]

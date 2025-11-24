@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3642441484333109082}
   - component: {fileID: 2111366661069429078}
   - component: {fileID: 8725439281975841835}
+  - component: {fileID: 4597828170416522377}
   m_Layer: 3
   m_Name: TeddyBear
   m_TagString: Untagged
@@ -206,3 +207,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldItems
   count: 1
+--- !u!114 &4597828170416522377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2287141480163034400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e977184393f80439fe57a9d879ff2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Item
+  itemType: 3
+  itemName: bear
+  itemImage: {fileID: -6183568976705198516, guid: c77b457648fec89449af987979f9005e, type: 3}
