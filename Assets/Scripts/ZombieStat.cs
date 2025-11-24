@@ -1,3 +1,5 @@
+using NUnit.Framework;
+using Unity.Mathematics;
 using UnityEngine;
 
 // 좀비의 유형을 정의하는 Enum
@@ -13,6 +15,13 @@ public class ZombieStat : MonoBehaviour
     // 좀비 유형 설정
     [Header("Zombie Type")]
     public ZombieType type = ZombieType.Normal; // 좀비의 유형
+    [Header("drop item")]
+    public GameObject dropItem;
+    [Header("drop rate - float")]
+    public float dropRate;
+    [Header("점유 해제 타일 맵")]
+
+
 
     // 기본 스탯 설정
     [Header("Base Stats")]
@@ -103,6 +112,9 @@ public class ZombieStat : MonoBehaviour
 
     public void DestroyZombie() 
     {
+        // 좀비의 그리드 점유를 해제 하고 아이템을 드롭 한 후, destroy가 진행됨.
+        zombieMove.CallDestroy();
+        itemDrop();
         Destroy(gameObject);
     }
     
@@ -111,5 +123,11 @@ public class ZombieStat : MonoBehaviour
     {
         currentHp -= damage;
         if(currentHp <= 0) DestroyZombie();
+    }
+    // 아이템 드롭
+    public void itemDrop()
+    {
+        var isDrop = UnityEngine.Random.Range(0f,1f) < dropRate;
+        if(isDrop) Instantiate(dropItem,transform.position,Quaternion.identity);
     }
 }

@@ -143,6 +143,15 @@ public class ZombieMove : MonoBehaviour
             hasReservedNext = false;
         }
     }
+    public void CallDestroy()
+    {
+        GridOccupancy.Release(collisionTilemap, currentCell, this);
+        if (hasReservedNext)
+        {
+            GridOccupancy.Release(collisionTilemap, reservedTargetCell, this);
+            hasReservedNext = false;
+        }
+    }
 
     void DoAttack()
     {
