@@ -143,6 +143,7 @@ public class ZombieMove : MonoBehaviour
             hasReservedNext = false;
         }
     }
+    // 임의 해제 필요 시 호출할 함수
     public void CallDestroy()
     {
         GridOccupancy.Release(collisionTilemap, currentCell, this);
