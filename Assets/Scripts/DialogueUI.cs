@@ -13,6 +13,7 @@ public class DialogueUI : MonoBehaviour
     public Transform choicesParent; // 선택지 버튼들을 담을 부모 오브젝트
     public GameObject choiceButtonPrefab; // 선택지 버튼 프리팹
 
+    private Coroutine autoAdvanceCoroutine; 
     private Coroutine typingCoroutine; // 타이핑 코루틴 참조
 
     void Awake()
