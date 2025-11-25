@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d656abfcabef1d44a8e0a7fc2af245cc, type: 3}
+  m_Name: Water_400
+  m_EditorClassIdentifier: Assembly-CSharp::MedicineData
+  ItemName: 400
+  Description: "\uC0DD\uC218"
+  Icon: {fileID: 0}
+  MaxStackCount: 99
+  isAvailable: 1
+  coolTime: 0
+  whichStat:
+  - hunger
+  healAmount:
+  - 0
+  - 100
+  buffDuration: 0
