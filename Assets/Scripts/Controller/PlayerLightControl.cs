@@ -4,15 +4,28 @@ using UnityEngine.SceneManagement;
 
 public class PlayerLightControl : MonoBehaviour
 {
+    // 싱글톤 선언
+    public static PlayerLightControl Instance { get; private set; }
+    public bool isLanternActive {get;private set;} = false; // 랜턴 사용 여부
     public Light2D playerLight; 
 
     [Header("반경 설정")]
     public float baseRadius = 4f;        // 랜턴 미사용 시 기본 반경
     public float lanternRadius = 8f;     // 랜턴 사용 시 확장된 반경
-    public float transitionSpeed = 5f;   // 반경 전환 속도
+    public float transitionSpeed = 100f;   // 반경 전환 속도
 
-    private bool isLanternActive = false; // 현재 랜턴 사용 여부
-
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            // 씬이 변경되어도 유지하고 싶다면 DontDestroyOnLoad(gameObject); 추가
+        }
+    }
     void Start()
     {
         // 처음에는 조명을 꺼둔 상태로 시작
@@ -63,10 +76,11 @@ public class PlayerLightControl : MonoBehaviour
             // 플레이어 반경과 설정한 목표 반경이 다르면 부드럽게 반경 전환
             if (playerLight.pointLightOuterRadius != targetRadius)
             {
-                playerLight.pointLightOuterRadius = Mathf.Lerp(
-                    playerLight.pointLightOuterRadius, 
-                    targetRadius, 
-                    Time.deltaTime * transitionSpeed
+                // moveTowards 로 변경
+                playerLight.pointLightOuterRadius = Mathf.MoveTowards(
+                playerLight.pointLightOuterRadius, 
+                targetRadius, 
+                Time.deltaTime * transitionSpeed * 4f // transitionSpeed를 직접 속도로 사용 (필요 시 속도 조정)
                 );
             }
         }
@@ -74,8 +88,10 @@ public class PlayerLightControl : MonoBehaviour
 
     // TODO: 랜턴 아이템 연결 시 사용할 함수
     // 외부에서 호출하여 랜턴 효과 적용
-    public void SetLanternActive(bool active)
+    public void SetLanternActive()
     {
-        isLanternActive = active;
+        isLanternActive = !isLanternActive;
+        Debug.Log("setLanternActive 실행");
     }
+
 }
