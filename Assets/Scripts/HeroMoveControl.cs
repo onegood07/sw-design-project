@@ -1,57 +1,54 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Tilemaps;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
 
 public class HeroMoveControl : MonoBehaviour
 {
     public static HeroMoveControl Instance { get; private set; }
 
+    // 현재 바라보는 방향 (기본값: 아래)
     private Vector2 currentViewDirection = new Vector2(0f, -1f);
     public Vector2 CurrentViewDirection => currentViewDirection;
 
-    [SerializeField] private float stepTime = 0.4f;
-    // 이동속도 heroStat 에서 가져와야 함. 원래는 2.5f였음
+    [SerializeField] private float stepTime = 0.4f; // 속도 계산용 파라미터
+
     private float moveSpeed;
     private const float minMoveSpeed = 0.5f;
-    // maxMoveSpeed 수정 기존 값 3f 였음.
     private const float maxMoveSpeed = 6f;
 
     private Rigidbody2D rb;
-    private Vector2 targetPosition;
-
     public InputActionAsset inputActions;
     private InputAction moveAction;
     private Vector2 moveInput;
 
-    private bool isMoving = false;
-
     [SerializeField] private Vector2 initHeroPosition = new Vector2(0.5f, 0.5f);
-    [SerializeField] private Tilemap collisionTilemap;
-
-    private Vector2Int currentReservedCell;
-    private bool hasCurrentReservation = false;
 
     private Animator animator;
     private Vector2Int lastMoveDir = Vector2Int.down;
 
+    // Idle
     private readonly int stIdleUp    = Animator.StringToHash("U");
     private readonly int stIdleDown  = Animator.StringToHash("D");
     private readonly int stIdleLeft  = Animator.StringToHash("L");
     private readonly int stIdleRight = Animator.StringToHash("R");
 
+    // Walk
     private readonly int stWalkUp    = Animator.StringToHash("hero_Up");
     private readonly int stWalkDown  = Animator.StringToHash("hero_Down");
     private readonly int stWalkLeft  = Animator.StringToHash("hero_Left");
     private readonly int stWalkRight = Animator.StringToHash("hero_Right");
 
+    // 방향 전환이 느려 보였던 원인: CrossFade 시간 + 상태 전환 시간
+    // → CrossFade 시간을 줄여서 더 "즉각" 바뀌게 한다.
+    private const float animCrossFadeTime = 0.02f; // ★ 방향전환 더 빠르게 (기존 0.05f)
+
     void Awake()
     {
+        // 싱글톤
         if (Instance == null)
         {
             Instance = this;
-            // 씬이 전환되어도 오브젝트를 파괴하지 않음
-            DontDestroyOnLoad(gameObject); 
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -61,15 +58,19 @@ public class HeroMoveControl : MonoBehaviour
 
         animator = GetComponent<Animator>();
 
-        if (collisionTilemap == null)
+        // InputAction 세팅
+        if (inputActions != null)
         {
-            var colGo = GameObject.Find("collision");
-            if (colGo != null) collisionTilemap = colGo.GetComponent<Tilemap>();
+            moveAction = inputActions.FindActionMap("Player")?.FindAction("Move");
+            if (moveAction != null)
+                moveAction.Enable();
+            else
+                Debug.LogError("Move 액션을 찾을 수 없습니다.");
         }
-
-        moveAction = inputActions.FindActionMap("Player")?.FindAction("Move");
-        if (moveAction != null) moveAction.Enable();
-        else Debug.LogError("Move 액션을 찾을 수 없습니다.");
+        else
+        {
+            Debug.LogError("InputActionAsset이 설정되지 않았습니다.");
+        }
     }
 
     void Start()
@@ -77,157 +78,45 @@ public class HeroMoveControl : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         rb.MovePosition(initHeroPosition);
-        Vector2 snap = GetCellCenter(rb.position);
-        rb.MovePosition(snap);
-        targetPosition = snap;
-
-        EnsureCurrentCellReserved();
-
         lastMoveDir = Vector2Int.down;
-        UpdateAnimation(false);   // 아래 idle(D)로 시작
+        UpdateAnimation(false);
     }
 
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        if (moveAction != null) moveAction.Enable();
     }
 
     void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
         if (moveAction != null) moveAction.Disable();
-        ReleaseReservation();
     }
 
-    void OnDestroy()
-    {
-        ReleaseReservation();
-    }
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"[Hero] 씬 로드 완료: {scene.name}");
-        
-        // 새로운 씬에서 "collision" 타일맵 오브젝트를 찾습니다.
-        var colGo = GameObject.Find("collision");
-        if (colGo != null)
-        {
-            collisionTilemap = colGo.GetComponent<Tilemap>();
-            Debug.Log($"[Hero] 새로운 collision Tilemap 연결됨.");
-        }
-        else
-        {
-            collisionTilemap = null;
-            Debug.LogWarning($"[Hero] 씬 '{scene.name}'에서 'collision' Tilemap을 찾을 수 없습니다. (충돌/점유 체크 비활성화)");
-        }
 
-        if (rb != null)
-        {
-            // 캐릭터의 현재 위치를 새 타일맵 그리드 중앙으로 스냅
-            Vector2 snap = GetCellCenter(rb.position);
-            rb.MovePosition(snap);
-            targetPosition = snap;
-            
-            // collisionTilemap이 null이면 내부에서 null 체크를 통해 예약 로직이 건너뛰어짐
-            EnsureCurrentCellReserved(); 
-        }
-        
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        // 씬 로드 후 기본 상태 정리
+        rb.linearVelocity = Vector2.zero;
         UpdateAnimation(false);
-        isMoving = false;
     }
 
+    // New Input System 콜백
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+
+        // 대각선 입력 막기 (4방향)
         if (moveInput.x != 0f && moveInput.y != 0f)
-            moveInput.x = 0f; // 대각선 방지
+            moveInput.x = 0f;
     }
 
-    // ====== 유틸 ======
-
-    Vector2 GetCellCenter(Vector2 worldPos)
-    {
-        if (collisionTilemap != null)
-        {
-            Vector3Int cell = collisionTilemap.WorldToCell(worldPos);
-            Vector3 c = collisionTilemap.GetCellCenterWorld(cell);
-            return new Vector2(c.x, c.y);
-        }
-        // Tilemap이 없어도 그리드 단위 이동을 위해 0.5f 그리드 중앙으로 스냅 로직 유지
-        return new Vector2(Mathf.Floor(worldPos.x) + 0.5f, Mathf.Floor(worldPos.y) + 0.5f);
-    }
-
-    Vector2Int WorldToCell(Vector2 worldPos)
-    {
-        if (collisionTilemap == null)
-            return new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.y));
-
-        Vector3Int c = collisionTilemap.WorldToCell(worldPos);
-        return new Vector2Int(c.x, c.y);
-    }
-
-    Vector2 CellCenterWorld(Vector2Int cell)
-    {
-        if (collisionTilemap == null)
-            return new Vector2(cell.x + 0.5f, cell.y + 0.5f);
-
-        Vector3 c = collisionTilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
-        return new Vector2(c.x, c.y);
-    }
-
-    bool IsBlockedCell(Vector2 worldPos)
-    {
-        if (collisionTilemap == null) return false;
-        
-        Vector3Int cell = collisionTilemap.WorldToCell(worldPos);
-        return collisionTilemap.HasTile(cell);
-    }
-
-    bool CanStepTileOnly(Vector2 dirUnit)
-    {
-        // IsBlockedCell이 null 체크를 포함하므로 이 함수는 항상 안전함
-        Vector2 nextCenter = GetCellCenter(rb.position + dirUnit);
-        return !IsBlockedCell(nextCenter);
-    }
-
-    void EnsureCurrentCellReserved()
-    {
-        if (collisionTilemap == null) return; 
-
-        Vector2Int cell = WorldToCell(rb.position);
-
-        if (!hasCurrentReservation)
-        {
-            if (GridOccupancy.TryReserve(collisionTilemap, cell, this))
-            {
-                currentReservedCell = cell;
-                hasCurrentReservation = true;
-            }
-            else
-            {
-                Debug.LogWarning($"[Hero] 현재 셀 예약 실패: {cell}");
-            }
-        }
-        else if (cell != currentReservedCell)
-        {
-            GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
-            if (GridOccupancy.TryReserve(collisionTilemap, cell, this))
-            {
-                currentReservedCell = cell;
-            }
-            else
-            {
-                Debug.LogWarning($"[Hero] 현재 셀 재예약 실패: {cell}");
-            }
-        }
-    }
-
-    void ReleaseReservation()
-    {
-        if (!hasCurrentReservation || collisionTilemap == null) return;
-        GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
-        hasCurrentReservation = false;
-    }
-
+    // 바라보는 방향 갱신
     void changeViewDirection(Vector2 inputDir)
     {
         if (inputDir.sqrMagnitude < 0.0001f) return;
@@ -236,240 +125,128 @@ public class HeroMoveControl : MonoBehaviour
             currentViewDirection = n;
     }
 
-    // === 애니메이션 직접 제어 ===
+    // 애니메이션 처리
     void UpdateAnimation(bool moving)
     {
-        int hashToPlay = stIdleDown; // 기본값
+        int hashToPlay = stIdleDown;
 
         if (lastMoveDir.y > 0)       hashToPlay = moving ? stWalkUp    : stIdleUp;
         else if (lastMoveDir.y < 0)  hashToPlay = moving ? stWalkDown  : stIdleDown;
         else if (lastMoveDir.x < 0)  hashToPlay = moving ? stWalkLeft  : stIdleLeft;
         else if (lastMoveDir.x > 0)  hashToPlay = moving ? stWalkRight : stIdleRight;
 
-        animator.CrossFade(hashToPlay, 0.05f);
+        // ★ CrossFade 시간을 줄여서 방향 전환을 더 빠르게
+        animator.CrossFade(hashToPlay, animCrossFadeTime);
     }
 
-    // ====== 메인 이동 루프 ======
     void FixedUpdate()
     {
-        bool attemptReservation = collisionTilemap != null;
+        if (rb == null) return;
 
-        // 수정. stepTime 에 관계 없이 heroStat의 속도 배율만큼 증가함.
-        moveSpeed = 1f / stepTime * GetComponent<HeroStat>().speed/1000f;
-        moveSpeed = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
-
-        // ---------- 이동 중 ----------
-        if (isMoving)
+        // HeroStat 기반 속도 계산 (기존 공식 유지)
+        var stat = GetComponent<HeroStat>();
+        if (stat != null)
         {
-            Vector2 newPos = Vector2.MoveTowards(rb.position, targetPosition, moveSpeed * Time.fixedDeltaTime);
-            rb.MovePosition(newPos);
-
-            if (Vector2.Distance(rb.position, targetPosition) < 0.001f)
-            {
-                // 목표 위치 도달 후 스냅
-                rb.MovePosition(targetPosition); 
-
-                // 연속 입력
-                if (moveInput.sqrMagnitude > 0.1f)
-                {
-                    Vector2 dir = moveInput.normalized;
-                    dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y));
-
-                    // Tilemap이 없으면 CanStepTileOnly는 항상 true (IsBlockedCell에서 처리)
-                    if (dir.sqrMagnitude > 0.1f && CanStepTileOnly(dir))
-                    {
-                        Vector2 curCenter = CellCenterWorld(currentReservedCell);
-                        Vector2Int nextCell = WorldToCell(curCenter + dir);
-
-                        bool reservedSuccessfully = !attemptReservation; // Tilemap이 없으면 예약 없이 성공
-
-                        if (attemptReservation) // Tilemap이 있을 때만 Grid Occupancy 실행
-                        {
-                            if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
-                            {
-                                if (hasCurrentReservation)
-                                    GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
-
-                                currentReservedCell = nextCell;
-                                hasCurrentReservation = true;
-                                reservedSuccessfully = true;
-                            }
-                            else
-                            {
-                                reservedSuccessfully = false;
-                            }
-                        }
-                        else
-                        {
-                            // Tilemap이 없을 때, 혹시 모를 이전 씬의 예약을 해제
-                            if (hasCurrentReservation)
-                                ReleaseReservation();
-                        }
-
-
-                        if (reservedSuccessfully)
-                        {
-                            // 이동 시작
-                            targetPosition = CellCenterWorld(nextCell);
-                            currentViewDirection = dir.normalized;
-
-                            lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
-                            isMoving = true;
-                            UpdateAnimation(true);  // 계속 걷기
-                        }
-                        else
-                        {
-                            // Grid Mode에서 점유 실패 → 방향만 바꾸고 멈춤
-                            if (dir.sqrMagnitude > 0.1f)
-                            {
-                                lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
-                                changeViewDirection(dir);
-                            }
-                            isMoving = false;
-                            UpdateAnimation(false); // 해당 방향 idle
-                        }
-                    }
-                    else
-                    {
-                        // 벽 등으로 더 못감 (Grid Mode에서만 발생) → 방향만 돌고 멈춤
-                        if (dir.sqrMagnitude > 0.1f)
-                        {
-                            lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
-                            changeViewDirection(dir);
-                        }
-                        isMoving = false;
-                        UpdateAnimation(false);
-                    }
-                }
-                else
-                {
-                    // 입력 없음 → 마지막 방향으로 서 있기
-                    isMoving = false;
-                    UpdateAnimation(false);
-                }
-            }
-
-            return;
-        }
-
-        // ---------- 정지 상태 ----------
-        if (moveInput.sqrMagnitude > 0.1f)
-        {
-            Vector2 dir = moveInput.normalized;
-            dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y));
-
-            // Tilemap이 없으면 CanStepTileOnly는 항상 true (IsBlockedCell에서 처리)
-            if (dir.sqrMagnitude > 0.1f && CanStepTileOnly(dir))
-            {
-                Vector2 curCenter = GetCellCenter(rb.position);
-                Vector2Int nextCell = WorldToCell(curCenter + dir);
-
-                bool reservedSuccessfully = !attemptReservation; // Tilemap이 없으면 예약 없이 성공
-
-                if (attemptReservation) // Tilemap이 있을 때만 Grid Occupancy 실행
-                {
-                    if (GridOccupancy.TryReserve(collisionTilemap, nextCell, this))
-                    {
-                        if (hasCurrentReservation)
-                            GridOccupancy.Release(collisionTilemap, currentReservedCell, this);
-
-                        currentReservedCell = nextCell;
-                        hasCurrentReservation = true;
-                        reservedSuccessfully = true;
-                    }
-                    else
-                    {
-                        reservedSuccessfully = false;
-                    }
-                }
-                else
-                {
-                    // Tilemap이 없을 때, 혹시 모를 이전 씬의 예약을 해제
-                    if (hasCurrentReservation)
-                        ReleaseReservation();
-                }
-
-                if (reservedSuccessfully)
-                {
-                    // 이동 시작
-                    rb.MovePosition(curCenter);
-                    targetPosition = CellCenterWorld(nextCell);
-
-                    lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
-                    changeViewDirection(dir);
-
-                    isMoving = true;
-                    UpdateAnimation(true); // 걷기 시작
-                }
-                else
-                {
-                    // Grid Mode에서 점유 실패 → 방향만 돌리기
-                    Vector2 center = GetCellCenter(rb.position);
-                    rb.MovePosition(center);
-                    targetPosition = center;
-
-                    if (dir.sqrMagnitude > 0.1f)
-                    {
-                        lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
-                        changeViewDirection(dir);
-                    }
-
-                    isMoving = false;
-                    UpdateAnimation(false);
-                }
-            }
-            else
-            {
-                // 벽 때문에 못 움직임 (Grid Mode에서만 발생) → 방향만 돌리기
-                Vector2 curCenter = GetCellCenter(rb.position);
-                rb.MovePosition(curCenter);
-                targetPosition = curCenter;
-
-                if (dir.sqrMagnitude > 0.1f)
-                {
-                    lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
-                    changeViewDirection(dir);
-                }
-
-                isMoving = false;
-                UpdateAnimation(false);
-            }
+            moveSpeed = 1f / stepTime * stat.speed / 1000f;
         }
         else
         {
-            // 입력 없음 → 현재 셀 점유만 유지, idle 방향 유지
-            EnsureCurrentCellReserved();
+            moveSpeed = 2.5f; // 혹시 HeroStat 없으면 기본값
         }
+
+        moveSpeed = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
+
+        // 현재 실제 속도 (좀비한테 밀리는 것까지 포함)
+        Vector2 currentVel = rb.linearVelocity;
+
+        // ===========================================
+        // 입력이 없을 때 처리 (좀비에게 밀릴 때 애니 안 끊기게)
+        // ===========================================
+        if (moveInput.sqrMagnitude <= 0.01f)
+        {
+            // 1) 실제로 밀려서 움직이고 있는 경우 → 걷는 애니 유지
+            if (currentVel.sqrMagnitude > 0.001f)
+            {
+                Vector2 pushDir = currentVel.normalized;
+
+                // 밀리는 방향 기준으로 lastMoveDir 업데이트
+                int lx = lastMoveDir.x;
+                int ly = lastMoveDir.y;
+
+                if (Mathf.Abs(pushDir.x) > Mathf.Abs(pushDir.y))
+                {
+                    // 좌우로 더 많이 움직이면 X 기준
+                    lx = pushDir.x > 0 ? 1 : -1;
+                    ly = 0;
+                }
+                else
+                {
+                    // 위아래로 더 많이 움직이면 Y 기준
+                    ly = pushDir.y > 0 ? 1 : -1;
+                    lx = 0;
+                }
+
+                lastMoveDir = new Vector2Int(lx, ly);
+
+                UpdateAnimation(true); // 걷기 애니메이션 계속
+            }
+            else
+            {
+                // 2) 정말로 멈춰 있을 때만 Idle 애니메이션
+                rb.linearVelocity = Vector2.zero;
+                UpdateAnimation(false);
+            }
+            return;
+        }
+
+        // ===========================================
+        // 입력이 있을 때 (원래 이동 로직)
+        // ===========================================
+        // 방향 처리 (4방향)
+        Vector2 dir = moveInput.normalized;
+        dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y)); // -1, 0, 1
+
+        if (dir.sqrMagnitude <= 0.01f)
+        {
+            rb.linearVelocity = Vector2.zero;
+            UpdateAnimation(false);
+            return;
+        }
+
+        // 실제 이동
+        rb.linearVelocity = dir * moveSpeed;
+
+        // 방향/시선 갱신
+        lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
+        changeViewDirection(dir);
+
+        // 걷기 애니메이션
+        UpdateAnimation(true);
     }
+
+    // 외부에서 타겟 위치를 강제로 설정할 때 사용 (워프 등)
     public void SetTargetPosition(Vector2 pos)
     {
-        targetPosition = pos;
-        rb.MovePosition(pos);
-        EnsureCurrentCellReserved();
-        isMoving = false;
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
+
+        rb.position = pos;
+        rb.linearVelocity = Vector2.zero;
         UpdateAnimation(false);
     }
+
+    // 즉시 텔레포트
     public void ForceMove(Vector2 newPos)
     {
-        ReleaseReservation();
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
 
-        transform.position = newPos;
-        targetPosition = newPos;
-
-        isMoving = false;
+        rb.position = newPos;
+        rb.linearVelocity = Vector2.zero;
         UpdateAnimation(false);
-        
-        EnsureCurrentCellReserved();
     }
 
-    public void SetCollisionTilemap(Tilemap tilemap)
-    {
-        collisionTilemap = tilemap;
-    }
-
+    // 쉘터에서 나갈 때 외부 위치로 강제 이동
     public void ExitShelter(Vector3 outsidePos)
     {
         ForceMove(outsidePos);
     }
-
 }

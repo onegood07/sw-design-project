@@ -44,9 +44,6 @@ public class InsideShelterManager : MonoBehaviour
     {
         if (spawnTilemap == null || HeroMoveControl.Instance == null) return;
 
-        // 영웅 이동 컨트롤에 충돌 타일맵 전달
-        HeroMoveControl.Instance.SetCollisionTilemap(collisionTilemap);
-
         Vector3 spawnPos = Vector3.zero;
 
         // spawnTilemap에서 스폰 가능한 타일 찾기
