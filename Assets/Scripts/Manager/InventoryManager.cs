@@ -68,6 +68,20 @@ public class InventoryManager : MonoBehaviour
         }
         if (Item is IUsable UsableItem) UsableItem.Use(HeroTransform, HeroMoveControl.CurrentViewDirection);
         else Debug.Log("사용할 수 없는 아이템");
-
+    }
+    // 슬롯 넘버로 일단은 구현
+    public ItemData selectItem(int slotNum)
+    {
+        ItemData Item = QuickSlot[slotNum-1];
+        if(Item == null)
+        {
+            Debug.Log("빈 슬롯");
+            return null;
+        }
+        if(Item is IUsable UsableItem) return Item;
+        else {
+            Debug.Log("사용할 수 없는 아이템");
+            return null;
+        }
     }
 }
