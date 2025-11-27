@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 6875743572020977146}
   - component: {fileID: 7802953469812169975}
-  - component: {fileID: 4901052238921568252}
-  - component: {fileID: 9161328671418450196}
   - component: {fileID: -7325215797412698943}
   - component: {fileID: -6914990703295645560}
   - component: {fileID: -2052348383094473455}
   - component: {fileID: 1467303946012295050}
+  - component: {fileID: 7822941223443747485}
+  - component: {fileID: 3419433346072937892}
   m_Layer: 3
   m_Name: HighHpZombie
   m_TagString: Zombie
@@ -96,52 +96,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!50 &4901052238921568252
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6989195092527803693}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
---- !u!114 &9161328671418450196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6989195092527803693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb4f6411332844c4c87db781e6e76958, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ZombieMove
-  speed: 2.5
-  grid: 5
-  limitGrid: 3
-  attackDelay: 1
-  collisionTilemap: {fileID: 0}
-  MoveInterval: 1
-  target: {fileID: 0}
 --- !u!114 &-7325215797412698943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,9 +109,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieStat
   type: 1
+  dropItem: {fileID: 0}
+  dropRate: 0.2
   BaseHp: 1000
   BaseSpeedFactor: 1.1
   BasePower: 40
+  baseNavSpeed: 1.5
 --- !u!114 &-6914990703295645560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,3 +195,43 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!195 &7822941223443747485
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6989195092527803693}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.15624999
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 0.68749994
+  m_BaseOffset: 0.34374997
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &3419433346072937892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6989195092527803693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e59b213a322b854bbfbda058dfcf41e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZombieNavMove
+  speed: 3
+  chaseRange: 5
+  attackRange: 0.8
+  attackDelay: 0.5
+  wanderRadius: 2
+  wanderInterval: 2
