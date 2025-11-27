@@ -111,9 +111,7 @@ public class HeroMoveControl : MonoBehaviour
     {
         moveInput = context.ReadValue<Vector2>();
 
-        // 대각선 입력 막기 (4방향)
-        if (moveInput.x != 0f && moveInput.y != 0f)
-            moveInput.x = 0f;
+
     }
 
     // 바라보는 방향 갱신
