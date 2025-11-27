@@ -107,7 +107,7 @@ public class HeroStat : MonoBehaviour
             // 1초마다 허기가 10씩 감소
             yield return new WaitForSeconds(1f);
             hunger -= 10f;
-            Debug.Log(hunger);
+            // Debug.Log(hunger);
             // 허기가 음수가 되지 않도록 보정
             if (hunger < 0) hunger = 0;
 
