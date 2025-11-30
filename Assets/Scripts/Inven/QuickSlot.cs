@@ -25,6 +25,8 @@ public class QuickSlot : MonoBehaviour
     public ItemData linkedItemData;
     [HideInInspector]
     public int linkedItemCount;
+    [HideInInspector]
+    public int linkedInventoryIndex = -1;
 
     private static readonly System.Collections.Generic.List<QuickSlot> allSlots
         = new System.Collections.Generic.List<QuickSlot>();
@@ -74,6 +76,18 @@ public class QuickSlot : MonoBehaviour
                     return slot;
                 }
             }
+        }
+        return null;
+    }
+
+    public static QuickSlot GetSlotByIndex(int index)
+    {
+        for (int i = 0; i < allSlots.Count; i++)
+        {
+            var slot = allSlots[i];
+            if (slot == null) continue;
+            if (slot.quickIndex == index)
+                return slot;
         }
         return null;
     }
@@ -133,13 +147,14 @@ public class QuickSlot : MonoBehaviour
 
         linkedItem = fromItem;
         linkedItemData = fromItem.itemData;
-        linkedItemCount = fromItem.count;
+        linkedInventoryIndex = fromSlot.slotIndex;
+        linkedItemCount = linkedItem != null ? linkedItem.count : fromItem.count;
 
         ApplyIcon(fromItem.itemImage);
 
         if (linkedItemData != null && InventoryManager.Instance != null)
         {
-            InventoryManager.Instance.setQuickSlot(linkedItemData, quickIndex, linkedItemCount);
+            InventoryManager.Instance.setQuickSlot(linkedItemData, quickIndex, linkedItemCount, linkedInventoryIndex);
         }
         else
         {
@@ -149,6 +164,30 @@ public class QuickSlot : MonoBehaviour
         // 이후에 필요하면:
         // - Inventory.instance.quickSlots[quickIndex] 에도 함께 저장 (InventoryManager 연동)
         // - 단축키 입력 시 linkedItem 을 사용하는 로직 연결
+    }
+
+    public void UpdateLinkedCount(int newCount)
+    {
+        linkedItemCount = newCount;
+        if (linkedItem != null)
+            linkedItem.count = newCount;
+        UpdateCountDisplay();
+        if (linkedItemCount <= 0)
+        {
+            ClearSlotVisual();
+        }
+    }
+
+    public void ClearSlotVisual()
+    {
+        linkedItem = null;
+        linkedItemData = null;
+        linkedItemCount = 0;
+        linkedInventoryIndex = -1;
+        if (itemIcon != null)
+            itemIcon.gameObject.SetActive(false);
+        if (itemCountText != null)
+            itemCountText.gameObject.SetActive(false);
     }
 }
 

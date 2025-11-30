@@ -59,4 +59,21 @@ public class Inventory : MonoBehaviour
         onChangeItem?.Invoke();
         return true;
     }
+
+    public int ConsumeItemAt(int index, int amount = 1)
+    {
+        if (index < 0 || index >= items.Count) return 0;
+        var item = items[index];
+        if (item == null) return 0;
+
+        item.count -= amount;
+        if (item.count <= 0)
+        {
+            items[index] = null;
+            item.count = 0;
+        }
+
+        onChangeItem?.Invoke();
+        return item != null ? item.count : 0;
+    }
 }
