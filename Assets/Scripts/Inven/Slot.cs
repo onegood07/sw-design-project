@@ -96,18 +96,22 @@ public class Slot : MonoBehaviour, IDropHandler
         if (fromIdx < 0 || toIdx < 0) return;
         if (fromIdx >= ui.slots.Length || toIdx >= ui.slots.Length) return;
 
-        // 빈 슬롯으로 드랍하는 것 금지
-        if (inven.items[toIdx] == null)
-            return;
-
         // 필요한 경우 리스트 크기 확장
-        while (inven.items.Count <= toIdx)
+        while (inven.items.Count <= Mathf.Max(fromIdx, toIdx))
             inven.items.Add(null);
 
-        // 슬롯 아이템 교환
-        var temp = inven.items[fromIdx];
-        inven.items[fromIdx] = inven.items[toIdx];
-        inven.items[toIdx] = temp;
+        // 대상 슬롯이 비어 있으면 "이동", 아니면 "교환"
+        if (inven.items[toIdx] == null)
+        {
+            inven.items[toIdx] = inven.items[fromIdx];
+            inven.items[fromIdx] = null;
+        }
+        else
+        {
+            var temp = inven.items[fromIdx];
+            inven.items[fromIdx] = inven.items[toIdx];
+            inven.items[toIdx] = temp;
+        }
 
         // UI 갱신 이벤트 호출
         inven.onChangeItem?.Invoke();

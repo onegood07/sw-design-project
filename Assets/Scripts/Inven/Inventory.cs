@@ -32,8 +32,8 @@ public class Inventory : MonoBehaviour
     {
         if (worldItem == null) return false;
 
-        // 이미 존재하는 아이템이면 count 증가
-        int idx = items.FindIndex(i => i.itemName == worldItem.itemName);
+        // 이미 존재하는 아이템이면 count 증가 (null 슬롯 방지)
+        int idx = items.FindIndex(i => i != null && i.itemName == worldItem.itemName);
         if (idx != -1)
         {
             items[idx].count += addCount;
@@ -43,7 +43,18 @@ public class Inventory : MonoBehaviour
 
         // 새 슬롯에 추가
         InventoryItem newItem = new InventoryItem(worldItem, addCount);
-        items.Add(newItem);
+
+        // 먼저 비어있는 슬롯(null)을 재사용
+        int emptyIdx = items.FindIndex(i => i == null);
+        if (emptyIdx != -1)
+        {
+            items[emptyIdx] = newItem;
+        }
+        else
+        {
+            // 공간이 모자라면 리스트 확장 (slotCnt 제한은 UI에서 처리)
+            items.Add(newItem);
+        }
 
         onChangeItem?.Invoke();
         return true;
