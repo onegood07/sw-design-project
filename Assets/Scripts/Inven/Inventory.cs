@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 인벤토리 슬롯 리스트를 유지하며 아이템 추가/소비 이벤트를 브로드캐스트합니다.
+/// </summary>
 public class Inventory : MonoBehaviour
 {
     #region Singleton
@@ -28,6 +31,9 @@ public class Inventory : MonoBehaviour
 
     public int slotCnt = 20;
 
+    /// <summary>
+    /// 필드 아이템 데이터를 받아 슬롯에 추가하거나 기존 스택을 증가시킵니다.
+    /// </summary>
     public bool AddItem(Item worldItem, int addCount = 1)
     {
         if (worldItem == null) return false;
@@ -60,6 +66,9 @@ public class Inventory : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다.
+    /// </summary>
     public int ConsumeItemAt(int index, int amount = 1)
     {
         if (index < 0 || index >= items.Count) return 0;

@@ -31,6 +31,8 @@ public class InventoryManager : MonoBehaviour
         HeroMoveControl = HeroTransform.GetComponent<HeroMoveControl>();
         if(HeroMoveControl == null)Debug.Log("currentViewDirection 참조 불가");
     }
+
+    // 드래그된 아이템 데이터를 지정한 퀵슬롯 인덱스에 등록합니다.
     public void setQuickSlot(ItemData item, int index, int count, int inventoryIndex)
     {
         if (index < 0 || index >= quickSlotItems.Length)
@@ -42,6 +44,8 @@ public class InventoryManager : MonoBehaviour
         quickSlotCounts[index] = count;
         quickSlotInventoryIndices[index] = inventoryIndex;
     }
+
+    // 소유 아이템 딕셔너리에 수량을 누적합니다.
     public void addItem(string itemName, int itemCnt)
     {
         if (ownedItems.ContainsKey(itemName))
@@ -55,6 +59,8 @@ public class InventoryManager : MonoBehaviour
             Debug.Log($"{itemName} 추가");
         }
     }
+
+    // 소지품에서 해당 이름의 개수를 조회합니다.
     public int getItemQuantity(string itemName)
     {
         if (ownedItems.ContainsKey(itemName))
@@ -66,6 +72,8 @@ public class InventoryManager : MonoBehaviour
             return 0;
         }
     }
+
+    // 단축키 입력으로 호출되어 퀵슬롯 아이템을 사용합니다.
     public void useQuickSlotItem(int index)
     {
         index--; // 1~6 으로 인풋이 들어옴 하나 깎고 시작
@@ -96,6 +104,7 @@ public class InventoryManager : MonoBehaviour
         else Debug.Log("사용할 수 없는 아이템");
     }
     // 슬롯 넘버로 일단은 구현
+    // UI에서 선택한 퀵슬롯 데이터를 반환하며 사용 가능 여부를 확인합니다.
     public ItemData selectItem(int slotNum)
     {
         if (slotNum < 1 || slotNum > quickSlotItems.Length)
@@ -116,6 +125,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    // 퀵슬롯에 남아 있는 개수를 반환합니다.
     public int GetQuickSlotCount(int slotNum)
     {
         if (slotNum < 1 || slotNum > quickSlotCounts.Length)
@@ -126,6 +136,7 @@ public class InventoryManager : MonoBehaviour
         return quickSlotCounts[slotNum - 1];
     }
 
+    // 사용 후 퀵슬롯 수량을 줄이고 인벤토리와 UI를 동기화합니다.
     private void ConsumeQuickSlotItem(int slotIndex)
     {
         quickSlotCounts[slotIndex] = Mathf.Max(quickSlotCounts[slotIndex] - 1, 0);
@@ -151,6 +162,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    // 퀵슬롯 정보를 비우고 UI 연동을 초기화합니다.
     public void ClearQuickSlotData(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= quickSlotItems.Length) return;

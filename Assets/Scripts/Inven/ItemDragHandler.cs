@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(RectTransform))]
+/// <summary>
+/// 인벤토리 슬롯 아이콘을 드래그하여 다른 슬롯/장비/퀵슬롯으로 옮기는 입력 처리기입니다.
+/// </summary>
 public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public static ItemDragHandler currentlyDragging;
@@ -47,6 +50,9 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     }
 
+    /// <summary>
+    /// 드래그를 시작하며 캔버스로 이동시키고 레이캐스트를 비활성화합니다.
+    /// </summary>
     public void OnBeginDrag(PointerEventData eventData)
     {
         Debug.Log("OnBeginDrag 호출됨. 드래그하려는 객체: " + gameObject.name);
@@ -75,6 +81,9 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         canvasGroup.blocksRaycasts = false;
     }
 
+    /// <summary>
+    /// 마우스 이동량을 따라다니도록 아이콘 위치를 업데이트합니다.
+    /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
         if (currentlyDragging != this || canvas == null) return;
@@ -82,6 +91,9 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
+    /// <summary>
+    /// 드래그 종료 시 장비/퀵슬롯 할당을 시도하고 아이콘을 되돌립니다.
+    /// </summary>
     public void OnEndDrag(PointerEventData eventData)
     {
         if (currentlyDragging != this) return;

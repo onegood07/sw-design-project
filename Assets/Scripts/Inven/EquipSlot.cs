@@ -72,6 +72,9 @@ public class EquipSlot : MonoBehaviour
         allSlots.Remove(this);
     }
 
+    /// <summary>
+    /// 현재 포인터 위치에 있는 장비 슬롯을 찾아 드래그 시 사용합니다.
+    /// </summary>
     public static EquipSlot FindSlotUnderPointer(Vector2 screenPos, Camera uiCamera)
     {
         for (int i = 0; i < allSlots.Count; i++)
@@ -101,6 +104,9 @@ public class EquipSlot : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 장착된 아이템의 스프라이트를 슬롯 아이콘에 반영합니다.
+    /// </summary>
     private void ApplyIcon(Sprite sprite)
     {
         if (itemIcon == null || sprite == null) return;
@@ -178,11 +184,6 @@ public class EquipSlot : MonoBehaviour
                 Debug.Log($"[EquipSlot] 인벤토리 {idx}번 슬롯 아이템 제거 완료.", this);
             }
         }
-
-        // 이후에 필요하면:
-        // - Inventory.instance 에 equippedWeapon / equippedLantern 같은 필드를 두고
-        //   여기서 그 값도 함께 세팅
-        // - 장착/해제 시 캐릭터 능력치 갱신 등 추가 가능
     }
 }
 

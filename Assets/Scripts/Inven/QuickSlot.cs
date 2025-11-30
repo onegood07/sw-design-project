@@ -53,6 +53,9 @@ public class QuickSlot : MonoBehaviour
         allSlots.Remove(this);
     }
 
+    /// <summary>
+    /// 현재 포인터가 가리키는 퀵슬롯을 찾아 반환합니다.
+    /// </summary>
     public static QuickSlot FindSlotUnderPointer(Vector2 screenPos, Camera uiCamera)
     {
         for (int i = 0; i < allSlots.Count; i++)
@@ -80,6 +83,9 @@ public class QuickSlot : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 등록된 퀵슬롯 리스트에서 인덱스로 검색합니다.
+    /// </summary>
     public static QuickSlot GetSlotByIndex(int index)
     {
         for (int i = 0; i < allSlots.Count; i++)
@@ -166,6 +172,9 @@ public class QuickSlot : MonoBehaviour
         // - 단축키 입력 시 linkedItem 을 사용하는 로직 연결
     }
 
+    /// <summary>
+    /// 인벤토리와 연동된 개수를 갱신해 텍스트에 반영합니다.
+    /// </summary>
     public void UpdateLinkedCount(int newCount)
     {
         linkedItemCount = newCount;
@@ -178,6 +187,9 @@ public class QuickSlot : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 연결 정보를 모두 초기화하고 아이콘/텍스트를 숨깁니다.
+    /// </summary>
     public void ClearSlotVisual()
     {
         linkedItem = null;

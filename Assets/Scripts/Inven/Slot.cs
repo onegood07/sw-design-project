@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// 인벤토리 UI 한 칸을 나타내며 아이콘 표시/드랍 교환을 처리합니다.
+/// </summary>
 public class Slot : MonoBehaviour, IDropHandler
 {
     public InventoryItem item;       // 슬롯이 보유한 아이템 데이터
@@ -36,6 +39,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // 아이콘 + 텍스트 비활성화
+    /// <summary>
+    /// 아이콘과 개수 표기를 숨겨 빈 슬롯 상태로 만듭니다.
+    /// </summary>
     private void ClearVisual()
     {
         if (itemIcon != null)
@@ -46,6 +52,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // Slot UI 갱신 (아이템 아이콘/카운트)
+    /// <summary>
+    /// 슬롯에 할당된 아이템 정보를 UI 위젯에 반영합니다.
+    /// </summary>
     public void UpdateSlotUI()
     {
         if (item != null && item.itemImage != null)
@@ -71,6 +80,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // 슬롯 비우기
+    /// <summary>
+    /// 슬롯 데이터를 비우고 UI를 초기 상태로 돌립니다.
+    /// </summary>
     public void RemoveSlot()
     {
         item = null;
@@ -78,6 +90,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // 드래그된 아이템이 이 슬롯 위로 드랍되었을 때 호출됨
+    /// <summary>
+    /// 다른 슬롯에서 드래그된 아이템을 받아 이동/교환합니다.
+    /// </summary>
     public void OnDrop(PointerEventData eventData)
     {
         var drag = ItemDragHandler.currentlyDragging;
