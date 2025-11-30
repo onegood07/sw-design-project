@@ -222,3 +222,4 @@ MonoBehaviour:
   itemType: 1
   itemName: Pistol
   itemImage: {fileID: 4319395737909131107, guid: 6890018106e5f7447b4235e6666564e1, type: 3}
+  itemDataAsset: {fileID: 11400000, guid: 01fc2da11691b7d45b6e4d9a45d091fb, type: 2}

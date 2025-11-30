@@ -209,7 +209,7 @@ MonoBehaviour:
   itemType: 0
   itemName: Heal2
   itemImage: {fileID: 4475158985010180414, guid: a4d9ddf8d7e6b0146a1fdbc0159db0f4, type: 3}
-  itemDataAsset: {fileID: 11400000, guid: 83ac069170f18d34d9953b37b617dbfe, type: 2}
+  itemDataAsset: {fileID: 11400000, guid: 9c1138427c389d541bd0800745e86e5d, type: 2}
 --- !u!114 &-295572257772085249
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,6 +10,7 @@ public class HeroItemUse : MonoBehaviour
 
     private HeroMoveControl HeroMoveControl;
     private ItemData selectedItem;
+    private int selectedItemIndex;
     private Vector2 mouseDirection;
     void Start()
     {
@@ -39,37 +40,38 @@ public class HeroItemUse : MonoBehaviour
             // 정규화
             mouseDirection.Normalize();
 
-            // 사용 가능한 아이템일 경우(IUsable 규칙을 상속받은 데이터의 경우) Use 메서드가 존재함
-            if(selectedItem is IUsable usableData)usableData.Use(transform,mouseDirection);
-            else Debug.Log("사용할 수 없는 아이템");
+            UseQuickSlot(selectedItemIndex,transform,mouseDirection);
+            // // 사용 가능한 아이템일 경우(IUsable 규칙을 상속받은 데이터의 경우) Use 메서드가 존재함
+            // if(selectedItem is IUsable usableData)usableData.Use(transform,mouseDirection);
+            // else Debug.Log("사용할 수 없는 아이템");
         }
     }
     public void OnQuickSlot1(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            UseQuickSlot(1);
+            selectedItemIndex = 1;
         }
     }
     public void OnQuickSlot2(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            UseQuickSlot(2);
+            selectedItemIndex = 2;
         }
     }
     public void OnQuickSlot3(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            UseQuickSlot(3);
+            selectedItemIndex = 3;
         }
     }
     public void OnQuickSlot4(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            UseQuickSlot(4);
+            selectedItemIndex = 4;
         }
     }
 
@@ -77,7 +79,7 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            UseQuickSlot(5);
+            selectedItemIndex = 5;
         }
     }
 
@@ -85,11 +87,11 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            UseQuickSlot(6);
+            selectedItemIndex = 6;
         }
     }
 
-    private void UseQuickSlot(int slotNumber)
+    private void UseQuickSlot(int slotNumber,Transform heroT, Vector2 useVec)
     {
         if (InventoryManager.Instance == null)
         {
@@ -97,7 +99,7 @@ public class HeroItemUse : MonoBehaviour
             return;
         }
 
-        InventoryManager.Instance.useQuickSlotItem(slotNumber);
+        InventoryManager.Instance.useQuickSlotItem(slotNumber,heroT,useVec);
     }
 
     // 실시간 마우스 위치를 얻어와서 해당 위치에 ui가 있는지 확인하기 위함.

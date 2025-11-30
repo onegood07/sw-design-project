@@ -18,6 +18,8 @@ MonoBehaviour:
   MaxStackCount: 0
   isAvailable: 0
   coolTime: 0
-  whichStat: []
-  healAmount: []
+  whichStat:
+  - hp
+  healAmount:
+  - 50
   buffDuration: 0
