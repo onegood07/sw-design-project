@@ -74,7 +74,7 @@ public class InventoryManager : MonoBehaviour
     }
 
     // 단축키 입력으로 호출되어 퀵슬롯 아이템을 사용합니다.
-    public void useQuickSlotItem(int index)
+    public void useQuickSlotItem(int index,Transform heroT,Vector2 useVec)
     {
         index--; // 1~6 으로 인풋이 들어옴 하나 깎고 시작
         if (index < 0 || index >= quickSlotItems.Length)
@@ -98,8 +98,8 @@ public class InventoryManager : MonoBehaviour
         }
         if (Item is IUsable UsableItem)
         {
-            UsableItem.Use(HeroTransform, HeroMoveControl.CurrentViewDirection);
-            ConsumeQuickSlotItem(index);
+            UsableItem.Use(heroT, useVec);
+            if(Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
         }
         else Debug.Log("사용할 수 없는 아이템");
     }

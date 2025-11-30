@@ -153,7 +153,7 @@ public class EquipSlot : MonoBehaviour
         Debug.Log($"[EquipSlot] EquipFromSlot 호출됨. 아이템: {fromItem.itemName}, 타입: {fromItem.itemType}", this);
 
         // 타입이 맞는 아이템만 장착
-        if (fromItem.itemType != acceptedType)
+        if (acceptedType != fromItem.itemType)
         {
             Debug.LogWarning($"[EquipSlot] EquipFromSlot: 타입 불일치. 이 슬롯: {acceptedType}, 아이템 타입: {fromItem.itemType}", this);
             return;
@@ -179,6 +179,9 @@ public class EquipSlot : MonoBehaviour
             int idx = fromSlot.slotIndex;
             if (idx >= 0 && idx < inven.items.Count)
             {
+                // 장착하자 마자 사용 되도록
+                if(inven.items[idx].itemData is IUsable usable)usable.Use(HeroStat.Instance.transform,Vector2.zero);
+                
                 inven.items[idx] = null;
                 inven.onChangeItem?.Invoke();   // 인벤 UI 다시 그리기
                 Debug.Log($"[EquipSlot] 인벤토리 {idx}번 슬롯 아이템 제거 완료.", this);
