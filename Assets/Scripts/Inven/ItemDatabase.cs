@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 등록된 아이템 프리팹에서 Item 정보를 읽어 런타임 DB를 구성합니다.
+/// </summary>
 public class ItemDatabase : MonoBehaviour
 {
     public static ItemDatabase instance;   // DB를 어디서든 접근하기 위한 싱글톤
@@ -21,7 +24,9 @@ public class ItemDatabase : MonoBehaviour
         LoadItemsFromPrefabs();            // 프리팹에서 아이템 데이터 자동 로드
     }
 
-    // 프리팹에서 Item 컴포넌트 정보를 가져와 DB에 등록하는 함수
+    /// <summary>
+    /// 인스펙터에 등록된 프리팹을 순회하며 Item 데이터를 캐싱합니다.
+    /// </summary>
     void LoadItemsFromPrefabs()
     {
         itemDB.Clear();                    // 기존 DB 초기화

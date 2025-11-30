@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// 인벤토리 UI 한 칸을 나타내며 아이콘 표시/드랍 교환을 처리합니다.
+/// </summary>
 public class Slot : MonoBehaviour, IDropHandler
 {
     public InventoryItem item;       // 슬롯이 보유한 아이템 데이터
@@ -36,6 +39,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // 아이콘 + 텍스트 비활성화
+    /// <summary>
+    /// 아이콘과 개수 표기를 숨겨 빈 슬롯 상태로 만듭니다.
+    /// </summary>
     private void ClearVisual()
     {
         if (itemIcon != null)
@@ -46,6 +52,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // Slot UI 갱신 (아이템 아이콘/카운트)
+    /// <summary>
+    /// 슬롯에 할당된 아이템 정보를 UI 위젯에 반영합니다.
+    /// </summary>
     public void UpdateSlotUI()
     {
         if (item != null && item.itemImage != null)
@@ -71,6 +80,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // 슬롯 비우기
+    /// <summary>
+    /// 슬롯 데이터를 비우고 UI를 초기 상태로 돌립니다.
+    /// </summary>
     public void RemoveSlot()
     {
         item = null;
@@ -78,6 +90,9 @@ public class Slot : MonoBehaviour, IDropHandler
     }
 
     // 드래그된 아이템이 이 슬롯 위로 드랍되었을 때 호출됨
+    /// <summary>
+    /// 다른 슬롯에서 드래그된 아이템을 받아 이동/교환합니다.
+    /// </summary>
     public void OnDrop(PointerEventData eventData)
     {
         var drag = ItemDragHandler.currentlyDragging;
@@ -96,18 +111,22 @@ public class Slot : MonoBehaviour, IDropHandler
         if (fromIdx < 0 || toIdx < 0) return;
         if (fromIdx >= ui.slots.Length || toIdx >= ui.slots.Length) return;
 
-        // 빈 슬롯으로 드랍하는 것 금지
-        if (inven.items[toIdx] == null)
-            return;
-
         // 필요한 경우 리스트 크기 확장
-        while (inven.items.Count <= toIdx)
+        while (inven.items.Count <= Mathf.Max(fromIdx, toIdx))
             inven.items.Add(null);
 
-        // 슬롯 아이템 교환
-        var temp = inven.items[fromIdx];
-        inven.items[fromIdx] = inven.items[toIdx];
-        inven.items[toIdx] = temp;
+        // 대상 슬롯이 비어 있으면 "이동", 아니면 "교환"
+        if (inven.items[toIdx] == null)
+        {
+            inven.items[toIdx] = inven.items[fromIdx];
+            inven.items[fromIdx] = null;
+        }
+        else
+        {
+            var temp = inven.items[fromIdx];
+            inven.items[fromIdx] = inven.items[toIdx];
+            inven.items[toIdx] = temp;
+        }
 
         // UI 갱신 이벤트 호출
         inven.onChangeItem?.Invoke();
