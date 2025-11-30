@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fbf43c6e4495ed4fb7e6a5648dda85c, type: 3}
   m_Name: Lantern_300
   m_EditorClassIdentifier: Assembly-CSharp::LanternData
-  ItemName: 0
+  ItemName: 300
   Description: 
   Icon: {fileID: 0}
   MaxStackCount: 1
