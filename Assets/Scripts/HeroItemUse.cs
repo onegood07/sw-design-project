@@ -48,29 +48,56 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            selectedItem = InventoryManager.Instance.selectItem(1);
+            UseQuickSlot(1);
         }
     }
     public void OnQuickSlot2(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItem = InventoryManager.Instance.selectItem(2);
+            UseQuickSlot(2);
         }
     }
     public void OnQuickSlot3(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItem = InventoryManager.Instance.selectItem(3);
+            UseQuickSlot(3);
         }
     }
     public void OnQuickSlot4(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItem = InventoryManager.Instance.selectItem(4);
+            UseQuickSlot(4);
         }
+    }
+
+    public void OnQuickSlot5(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            UseQuickSlot(5);
+        }
+    }
+
+    public void OnQuickSlot6(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            UseQuickSlot(6);
+        }
+    }
+
+    private void UseQuickSlot(int slotNumber)
+    {
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogWarning("InventoryManager 인스턴스를 찾을 수 없습니다.");
+            return;
+        }
+
+        InventoryManager.Instance.useQuickSlotItem(slotNumber);
     }
 
     // 실시간 마우스 위치를 얻어와서 해당 위치에 ui가 있는지 확인하기 위함.

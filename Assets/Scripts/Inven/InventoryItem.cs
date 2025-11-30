@@ -7,6 +7,7 @@ public class InventoryItem
     public string itemName;
     public Sprite itemImage;
     public int count;
+    public ItemData itemData;
 
     public InventoryItem(Item src, int count)
     {
@@ -14,5 +15,6 @@ public class InventoryItem
         this.itemName = src.itemName;
         this.itemImage = src.itemImage;
         this.count = count;
+        this.itemData = src.itemDataAsset;
     }
 }

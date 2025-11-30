@@ -209,6 +209,7 @@ MonoBehaviour:
   itemType: 2
   itemName: Lamp
   itemImage: {fileID: -3535221090349844623, guid: 7ecc8f309a9f0ec4aba3879200ed0e6e, type: 3}
+  itemDataAsset: {fileID: 11400000, guid: 8b0ea114e6808ee4bb98dc56eb6c48c2, type: 2}
 --- !u!114 &7609228181890290987
 MonoBehaviour:
   m_ObjectHideFlags: 0

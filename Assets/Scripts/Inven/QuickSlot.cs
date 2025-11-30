@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// 퀵슬롯(QuickSlot1~4)에 붙일 전용 스크립트.
+/// 퀵슬롯(QuickSlot1~6)에 붙일 전용 스크립트.
 /// 인벤토리 슬롯에서 드래그한 아이템을 이 퀵슬롯에 등록해서
 /// 나중에 단축키(1~4번 등)로 사용할 수 있게 하기 위한 기본 구조입니다.
 /// </summary>
@@ -14,12 +14,17 @@ public class QuickSlot : MonoBehaviour
 
     [Header("UI 참조")]
     public Image itemIcon;                  // 퀵슬롯에 표시될 아이콘
+    public Text itemCountText;             // 수량 표시 텍스트(선택)
 
     [Header("아이콘 표시 설정")]
     [SerializeField] private Vector2 iconSize = new Vector2(64f, 64f);
 
     [HideInInspector]
     public InventoryItem linkedItem;        // 이 퀵슬롯과 연결된 인벤토리 아이템
+    [HideInInspector]
+    public ItemData linkedItemData;
+    [HideInInspector]
+    public int linkedItemCount;
 
     private static readonly System.Collections.Generic.List<QuickSlot> allSlots
         = new System.Collections.Generic.List<QuickSlot>();
@@ -34,6 +39,10 @@ public class QuickSlot : MonoBehaviour
         {
             itemIcon.gameObject.SetActive(false);
             itemIcon.raycastTarget = false;
+        }
+        if (itemCountText != null)
+        {
+            itemCountText.gameObject.SetActive(false);
         }
     }
 
@@ -90,6 +99,23 @@ public class QuickSlot : MonoBehaviour
         {
             itemIcon.transform.SetSiblingIndex(slotRect.GetSiblingIndex() + 1);
         }
+
+        UpdateCountDisplay();
+    }
+
+    private void UpdateCountDisplay()
+    {
+        if (itemCountText == null) return;
+
+        if (linkedItemCount > 1)
+        {
+            itemCountText.text = linkedItemCount.ToString();
+            itemCountText.gameObject.SetActive(true);
+        }
+        else
+        {
+            itemCountText.gameObject.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -106,11 +132,22 @@ public class QuickSlot : MonoBehaviour
         // if (fromItem.itemType != ItemView.Heal) return;
 
         linkedItem = fromItem;
+        linkedItemData = fromItem.itemData;
+        linkedItemCount = fromItem.count;
 
         ApplyIcon(fromItem.itemImage);
 
+        if (linkedItemData != null && InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.setQuickSlot(linkedItemData, quickIndex, linkedItemCount);
+        }
+        else
+        {
+            Debug.LogWarning($"[QuickSlot] ItemData 가 없어 퀵슬롯 {quickIndex + 1}에 등록되지 않았습니다.", this);
+        }
+
         // 이후에 필요하면:
-        // - Inventory.instance.quickSlots[quickIndex] 에도 함께 저장
+        // - Inventory.instance.quickSlots[quickIndex] 에도 함께 저장 (InventoryManager 연동)
         // - 단축키 입력 시 linkedItem 을 사용하는 로직 연결
     }
 }
