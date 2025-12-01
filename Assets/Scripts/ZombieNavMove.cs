@@ -25,6 +25,8 @@ public class ZombieNavMove : MonoBehaviour
     float wanderTimer = 0f;       // 배회 목적지 갱신 타이머
     Vector2Int lastMoveDir = Vector2Int.down; // 애니메이션에 사용할 마지막 이동 방향
 
+    public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
+
     void Awake()
     {
         animator   = GetComponent<Animator>();
@@ -61,90 +63,102 @@ public class ZombieNavMove : MonoBehaviour
         SetAnimDirection(Vector2Int.zero);
     }
 
-    void Update()
+   void Update()
+{
+   if (isInDialogue)
     {
-        if (!isLive || agent == null || heroTr == null)
-            return;
-
-        float dt = Time.deltaTime;
-        float dist = Vector2.Distance(transform.position, heroTr.position);
-
-        // 1) 플레이어가 공격 사거리 안에 있으면 → 이동 중단 + 공격 처리
-        if (dist <= attackRange)
-        {
-            agent.isStopped = true;  // NavMeshAgent 이동 완전 중단
-
-            // 공격을 위해 플레이어 방향으로 애니메이션 방향만 돌리기
-            Vector2 toHero = (Vector2)(heroTr.position - transform.position);
-            Vector2Int dir = GetAnimDirFromVector(toHero);
-            SetAnimDirection(dir);
-            lastMoveDir = dir;
-
-            // 첫 진입이면 즉시 공격
-            if (!inAttackRange)
-            {
-                DoAttack();
-                attackTimer = attackDelay; // 쿨타임 시작
-                inAttackRange = true;
-                return;
-            }
-
-            // 쿨타임 감소
-            if (attackTimer > 0f)
-                attackTimer -= dt;
-            else
-            {
-                // 공격 실행 후 쿨타임 리셋
-                DoAttack();
-                attackTimer = attackDelay;
-            }
-
-            return;
-        }
-        else
-        {
-            // 공격 범위를 벗어나면 다시 이동 가능
-            inAttackRange = false;
-            agent.isStopped = false;
-        }
-
-        // 2) 추적 범위 안 → 플레이어를 계속 추적
-        if (dist <= chaseRange)
-        {
-            agent.SetDestination(heroTr.position);
-        }
-        else
-        {
-            // 3) 추적 범위 밖 → 랜덤 배회 AI
-            wanderTimer -= dt;
-
-            // 일정 시간마다 새 목적지 생성
-            if (wanderTimer <= 0f || agent.remainingDistance <= 0.1f)
-            {
-                wanderTimer = wanderInterval;
-
-                // 랜덤 방향/위치 생성
-                Vector2 rnd = Random.insideUnitCircle * wanderRadius;
-                Vector3 guess = transform.position + new Vector3(rnd.x, rnd.y, 0f);
-
-                // NavMesh 위에 위치할 경우만 이동
-                if (NavMesh.SamplePosition(guess, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
-                {
-                    agent.SetDestination(hit.position);
-                }
-            }
-        }
-
-        // 4) 실제 이동 벡터(v)를 이용해서 4방향 애니메이션 갱신
-        Vector3 v = agent.desiredVelocity;            // NavMeshAgent가 향하고 있는 실제 이동 벡터
-        Vector2Int moveDir = GetAnimDirFromVector(v); // 4방향으로 변환
-
-        if (moveDir == Vector2Int.zero)               // 거의 멈춘 경우, 이전 방향 유지
-            moveDir = lastMoveDir;
-
-        SetAnimDirection(moveDir);
-        lastMoveDir = moveDir;
+        // 이미 멈춰있을 수 있지만, 매 프레임 확실히 확인
+        if (agent != null && !agent.isStopped) 
+            agent.isStopped = true; 
+        
+        // 정지 상태 애니메이션을 위해 현재 방향으로 설정
+        SetAnimDirection(lastMoveDir); 
+        
+        return;
     }
+
+    if (!isLive || agent == null || heroTr == null)
+        return;
+
+    float dt = Time.deltaTime;
+    float dist = Vector2.Distance(transform.position, heroTr.position);
+
+    // 1) 플레이어가 공격 사거리 안에 있으면 → 이동 중단 + 공격 처리
+    if (dist <= attackRange)
+    {
+        agent.isStopped = true;  // NavMeshAgent 이동 완전 중단
+
+        // 공격을 위해 플레이어 방향으로 애니메이션 방향만 돌리기
+        Vector2 toHero = (Vector2)(heroTr.position - transform.position);
+        Vector2Int dir = GetAnimDirFromVector(toHero);
+        SetAnimDirection(dir);
+        lastMoveDir = dir;
+
+        // 첫 진입이면 즉시 공격
+        if (!inAttackRange)
+        {
+            DoAttack();
+            attackTimer = attackDelay; // 쿨타임 시작
+            inAttackRange = true;
+            return;
+        }
+
+        // 쿨타임 감소
+        if (attackTimer > 0f)
+            attackTimer -= dt;
+        else
+        {
+            // 공격 실행 후 쿨타임 리셋
+            DoAttack();
+            attackTimer = attackDelay;
+        }
+
+        return;
+    }
+    else
+    {
+        // 공격 범위를 벗어나면 다시 이동 가능
+        inAttackRange = false;
+        agent.isStopped = false;
+    }
+
+    // 2) 추적 범위 안 → 플레이어를 계속 추적
+    if (dist <= chaseRange)
+    {
+        agent.SetDestination(heroTr.position);
+    }
+    else
+    {
+        // 3) 추적 범위 밖 → 랜덤 배회 AI
+        wanderTimer -= dt;
+
+        // 일정 시간마다 새 목적지 생성
+        if (wanderTimer <= 0f || agent.remainingDistance <= 0.1f)
+        {
+            wanderTimer = wanderInterval;
+
+            // 랜덤 방향/위치 생성
+            Vector2 rnd = Random.insideUnitCircle * wanderRadius;
+            Vector3 guess = transform.position + new Vector3(rnd.x, rnd.y, 0f);
+
+            // NavMesh 위에 위치할 경우만 이동
+            if (NavMesh.SamplePosition(guess, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
+            {
+                agent.SetDestination(hit.position);
+            }
+        }
+    }
+
+    // 4) 실제 이동 벡터(v)를 이용해서 4방향 애니메이션 갱신
+    Vector3 v = agent.desiredVelocity;            // NavMeshAgent가 향하고 있는 실제 이동 벡터
+    Vector2Int moveDir = GetAnimDirFromVector(v); // 4방향으로 변환
+
+    if (moveDir == Vector2Int.zero)               // 거의 멈춘 경우, 이전 방향 유지
+        moveDir = lastMoveDir;
+
+    SetAnimDirection(moveDir);
+    lastMoveDir = moveDir;
+}
 
     // 실제 데미지 처리(좀비 공격)
     void DoAttack()

@@ -42,6 +42,8 @@ public class ZombieMove : MonoBehaviour
     // 직전 프레임에 공격 범위 안에 있었는지
     bool inAttackRange = false;
 
+    public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
+
     // 이동 방향에 따라 애니메이션 bool을 설정하는 함수
     void SetAnimDirection(Vector2Int dir)
     {
@@ -166,8 +168,17 @@ public class ZombieMove : MonoBehaviour
     // 메인 루프
     void FixedUpdate()
     {
-        if (!isLive) return;
-
+       if (!isLive || isInDialogue) // isInDialogue일 때 좀비 움직임 정지
+    {
+        // Rigidbody 속도 초기화 (물리적 움직임 방지)
+        if (zombie != null)
+            zombie.linearVelocity = Vector2.zero;
+        
+        // 멈춘 상태에서 이전 방향으로 애니메이션 유지 (Idle 상태처럼 보이게)
+        SetAnimDirection(lastMoveDir); 
+        
+        return;
+    }
         // 공격 후 이동 잠금
         if (attackMoveLockTimer > 0f)
         {

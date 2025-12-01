@@ -4,51 +4,53 @@ public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
 
-    private DialogueData currentData; // 현재 대화 데이터
-    private int currentNodeIndex; // 현재 보고 있는 노드(대화 분기점) 인덱스
+    private DialogueData currentData; // 현재 DialogueData
+    private int currentNodeIndex; // 현재 노드 인덱스
+    private DialogueNPC currentNPC; // 현재 NPC
+    
+    // 현재 대화가 활성 상태인지 추적
+    public bool IsDialogueActive { get; private set; } = false;
 
-    void Awake()
+    void Awake() { Instance = this; }
+
+    public void StartDialogue(DialogueData data, DialogueNPC npc)
     {
-        // 싱글톤 초기화
-        Instance = this;
+        currentData = data;
+        currentNodeIndex = data.startNodeIndex;
+        currentNPC = npc; 
+
+        IsDialogueActive = true; // 대화 시작 시 상태 업데이트 (좀비 움직이지 못하게 하는 용도)
+
+        DialogueUI.Instance.Show();
+        ShowNode(currentNodeIndex);
     }
 
-    // 새로운 대화를 시작할 때 호출
-    public void StartDialogue(DialogueData data)
-    {
-        currentData = data; // 대화 데이터를 현재 대화 데이터로 저장
-        currentNodeIndex = data.startNodeIndex; // 시작 노드 지정
-
-        DialogueUI.Instance.Show(); // 해당 대화 UI 열기
-        ShowNode(currentNodeIndex); // 현재 노드 표기
-    }
-
-    // 특정 노드를 UI에 표기
     public void ShowNode(int nodeIndex)
     {
-        var node = currentData.nodes[nodeIndex]; // 노드 정보 가져오기
-
-        DialogueUI.Instance.DisplayNode(node); // UI에 출력
+        var node = currentData.nodes[nodeIndex];
+        DialogueUI.Instance.DisplayNode(node);
     }
 
-    // 다음 노드로 넘어갈 때 호출
     public void GoToNextNode(int index)
     {
-        // -1 등 음수면 대화 종료 (현재는 대화 종료를 -1로 설정한 상태)
-        if (index < 0)
-        {
-            EndDialogue();
-            return;
-        }
+        if (index < 0) { EndDialogue(); return; }
 
-        currentNodeIndex = index; // 다음 노드로 이동
-        ShowNode(currentNodeIndex); // 노드 출력
+        currentNodeIndex = index;
+        ShowNode(currentNodeIndex);
     }
 
-    // 대화 종료 처리
     public void EndDialogue()
     {
-        DialogueUI.Instance.Hide(); // UI 닫기
-        currentData = null; // 현재 대화 데이터 비움
+        DialogueUI.Instance.Hide();
+        currentData = null;
+
+        // 대화 종료 시 NPC 호출
+        if (currentNPC != null)
+        {
+            currentNPC.OnDialogueEnd();
+            currentNPC = null;
+        }
+
+        IsDialogueActive = false;
     }
 }
