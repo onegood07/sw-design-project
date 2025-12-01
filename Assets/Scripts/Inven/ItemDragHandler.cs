@@ -124,8 +124,7 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         if (!handled)
         {
             // 슬롯에 못넣는 아이템
-            if(slot.item.itemType != ItemView.Weapon
-            && slot.item.itemType != ItemView.Lantern)
+            if(slot.item.itemType != ItemView.Lantern)
             {
                 QuickSlot quickSlot = QuickSlot.FindSlotUnderPointer(pointerPos, uiCamera);
                 if (quickSlot != null)
