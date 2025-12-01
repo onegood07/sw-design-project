@@ -93,7 +93,7 @@ public class Slot : MonoBehaviour, IDropHandler
     /// <summary>
     /// 다른 슬롯에서 드래그된 아이템을 받아 이동/교환합니다.
     /// </summary>
-    public void OnDrop(PointerEventData eventData)
+    public virtual void OnDrop(PointerEventData eventData)
     {
         var drag = ItemDragHandler.currentlyDragging;
         if (drag == null) return;

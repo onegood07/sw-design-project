@@ -88,28 +88,28 @@ public class ZombieStat : MonoBehaviour
         // 밤 페이즈 확인 및 선택적 배율 적용
         if (GameManager.Instance.CurrentPhase == Phase.Night)
         {
-            Debug.Log($"[ZombieStat] 밤 페이즈! {type} 유형에 따른 능력치 증가 적용.");
+            // Debug.Log($"[ZombieStat] 밤 페이즈! {type} 유형에 따른 능력치 증가 적용.");
 
             switch (type)
             {
                 case ZombieType.HighHp:
                     currentHp *= GameManager.Instance.NightHpMultiplier;
-                    Debug.Log(" - 체력 특화 증가 적용됨.");
+                    // Debug.Log(" - 체력 특화 증가 적용됨.");
                     break;
 
                 case ZombieType.HighSpeed:
                     currentSpeedFactor *= GameManager.Instance.NightSpeedMultiplier;
-                    Debug.Log(" - 속도 특화 증가 적용됨.");
+                    // Debug.Log(" - 속도 특화 증가 적용됨.");
                     break;
 
                 case ZombieType.HighPower:
                     power *= GameManager.Instance.NightPowerMultiplier;
-                    Debug.Log(" - 공격력 특화 증가 적용됨.");
+                    // Debug.Log(" - 공격력 특화 증가 적용됨.");
                     break;
 
                 case ZombieType.Normal:
                 default:
-                    Debug.Log(" - 일반 좀비는 밤 특화 증가가 없습니다.");
+                    // Debug.Log(" - 일반 좀비는 밤 특화 증가가 없습니다.");
                     break;
             }
         }
@@ -117,7 +117,7 @@ public class ZombieStat : MonoBehaviour
         // 최종 속도를 NavMeshAgent에 적용
         ApplySpeedToNavAgent();
 
-        Debug.Log($"[ZombieStat] 최종 스탯 ({type}) - HP: {currentHp}, SpeedFactor: {currentSpeedFactor}, Power: {power}");
+        // Debug.Log($"[ZombieStat] 최종 스탯 ({type}) - HP: {currentHp}, SpeedFactor: {currentSpeedFactor}, Power: {power}");
     }
 
     // NavMeshAgent에 실제 속도 반영
