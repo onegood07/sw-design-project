@@ -13,29 +13,42 @@ MonoBehaviour:
   m_Name: WoundedSoldierNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
-  - text: "\uAC10\uC5FC\uB41C \uAC8C \uC544\uB2C8\uC5D0\uC694! \uC81C\uBC1C... \uBD95\uB300\uB9CC
-      \uC788\uC73C\uBA74 \uB3FC\uC694..."
-    typingSpeed: 0.1
+  - text: "\uAC10\uC5FC\uB41C \uAC8C \uC544\uB2C8\uC5D0\uC694! \uC81C\uBC1C... \uBD95\uB300
+      \uD558\uB098\uB9CC \uC8FC\uC138\uC694..."
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
+    shouldStartSubmission: 1
     hasChoices: 1
     choices:
-    - choiceText: "...\uAC10\uC5FC\uC774 \uC544\uB2C8\uB77C\uACE0 \uBBFF\uC744\uAC8C\uC694."
+    - choiceText: "...\uC54C\uACA0\uC5B4\uC694. \uAC10\uC5FC\uC774 \uC544\uB2C8\uB77C\uACE0
+        \uBBFF\uC744\uAC8C\uC694."
       nextNodeIndex: 1
     - choiceText: "\uC258\uD130 \uB0A9\uC785\uD488\uC774\uB77C \uC904 \uC218 \uC5C6\uC5B4\uC694."
       nextNodeIndex: 2
     nextNodeIndex: 0
-  - text: "\uAC10\uC0AC\uD569\uB2C8\uB2E4. \uB2F9\uC2E0\uC740 \uC81C \uC740\uC778\uC774\uC5D0\uC694."
-    typingSpeed: 0.1
+  - text: "\uAC10\uC0AC\uD569\uB2C8\uB2E4. \uBD95\uB300 \uD558\uB098\uBA74 \uB3FC\uC694.
+      \uC815\uB9D0\uC774\uC5D0\uC694!"
+    typingSpeed: 0.05
     questToStart: {fileID: 11400000, guid: 24e18528c2bf54cfb9d4ef46c44ebcff, type: 2}
+    shouldStartSubmission: 1
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
   - text: " \uC800\uB97C... \uC8FD\uAC8C... \uB0B4\uBC84\uB824\uB450\uC2DC\uACA0\uAD70\uC694..."
     typingSpeed: 0.1
     questToStart: {fileID: 0}
+    shouldStartSubmission: 0
     hasChoices: 1
     choices:
     - choiceText: "..\uBBF8\uC548\uD569\uB2C8\uB2E4."
       nextNodeIndex: -1
+    nextNodeIndex: -1
+  - text: "\uC815\uB9D0 \uAC10\uC0AC\uD574\uC694..! \uC774 \uBB34\uC804\uAE30\uAC00
+      \uB3C4\uC6C0\uC774 \uB418\uAE38 \uBC14\uB78D\uB2C8\uB2E4..."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
     nextNodeIndex: -1
   startNodeIndex: 0

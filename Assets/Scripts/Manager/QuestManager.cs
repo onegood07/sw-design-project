@@ -12,20 +12,22 @@ public class QuestManager : MonoBehaviour
     [Header("Quest Submission UI")]
     [Tooltip("퀘스트 제출 UI 전체 패널 (SubmitCanvas)")]
     public GameObject submitCanvas;     
-    
-    // ⭐ 수정: 요구 아이템 이미지를 표시할 UI Image 컴포넌트를 연결
-    [Tooltip("요구 아이템의 아이콘을 표시할 UI Image 컴포넌트를 연결하세요.")]
+    // 요구 아이템 이미지를 표시할 UI Image 컴포넌트를 연결하세요.
     public Image requiredItemImageComponent; 
-    
     [Tooltip("요구 수량 표시 Text")]
     public Text submitAmountText;       
-    public Button submitButton;         // '납입/제출하기' 버튼 
+    public Button submitButton;         
 
-    // ⭐ QuestSlot 연결 (아이템 드롭을 처리하는 사용자님의 QuestSlot 스크립트)
     [Tooltip("아이템 납입을 받는 슬롯의 QuestSlot 컴포넌트를 연결하세요.")]
     public QuestSlot questDropSlot; 
 
     private QuestData activeQuestData; // 현재 NPC에게서 받은 활성 퀘스트 데이터
+    
+    // 퀘스트 완료 후 이어갈 Dialogue 노드 인덱스
+    private int nextDialogueNodeIndex = -1; 
+    
+    // DialogueManager의 인스턴스를 직접 참조한다고 가정합니다.
+    // private DialogueManager dialogueManager; 
 
     private void Awake()
     {
@@ -35,30 +37,27 @@ public class QuestManager : MonoBehaviour
             return;
         }
         instance = this;
-
         DontDestroyOnLoad(gameObject);
-        
-        // 시작 시 제출 UI 숨기기
-        if (submitCanvas != null)
-        {
-            submitCanvas.SetActive(false);
-        }
+        if (submitCanvas != null) submitCanvas.SetActive(false);
     }
-
+    
     /// <summary>
-    /// DialogueManager에서 호출됨. 퀘스트 제출 UI를 띄우고 데이터 설정
+    /// NPC의 대화 시스템에서 호출됨: 제출 UI를 띄우고 다음 대화 노드 인덱스를 저장
     /// </summary>
-    public void OpenSubmitUI(QuestData data)
+    /// <param name="data">활성 퀘스트 데이터</param>
+    /// <param name="nextIndex">납입 성공 후 DialogueManager가 이어서 진행할 노드의 인덱스</param>
+    public void OpenSubmitUI(QuestData data, int nextIndex)
     {
         activeQuestData = data;
+        nextDialogueNodeIndex = nextIndex; // 다음 노드 인덱스 저장
 
         if (submitCanvas == null)
         {
-            Debug.LogError("[QuestManager] Submit Canvas가 Inspector에 연결되지 않았습니다. 제출 UI를 띄울 수 없습니다.");
+            Debug.LogError("[QuestManager] Submit Canvas가 Inspector에 연결되지 않았습니다.");
             return;
         }
 
-        // 1. ⭐ 요구 아이템 이미지 표시 (QuestManager가 직접 처리)
+        // 1. 요구 아이템 이미지 표시
         if (requiredItemImageComponent != null && data.requiredItemIcon != null)
         {
             requiredItemImageComponent.sprite = data.requiredItemIcon;
@@ -66,39 +65,26 @@ public class QuestManager : MonoBehaviour
             requiredItemImageComponent.enabled = true;
         } else if (requiredItemImageComponent != null) {
             requiredItemImageComponent.enabled = false;
-            Debug.LogWarning("[QuestManager] QuestData에 요구 아이콘이 없거나 Image 컴포넌트가 연결되지 않았습니다.");
         }
 
 
-        // 2. QuestSlot 초기화 (납입 및 로직 처리)
+        // 2. QuestSlot 초기화
         if (questDropSlot != null)
         {
-            // QuestSlot의 SetupSlot 함수가 납입 관련 데이터만 받도록 설정합니다.
-            // (QuestSlot의 SetupSlot 함수도 납입 UI 설정에 맞게 수정이 필요합니다.)
             questDropSlot.SetupSlot(data); 
         }
-        else
-        {
-            Debug.LogError("[QuestManager] Quest Drop Slot이 Inspector에 연결되지 않았습니다. 아이템 납입이 불가능합니다.");
-        }
-
-        // 3. UI 데이터 업데이트 (초기 수량 표시)
-        if (questDropSlot != null)
-        {
-            // 초기 수량 표시 (0 / 요구 수량)
-            if (submitAmountText != null) 
-                submitAmountText.text = $"수량: 0 / {questDropSlot.RequiredAmount}";
-        }
         
+        // 3. UI 데이터 업데이트 및 버튼 리스너 재설정
+        if (questDropSlot != null && submitAmountText != null) 
+            submitAmountText.text = $"수량: {questDropSlot.submittedCount} / {questDropSlot.RequiredAmount}";
         
-        // 4. 제출 버튼 리스너 재설정
         if (submitButton != null)
         {
             submitButton.onClick.RemoveAllListeners();
             submitButton.onClick.AddListener(OnSubmitButtonClicked); 
         }
 
-        // 5. UI 띄우기
+        // 4. UI 띄우기
         submitCanvas.SetActive(true);
     }
     
@@ -107,16 +93,11 @@ public class QuestManager : MonoBehaviour
     /// </summary>
     public void OnSubmitButtonClicked()
     {
-        if (activeQuestData == null || questDropSlot == null)
-        {
-            Debug.LogWarning("[QuestManager] 활성 퀘스트 데이터 또는 QuestSlot이 없습니다.");
-            return;
-        }
+        if (activeQuestData == null || questDropSlot == null) return;
 
-        // QuestSlot에게 확정 제출을 시도하도록 명령
         if (questDropSlot.ConfirmSubmission())
         {
-            // 성공적으로 납입됨. OnItemSubmitted에서 완료 체크가 이루어짐.
+            Debug.Log("[QuestManager] 아이템 제출이 성공적으로 처리되었습니다.");
         }
     }
     
@@ -125,17 +106,15 @@ public class QuestManager : MonoBehaviour
     /// </summary>
     public void OnItemSubmitted(string itemName, int amountSubmitted, QuestSlot slot)
     {
-        // 총 제출 수량 확인
         if (slot.submittedCount >= slot.RequiredAmount)
         {
-            Debug.Log($"[QuestManager] 퀘스트 '{activeQuestData.questName}' 완료! 보상 지급.");
+            Debug.Log($"[QuestManager] 퀘스트 '{activeQuestData.questName}' 완료! 보상 지급 및 대화 재개.");
             HandleQuestCompletion(slot);
             CloseSubmitUI();
         }
         else
         {
-            Debug.Log($"[QuestManager] {slot.submittedCount} / {slot.RequiredAmount} 제출됨. 계속 제출하세요.");
-            // 제출 텍스트를 업데이트하여 남은 수량을 표시
+            // 수량 업데이트
             if (submitAmountText != null)
             {
                 submitAmountText.text = $"수량: {slot.submittedCount} / {slot.RequiredAmount}";
@@ -145,25 +124,9 @@ public class QuestManager : MonoBehaviour
     
     public void CloseSubmitUI()
     {
-        if (submitCanvas != null)
-        {
-            submitCanvas.SetActive(false);
-        }
-        
-        // 이미지 초기화
-        if (requiredItemImageComponent != null)
-        {
-            requiredItemImageComponent.enabled = false;
-            requiredItemImageComponent.sprite = null;
-        }
-        
-        // QuestSlot 리셋
-        if (questDropSlot != null)
-        {
-            questDropSlot.ResetSlot();
-        }
-
-        activeQuestData = null;
+        if (submitCanvas != null) submitCanvas.SetActive(false);
+        if (requiredItemImageComponent != null) requiredItemImageComponent.enabled = false;
+        if (questDropSlot != null) questDropSlot.ResetSlot();
     }
     
     /// <summary>
@@ -171,23 +134,25 @@ public class QuestManager : MonoBehaviour
     /// </summary>
     private void HandleQuestCompletion(QuestSlot slot)
     {
-        string rewardName = slot.RewardItem != null ? slot.RewardItem.name : "미정";
-        
-        if (slot.RewardItem != null)
+        // 1. 보상 지급 로직...
+        if (slot.RewardItem != null && Inventory.instance != null)
         {
-            // Inventory.instance.AddItem()을 사용하여 보상 지급
-            if (Inventory.instance != null)
-            {
-                // Inventory.instance.AddItem()이 Item 타입을 받도록 가정합니다.
-                Inventory.instance.AddItem(slot.RewardItem, slot.RewardCount); 
-                Debug.Log($"[Reward SUCCESS] '{rewardName}' {slot.RewardCount}개를 인벤토리에 추가했습니다. (Inventory.instance 사용)");
-            }
-            else
-            {
-                Debug.LogError("[Reward ERROR] Inventory.instance를 찾을 수 없습니다. 보상 지급 실패.");
-            }
-        } else {
-            Debug.LogWarning("[Reward] 지급할 보상 아이템이 QuestData에 설정되지 않았습니다.");
+            Inventory.instance.AddItem(slot.RewardItem, slot.RewardCount); 
         }
+        
+        // 2. 퀘스트 상태 완료로 설정 (필요하다면)
+        // QuestManager.instance.SetQuestCompleted(slot.ActiveQuestData);
+
+        // 3. ⭐⭐ 핵심: DialogueManager에게 다음 노드로 이어가도록 지시 (Instance로 수정) ⭐⭐
+        if (DialogueManager.Instance != null && nextDialogueNodeIndex != -1)
+        {
+            // DialogueManager에 다음 노드를 진행하는 함수가 있다고 가정합니다.
+            // 예를 들어, 현재 DialogueData와 저장된 노드 인덱스를 사용하여 대화를 재개합니다.
+            DialogueManager.Instance.ContinueDialogueAtNode(nextDialogueNodeIndex);
+        }
+        
+        // 모든 정리
+        activeQuestData = null;
+        nextDialogueNodeIndex = -1;
     }
 }

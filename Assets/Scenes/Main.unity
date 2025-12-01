@@ -98108,7 +98108,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5644882893091703850, guid: a8516cbc312c84f08a12e87c7e032298, type: 3}
       propertyPath: m_Text
-      value: 
+      value: "\uC694\uAD6C\uD558\uB294 \uC544\uC774\uD15C\uC740 \uC774\uAC70\uC5D0\uC694,."
       objectReference: {fileID: 0}
     - target: {fileID: 5644882893091703850, guid: a8516cbc312c84f08a12e87c7e032298, type: 3}
       propertyPath: m_FontData.m_MinSize

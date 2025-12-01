@@ -17,16 +17,21 @@ public class DialogueNode
 
     public float typingSpeed = 0.03f; // 타이핑 효과 속도 (초 단위)
 
-    // ⭐ 새로 추가된 필드: 이 노드를 통과할 때 시작할 퀘스트 (선택 사항)
+    // ⭐ 기존 필드 (유지): 이 노드를 통과할 때 시작할 퀘스트 (제출 UI에 표시될 데이터)
     [Header("Quest Connection")]
-    [Tooltip("이 노드를 통과할 때 시작할 QuestData를 연결하세요. (제출 UI 등장)")]
-    public QuestData questToStart; // 연결된 QuestData ScriptableObject
-    // ⭐
+    [Tooltip("이 노드를 통과할 때 처리할 QuestData를 연결하세요. (퀘스트 납입 UI에 사용될 데이터)")]
+    public QuestData questToStart; 
+    
+    // ⭐⭐ 추가: 이 노드를 통과할 때 퀘스트 납입 UI를 띄울지 여부 ⭐⭐
+    [Tooltip("이 노드를 통과하면 대화를 종료하고 '퀘스트 납입 UI'를 띄웁니다.")]
+    public bool shouldStartSubmission = false;
+
 
     public bool hasChoices = false; // 선택지가 있는지 여부
     public DialogueChoice[] choices; // 선택지 배열 (있을 경우)
 
-    [Tooltip("-1이면 자동으로 종료")]
+    [Header("Next Node Index")]
+    [Tooltip("shouldStartSubmission이 True일 경우, 이 인덱스는 '퀘스트 완료 후 이어갈 노드'가 됩니다.")]
     public int nextNodeIndex = -1; // 다음 노드 인덱스 (-1이면 대화 종료)
 }
 

@@ -89,26 +89,30 @@ public class DialogueUI : MonoBehaviour
     /// </summary>
     private void HandlePostTextDisplay(DialogueNode node)
     {
-        // 1. 퀘스트 연결 확인 (questToStart는 DialogueNode에 정의된 필드)
-        if (node.questToStart != null)
+        // ⭐⭐⭐ 핵심 수정 부분: shouldStartSubmission 플래그를 체크합니다. ⭐⭐⭐
+        if (node.shouldStartSubmission && node.questToStart != null)
         {
+            Debug.Log("[DialogueUI] 텍스트 출력이 완료되어 퀘스트 납입 UI를 시작합니다.");
+            
             // DialogueManager에게 퀘스트 제출 UI를 띄우도록 요청
+            // 이 호출에서 DialogueManager는 대화를 닫고 QuestManager를 호출합니다.
             DialogueManager.Instance.StartQuestSubmission(node.questToStart);
-            return; 
+            
+            return; // 퀘스트 UI가 떴으므로 다른 로직(선택지 등)은 처리하지 않습니다.
         }
 
-        // 2. 퀘스트 연결이 없고, 선택지가 있다면 선택지 버튼을 생성합니다. (hasChoices는 DialogueNode에 정의된 필드)
+        // 퀘스트 연결이 없고, 선택지가 있다면 선택지 버튼을 생성합니다.
         if (node.hasChoices && node.choices != null && node.choices.Length > 0)
         {
             CreateChoices(node.choices);
         }
-        // 3. 퀘스트도 없고 선택지도 없다면, 다음 노드 인덱스를 확인합니다.
-        // nextNodeIndex가 -1이면 대화 종료 (nextNodeIndex는 DialogueNode에 정의된 필드)
+        // 퀘스트도 없고 선택지도 없다면, 대화를 자동으로 종료합니다.
         else if (node.nextNodeIndex == -1) 
         {
             DialogueManager.Instance.EndDialogue();
         }
-        // 4. 다음 노드 인덱스가 있다면 (즉, nextNodeIndex > -1), 플레이어의 클릭 입력 대기 (DialogueManager에서 처리)
+        // 그 외의 경우 (다음 노드 인덱스가 있다면), 플레이어의 다음 클릭 입력을 기다립니다. 
+        // (이 로직은 보통 DialogueManager의 클릭 처리 함수에서 GoToNextNode를 호출하는 방식으로 처리됩니다.)
     }
 
     /// <summary>
