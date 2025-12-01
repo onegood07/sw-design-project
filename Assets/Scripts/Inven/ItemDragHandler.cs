@@ -72,6 +72,12 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             return;
         }
 
+        if (slot.item != null)
+        {
+            // 'itemName'은 InventoryItem 클래스의 public 변수입니다.
+            Debug.Log($"[Item Drag Start] 드래그 시작 아이템 이름: {slot.item.itemName}");
+        }
+
         currentlyDragging = this;
 
         originalParent = transform.parent;

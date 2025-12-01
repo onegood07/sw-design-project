@@ -31,6 +31,8 @@ public class InventoryUI : MonoBehaviour
         // 시작하자마자 모든 슬롯 활성화
         SlotChange(slots.Length);
 
+         RedrawSlotUI(); 
+
         // 처음엔 인벤토리 비활성
         inventoryPanel.SetActive(activeInventory);
     }

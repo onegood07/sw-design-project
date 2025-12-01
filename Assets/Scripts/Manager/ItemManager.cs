@@ -16,6 +16,19 @@ public class ItemManager : MonoBehaviour
         { ItemType.Weapon, new List<GameObject>() },
         { ItemType.Lantern, new List<GameObject>() }
     };
+    public static ItemManager instance;
+        
+        private void Awake()
+        {
+            if (instance != null && instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            instance = this;
+            // ⭐ 중요: 씬이 바뀌어도 파괴되지 않도록 설정
+            DontDestroyOnLoad(gameObject);
+        }
 
     public void ClearItems()
     {

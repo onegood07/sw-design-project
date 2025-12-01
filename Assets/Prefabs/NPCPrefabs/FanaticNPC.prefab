@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -9002128192358810038}
   - component: {fileID: 2495115393771752226}
   - component: {fileID: 3188567100556306310}
+  - component: {fileID: 1239813048441895925}
   m_Layer: 3
   m_Name: FanaticNPC
   m_TagString: Untagged
@@ -193,3 +194,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.28785777, y: 0.71712834}
   m_EdgeRadius: 0
+--- !u!114 &1239813048441895925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4375253768732716613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f78eb0a063ace4900a0155bb26806fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestGiver
+  questToAssign: {fileID: 11400000, guid: c53e63157f5cb4bfd83eddc2764b02a8, type: 2}

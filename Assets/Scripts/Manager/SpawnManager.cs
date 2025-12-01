@@ -100,6 +100,9 @@ public class SpawnManager : MonoBehaviour
     {
         List<Vector3> usedPositions = new List<Vector3>();
         List<Vector3> copy = new List<Vector3>(availablePositions);
+        
+        // [핵심]: 현재 대화 상태를 확인합니다.
+        bool isDialogueActive = DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive;
 
         for (int i = 0; i < count; i++)
         {
@@ -114,6 +117,24 @@ public class SpawnManager : MonoBehaviour
             // 아이템일 경우 ItemManager에 등록
             if (type.HasValue && itemManager != null)
                 itemManager.RegisterSpawnedItem(obj, type.Value);
+            
+            // [핵심]: 대화 중이라면, 새로 생성된 좀비에게 정지 상태를 바로 적용합니다. (모든 좀비 타입 처리)
+            if (isDialogueActive)
+            {
+                // Grid 기반 좀비 (ZombieMove)
+                var zombieMove = obj.GetComponent<ZombieMove>();
+                if (zombieMove != null)
+                {
+                    zombieMove.isInDialogue = true;
+                }
+                
+                // NavMesh 기반 좀비 (ZombieNavMove)
+                var zombieNavMove = obj.GetComponent<ZombieNavMove>();
+                if (zombieNavMove != null)
+                {
+                    zombieNavMove.isInDialogue = true;
+                }
+            }
 
             usedPositions.Add(spawnPos);
             copy.RemoveAt(index); // 이미 사용한 위치 제거
@@ -185,7 +206,7 @@ public class SpawnManager : MonoBehaviour
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
     }
 
-    // MARK: 좀비만 스폰
+    // MARK: 좀비만 스폰 (밤 페이즈용)
     public void SpawnZombiesOnly(int zombieCount)
     {
         ClearZombies();
@@ -216,21 +237,24 @@ public class SpawnManager : MonoBehaviour
 
         int totalSpawned = 0;
 
-        // HighHp 좀비 스폰
+        // HighHp 좀비 스폰 (SpawnObjects 호출)
         List<Vector3> usedHpPositions = SpawnObjects(highHpZombiePrefab, highHpCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedHpPositions.Contains(pos));
         totalSpawned += usedHpPositions.Count;
 
-        // HighSpeed 좀비 스폰
+        // HighSpeed 좀비 스폰 (SpawnObjects 호출)
         List<Vector3> usedSpeedPositions = SpawnObjects(highSpeedZombiePrefab, highSpeedCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedSpeedPositions.Contains(pos));
         totalSpawned += usedSpeedPositions.Count;
 
-        // HighPower 좀비 스폰
+        // HighPower 좀비 스폰 (SpawnObjects 호출)
         List<Vector3> usedPowerPositions = SpawnObjects(highPowerZombiePrefab, highPowerCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedPowerPositions.Contains(pos));
         totalSpawned += usedPowerPositions.Count;
 
+        // NOTE: 새로 스폰된 좀비들의 isInDialogue 관리는
+        // SpawnObjects 내부에서 이미 처리되었으므로 추가적인 루프가 필요 없습니다.
+        
         Debug.Log($"[SpawnManager] 밤 스폰 완료 - 좀비 총 {totalSpawned}마리 스폰 (HP: {usedHpPositions.Count}, Speed: {usedSpeedPositions.Count}, Power: {usedPowerPositions.Count})");
     }
 
@@ -257,8 +281,6 @@ public class SpawnManager : MonoBehaviour
         foreach (var item in spawnedItems) 
             if (item != null) Destroy(item);
         spawnedItems.Clear();
-        // FIXME: 만약 아이템 매니저에서도 제거 필요하면 제거하기
-        // itemManager?.ClearItems();
     }
 
     // MARK: 좀비만 제거
@@ -277,4 +299,3 @@ public class SpawnManager : MonoBehaviour
         spawnedNPCs.Clear();
     }
 }
-
