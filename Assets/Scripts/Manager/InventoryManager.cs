@@ -1,15 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// =========================================================================
-// 사용자님 프로젝트의 Item 클래스 (ItemData가 아닌 Item에 정의되어 있어 참조 불가)
-// public class Item : MonoBehaviour
-// {
-//     public string itemName;
-//     // ...
-// }
-// =========================================================================
-
 public class InventoryManager : MonoBehaviour
 {
 
@@ -69,26 +60,30 @@ public class InventoryManager : MonoBehaviour
             Debug.LogError("[InventoryManager] 추가하려는 ItemData가 null입니다.");
             return;
         }
-        // [수정] ItemData에 'itemName'이 없다는 오류(CS1061)를 해결하기 위해 
-        // Unity Object의 기본 'name' 속성을 사용하도록 변경했습니다.
+        
+        // ItemData Asset 이름을 키로 사용하여 딕셔너리에 추가합니다.
         addItem(itemData.name, count); 
         
-        Debug.Log($"[InventoryManager] ItemData를 통해 '{itemData.name}' {count}개를 추가했습니다.");
-        // 여기에 UI 업데이트 로직을 추가할 수 있습니다.
+        Debug.Log($"[InventoryManager] ItemData를 통해 '{itemData.name}' {count}개를 추가했습니다. (addItem 호출 완료)");
+        
+        // ⭐⭐ 핵심 제안: 딕셔너리 업데이트 후, 인벤토리 UI를 강제로 갱신해야 합니다.
+        // 예를 들어 InventoryUI.Refresh() 같은 함수가 있다면 여기서 호출해야 합니다.
+        // if (InventoryUI.instance != null) { InventoryUI.instance.RefreshInventoryDisplay(); }
     }
 
     // 소유 아이템 딕셔너리에 수량을 누적합니다.
     public void addItem(string itemName, int itemCnt)
     {
+        // ⭐ 디버그 강화: 실제 딕셔너리 키와 수량 확인
         if (ownedItems.ContainsKey(itemName))
         {
             ownedItems[itemName] += itemCnt;
-            Debug.Log(itemName);
+            Debug.Log($"[InventoryManager] 딕셔너리 업데이트: 키='{itemName}' -> 현재 수량: {ownedItems[itemName]}");
         }
         else
         {
             ownedItems.Add(itemName, itemCnt);
-            Debug.Log($"{itemName} 추가");
+            Debug.Log($"[InventoryManager] 딕셔너리 신규 추가: 키='{itemName}' -> 수량: {ownedItems[itemName]}");
         }
     }
 
@@ -97,10 +92,13 @@ public class InventoryManager : MonoBehaviour
     {
         if (ownedItems.ContainsKey(itemName))
         {
+            // ⭐ 디버그 강화: 조회 시도하는 이름과 수량 확인
+            Debug.Log($"[InventoryManager Debug] '{itemName}' 조회 성공. 수량: {ownedItems[itemName]}");
             return ownedItems[itemName];
         }
         else
         {
+            Debug.Log($"[InventoryManager Debug] '{itemName}' (으)로 조회 실패. 딕셔너리에 없음.");
             return 0;
         }
     }
@@ -130,8 +128,11 @@ public class InventoryManager : MonoBehaviour
         }
         if (Item is IUsable UsableItem)
         {
+            // if(Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
+            // 임시로 그냥 ConsumeQuickSlotItem 호출
+            ConsumeQuickSlotItem(index);
+
             UsableItem.Use(heroT, useVec);
-            if(Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
         }
         else Debug.Log("사용할 수 없는 아이템");
     }
@@ -176,12 +177,15 @@ public class InventoryManager : MonoBehaviour
         int inventoryIndex = quickSlotInventoryIndices[slotIndex];
         int latestCount = quickSlotCounts[slotIndex];
 
+        // Inventory 클래스는 제공되지 않았지만, 인스턴스가 있다고 가정하고 로직 유지
         if (Inventory.instance != null && inventoryIndex >= 0)
         {
+            // Inventory.instance.ConsumeItemAt에서 아이템을 실제로 감소시키고 최신 수량을 반환한다고 가정
             latestCount = Inventory.instance.ConsumeItemAt(inventoryIndex, 1);
             quickSlotCounts[slotIndex] = latestCount;
         }
 
+        // QuickSlot 클래스는 제공되지 않았지만, 정적 메서드가 있다고 가정하고 로직 유지
         var slot = QuickSlot.GetSlotByIndex(slotIndex);
         if (slot != null)
         {
@@ -202,6 +206,7 @@ public class InventoryManager : MonoBehaviour
         quickSlotCounts[slotIndex] = 0;
         quickSlotInventoryIndices[slotIndex] = -1;
 
+        // QuickSlot 클래스는 제공되지 않았지만, 정적 메서드가 있다고 가정하고 로직 유지
         var slot = QuickSlot.GetSlotByIndex(slotIndex);
         if (slot != null)
         {

@@ -16,6 +16,9 @@ public class QuestData : ScriptableObject
     [Header("2. 요구 사항 (제출/납입 품목)")]
     // 퀘스트 슬롯이 처리할 요구 아이템의 이름 (Item.itemName 필드와 일치해야 함)
     public string requiredItemName; 
+     [Tooltip("퀘스트 UI의 납입 슬롯에 표시될 요구 아이템의 아이콘 (Sprite)을 연결하세요.")]
+    public Sprite requiredItemIcon; 
+    
     // 요구 수량
     public int requiredAmount;      
     
@@ -26,4 +29,5 @@ public class QuestData : ScriptableObject
     // 보상 수량
     public int rewardCount = 1;
     
+
 }

@@ -24,10 +24,8 @@ MonoBehaviour:
     - choiceText: "\uC258\uD130 \uB0A9\uC785\uD488\uC774\uB77C \uC904 \uC218 \uC5C6\uC5B4\uC694."
       nextNodeIndex: 2
     nextNodeIndex: 0
-  - text: "\uAC10\uC0AC\uD569\uB2C8\uB2E4. \uB2F9\uC2E0\uC740 \uC81C \uC740\uC778\uC774\uC5D0\uC694.
-      \uC774 \uBB34\uC804\uAE30\uAC00 \uB2F9\uC2E0\uC5D0\uAC8C \uB3C4\uC6C0\uC774
-      \uB418\uAE38 \uBC14\uB78D\uB2C8\uB2E4. "
-    typingSpeed: 0.2
+  - text: "\uAC10\uC0AC\uD569\uB2C8\uB2E4. \uB2F9\uC2E0\uC740 \uC81C \uC740\uC778\uC774\uC5D0\uC694."
+    typingSpeed: 0.1
     questToStart: {fileID: 11400000, guid: 24e18528c2bf54cfb9d4ef46c44ebcff, type: 2}
     hasChoices: 0
     choices: []

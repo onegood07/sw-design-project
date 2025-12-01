@@ -29,10 +29,8 @@ MonoBehaviour:
       \uC8FC\uACE0? \uC88B\uC544! \uAC19\uC774 \uAC08\uB798."
     typingSpeed: 0.1
     questToStart: {fileID: 11400000, guid: 24e18528c2bf54cfb9d4ef46c44ebcff, type: 2}
-    hasChoices: 1
-    choices:
-    - choiceText: "\uADF8\uB798. \uAC70\uAE34 \uC88B\uC740 \uC0AC\uB78C\uB3C4 \uB9CE\uC544."
-      nextNodeIndex: -1
+    hasChoices: 0
+    choices: []
     nextNodeIndex: -1
   - text: "\uD765, \uC7AC\uBBF8\uC5C6\uC5B4..."
     typingSpeed: 0.1
