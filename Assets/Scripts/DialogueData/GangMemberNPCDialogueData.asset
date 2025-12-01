@@ -16,6 +16,7 @@ MonoBehaviour:
   - text: "\uC5B4\uD734, \uB0A9\uC785\uD488 \uB530\uC704\uB098 \uB098\uB974\uB294
       \uC258\uD130\uC758 \uAC1C\uB77C\uB2C8. \uD55C\uC2EC\uD558\uB124."
     typingSpeed: 0.1
+    questToStart: {fileID: 0}
     hasChoices: 1
     choices:
     - choiceText: "\uC6D0\uD558\uB294 \uAC8C \uBB54\uB370?"
@@ -27,6 +28,7 @@ MonoBehaviour:
   - text: "\uADF8\uB0E5.. \uAC04\uB2E8\uD55C \uC131\uC758 \uD45C\uC2DC? \uB9DB\uC788\uB294
       \uAC70."
     typingSpeed: 0.1
+    questToStart: {fileID: 11400000, guid: 9015176f0f2f646c0a271f02b329c559, type: 2}
     hasChoices: 1
     choices:
     - choiceText: "\u2026\uADF8\uB798, \uBB50."
@@ -36,6 +38,7 @@ MonoBehaviour:
     nextNodeIndex: 0
   - text: "\uBB50\uB77C\uACE0? \uB108 \uB9D0 \uB2E4 \uD588\uB0D0?"
     typingSpeed: 0.1
+    questToStart: {fileID: 0}
     hasChoices: 1
     choices:
     - choiceText: "\uADF8\uB798."
@@ -43,6 +46,7 @@ MonoBehaviour:
     nextNodeIndex: 0
   - text: "\uC88B\uC544. \uC774\uAC74 \uD658\uC601 \uC120\uBB3C\uC774\uB2E4."
     typingSpeed: 0.1
+    questToStart: {fileID: 0}
     hasChoices: 1
     choices:
     - choiceText: "\uADF8\uB798."
@@ -50,6 +54,7 @@ MonoBehaviour:
     nextNodeIndex: 0
   - text: "\uBB50.. \uADF8\uB7FC \uBAA9\uC228\uC774\uB77C\uB3C4 \uB0B4\uB194."
     typingSpeed: 0.1
+    questToStart: {fileID: 0}
     hasChoices: 1
     choices:
     - choiceText: "\uC2EB\uC5B4."

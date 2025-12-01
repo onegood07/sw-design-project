@@ -17,6 +17,12 @@ public class DialogueNode
 
     public float typingSpeed = 0.03f; // 타이핑 효과 속도 (초 단위)
 
+    // ⭐ 새로 추가된 필드: 이 노드를 통과할 때 시작할 퀘스트 (선택 사항)
+    [Header("Quest Connection")]
+    [Tooltip("이 노드를 통과할 때 시작할 QuestData를 연결하세요. (제출 UI 등장)")]
+    public QuestData questToStart; // 연결된 QuestData ScriptableObject
+    // ⭐
+
     public bool hasChoices = false; // 선택지가 있는지 여부
     public DialogueChoice[] choices; // 선택지 배열 (있을 경우)
 

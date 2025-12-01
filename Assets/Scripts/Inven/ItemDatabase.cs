@@ -10,7 +10,14 @@ public class ItemDatabase : MonoBehaviour
 
     private void Awake()
     {
+          if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         instance = this;                   // 싱글톤 인스턴스 설정
+        // ⭐ 중요: 씬이 바뀌어도 파괴되지 않도록 설정
+        DontDestroyOnLoad(gameObject);
     }
 
     [Header("아이템 프리팹 리스트")]

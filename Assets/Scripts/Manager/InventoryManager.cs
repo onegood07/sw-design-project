@@ -1,6 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// =========================================================================
+// 사용자님 프로젝트의 Item 클래스 (ItemData가 아닌 Item에 정의되어 있어 참조 불가)
+// public class Item : MonoBehaviour
+// {
+//     public string itemName;
+//     // ...
+// }
+// =========================================================================
+
 public class InventoryManager : MonoBehaviour
 {
 
@@ -24,6 +33,8 @@ public class InventoryManager : MonoBehaviour
         }
         Instance = this;
 
+        DontDestroyOnLoad(this.gameObject);
+
         for (int i = 0; i < quickSlotInventoryIndices.Length; i++)
             quickSlotInventoryIndices[i] = -1;
     }
@@ -43,6 +54,27 @@ public class InventoryManager : MonoBehaviour
         quickSlotItems[index] = item;
         quickSlotCounts[index] = count;
         quickSlotInventoryIndices[index] = inventoryIndex;
+    }
+
+    // ⭐ [수정된 함수]: QuestManager가 호출하는 규격에 맞춘 ItemData 기반 AddItem 함수 (대문자 A)
+    /// <summary>
+    /// ItemData 객체를 받아 소유 아이템 딕셔너리에 수량을 누적합니다. (QuestManager에서 호출)
+    /// </summary>
+    /// <param name="itemData">추가할 아이템 데이터</param>
+    /// <param name="count">추가할 수량</param>
+    public void AddItem(ItemData itemData, int count)
+    {
+        if (itemData == null)
+        {
+            Debug.LogError("[InventoryManager] 추가하려는 ItemData가 null입니다.");
+            return;
+        }
+        // [수정] ItemData에 'itemName'이 없다는 오류(CS1061)를 해결하기 위해 
+        // Unity Object의 기본 'name' 속성을 사용하도록 변경했습니다.
+        addItem(itemData.name, count); 
+        
+        Debug.Log($"[InventoryManager] ItemData를 통해 '{itemData.name}' {count}개를 추가했습니다.");
+        // 여기에 UI 업데이트 로직을 추가할 수 있습니다.
     }
 
     // 소유 아이템 딕셔너리에 수량을 누적합니다.
