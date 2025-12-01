@@ -17,7 +17,7 @@ MonoBehaviour:
       \uD558\uB098\uB9CC \uC8FC\uC138\uC694..."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
-    shouldStartSubmission: 1
+    shouldStartSubmission: 0
     hasChoices: 1
     choices:
     - choiceText: "...\uC54C\uACA0\uC5B4\uC694. \uAC10\uC5FC\uC774 \uC544\uB2C8\uB77C\uACE0

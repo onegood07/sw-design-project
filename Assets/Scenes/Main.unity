@@ -97193,7 +97193,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2030135890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98120,11 +98120,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5644882893091703850, guid: a8516cbc312c84f08a12e87c7e032298, type: 3}
       propertyPath: m_FontData.m_FontSize
-      value: 26
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6928064435529151103, guid: a8516cbc312c84f08a12e87c7e032298, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 830
+      value: 800
       objectReference: {fileID: 0}
     - target: {fileID: 8582815218649182108, guid: a8516cbc312c84f08a12e87c7e032298, type: 3}
       propertyPath: m_Name

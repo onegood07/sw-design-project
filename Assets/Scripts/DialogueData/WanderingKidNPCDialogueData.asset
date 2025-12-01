@@ -17,27 +17,35 @@ MonoBehaviour:
       \uAC70 \uCC3E\uC73C\uB7EC \uC654\uB294\uB370. \uB098\uB791 \uB180\uB798?"
     typingSpeed: 0.1
     questToStart: {fileID: 0}
+    shouldStartSubmission: 0
     hasChoices: 1
     choices:
-    - choiceText: "\uC774\uAC70 \uBA39\uACE0 \uB098\uB791 \uAC19\uC774 \uAC00\uC790.
-        \uB180\uC544\uC904\uAC8C."
+    - choiceText: "\uD544\uC694\uD55C \uAC70 \uC788\uC5B4? \uB098\uB791 \uAC19\uC774
+        \uAC00\uC790. \uB180\uC544\uC904\uAC8C."
       nextNodeIndex: 1
     - choiceText: "\uC5EC\uAE34 \uC704\uD5D8\uD574. \uC258\uD130\uB85C \uAC00\uC790."
       nextNodeIndex: 2
     nextNodeIndex: 0
-  - text: "\uC815\uB9D0? \uB098\uB791 \uB180\uC544\uC8FC\uB294 \uAC70\uC57C? \uC774\uAC83\uB3C4
-      \uC8FC\uACE0? \uC88B\uC544! \uAC19\uC774 \uAC08\uB798."
+  - text: "\uC815\uB9D0? \uB098 \uCD08\uCF5C\uB9BF \uBA39\uACE0 \uC2F6\uC5B4!"
     typingSpeed: 0.1
     questToStart: {fileID: 11400000, guid: 24e18528c2bf54cfb9d4ef46c44ebcff, type: 2}
+    shouldStartSubmission: 1
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: 3
+  - text: "\uD765, \uC7AC\uBBF8\uC5C6\uC5B4..."
+    typingSpeed: 0.09
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  - text: "\uD765, \uC7AC\uBBF8\uC5C6\uC5B4..."
-    typingSpeed: 0.1
+  - text: "\uC57C\uD638! \uC774\uAC74 \uC120\uBB3C\uC774\uC57C! \uAE38\uC5D0\uC11C
+      \uC8FC\uC6E0\uC5B4. \uBC18\uC9DD\uBC18\uC9DD \uBE5B\uB098!"
+    typingSpeed: 0.09
     questToStart: {fileID: 0}
-    hasChoices: 1
-    choices:
-    - choiceText: "...\uC870\uC2EC\uD574."
-      nextNodeIndex: -1
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
     nextNodeIndex: -1
   startNodeIndex: 0

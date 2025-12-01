@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: LostDollGirlNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
-  - text: "\uD750\uC73D\u2026 \uC81C \uACF0\uC778\uD615\uC744 \uC783\uC5B4\uBC84\uB838\uC5B4\uC694\u2026"
-    typingSpeed: 0.1
+  - text: "\uD750\uC73D\u2026 \uC81C \uACF0\uC778\uD615\uC744 \uC783\uC5B4\uBC84\uB838\uC5B4\uC694\u2026
+      \uBB34\uC12D\uAC8C \uC0DD\uAE34 \uAD34\uBB3C\uC774 \uAC00\uC838\uAC14\uC5B4\uC694..."
+    typingSpeed: 0.08
     questToStart: {fileID: 0}
+    shouldStartSubmission: 0
     hasChoices: 1
     choices:
     - choiceText: "\uD639\uC2DC \uC774\uAC70 \uC783\uC5B4\uBC84\uB9B0 \uAC70\uC57C?"
@@ -24,22 +26,29 @@ MonoBehaviour:
         \uAC00\uC790."
       nextNodeIndex: 2
     nextNodeIndex: 0
-  - text: "\uB124! \uB9DE\uC544\uC694! \uACE0\uB9C8\uC6CC\uC694! \uC544\uBE60\uAC00
-      \uCC3E\uC73C\uBA74 \uC774\uAC78 \uC8FC\uB77C\uACE0 \uD588\uC5B4\uC694!"
-    typingSpeed: 0.1
+  - text: "\uC5B4, \uD639\uC2DC \uCC3E\uC558\uC5B4\uC694..? \uC800\uD55C\uD14C \uC8FC\uBA74
+      \uC548\uB3FC\uC694?"
+    typingSpeed: 0.08
     questToStart: {fileID: 11400000, guid: ab0c15206349347ccbbefe7fd6563578, type: 2}
+    shouldStartSubmission: 1
     hasChoices: 1
-    choices:
-    - choiceText: "\uACE0\uB9C8\uC6CC. \uC798 \uC4F8\uAC8C."
-      nextNodeIndex: -1
-    nextNodeIndex: 0
+    choices: []
+    nextNodeIndex: 3
   - text: "\uC544\uB2C8\uC5D0\uC694\u2026 \uACF0\uC778\uD615\uC744 \uBABB \uCC3E\uC73C\uBA74
       \uC804 \uBABB \uAC00\uC694\u2026"
+    typingSpeed: 0.08
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  - text: "\uC815\uB9D0 \uACE0\uB9C8\uC6CC\uC694! \uC544\uBE60\uAC00 \uC120\uBB3C\uD574\uC900
+      \uAC70\uC5D0\uC694. \uC774\uAC74 \uC120\uBB3C\uC774\uC5D0\uC694!! \uAE38\uC5D0\uC11C
+      \uC8FC\uC6E0\uC5B4\uC694."
     typingSpeed: 0.1
     questToStart: {fileID: 0}
-    hasChoices: 1
-    choices:
-    - choiceText: "... \uBBF8\uC548."
-      nextNodeIndex: -1
-    nextNodeIndex: 0
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
   startNodeIndex: 0
