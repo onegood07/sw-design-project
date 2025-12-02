@@ -13,10 +13,10 @@ public class QuestSlot : Slot
     public int RewardCount => rewardCount;
     
     // 퀘스트 요구/보상 정보를 저장할 내부 private 변수
-    private string requiredItemName;
-    private int requiredAmount;
-    private Item rewardItem; 
-    private int rewardCount; 
+    public string requiredItemName;
+    public int requiredAmount;
+    public Item rewardItem; 
+    public int rewardCount; 
 
     [Header("Quest Status")]
     [HideInInspector] public int submittedCount = 0;

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq; // ★★★ HasItem 함수를 위해 LINQ 사용 (필수)
 
 /// <summary>
 /// 인벤토리 슬롯 리스트를 유지하며 아이템 추가/소비 이벤트를 브로드캐스트합니다.
@@ -33,7 +34,8 @@ public class Inventory : MonoBehaviour
     public int slotCnt = 20;
 
     /// <summary>
-    /// 필드 아이템 데이터를 받아 슬롯에 추가하거나 기존 스택을 증가시킵니다.
+    /// 필드 아이템 데이터를 받아 슬롯에 추가하거나 기존 스택을 증가시킵니다. (기존 AddItem 유지)
+    /// ExchangeManager에서 보상 지급 시 호출됩니다.
     /// </summary>
     public bool AddItem(Item worldItem, int addCount = 1)
     {
@@ -49,6 +51,7 @@ public class Inventory : MonoBehaviour
         }
 
         // 새 슬롯에 추가
+        // InventoryItem 클래스와 Item 클래스가 프로젝트에 정의되어 있어야 합니다.
         InventoryItem newItem = new InventoryItem(worldItem, addCount);
 
         // 먼저 비어있는 슬롯(null)을 재사용
@@ -68,7 +71,7 @@ public class Inventory : MonoBehaviour
     }
 
     /// <summary>
-    /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다.
+    /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다. (기존 ConsumeItemAt 유지)
     /// </summary>
     public int ConsumeItemAt(int index, int amount = 1)
     {
@@ -86,4 +89,61 @@ public class Inventory : MonoBehaviour
         onChangeItem?.Invoke();
         return item != null ? item.count : 0;
     }
+    
+    // ==========================================================
+    // ★★★★★ 교환 시스템을 위한 필수 함수 추가 ★★★★★
+    // ==========================================================
+    
+    // 1. 특정 아이템을 요구 수량만큼 가지고 있는지 확인 (ExchangeSlot에서 호출)
+    /// <summary>
+    /// 인벤토리 전체에서 해당 아이템을 요구 수량만큼 가지고 있는지 확인합니다.
+    /// </summary>
+    public bool HasItem(string itemName, int requiredAmount)
+    {
+        // 인벤토리 전체에서 해당 이름의 아이템 총 수량을 계산합니다.
+        int possessed = items
+            .Where(i => i != null && i.itemName == itemName)
+            .Sum(i => i.count); 
+            
+        return possessed >= requiredAmount;
+    }
+
+    // 2. 재료 아이템 제거 (ExchangeManager에서 호출)
+    /// <summary>
+    /// 재료 아이템을 요구 수량만큼 인벤토리에서 제거합니다.
+    /// </summary>
+    public void RemoveItem(string itemName, int amount)
+    {
+        int remaining = amount;
+        
+        // 인벤토리 리스트를 역순으로 순회하며 아이템을 제거합니다.
+        for (int i = items.Count - 1; i >= 0 && remaining > 0; i--)
+        {
+            var item = items[i];
+            
+            if (item != null && item.itemName == itemName)
+            {
+                int available = item.count;
+                int take = Mathf.Min(available, remaining);
+                
+                item.count -= take;
+                remaining -= take;
+                
+                // 스택이 0이 되면 슬롯을 비웁니다.
+                if (item.count <= 0)
+                {
+                    items[i] = null;
+                }
+            }
+        }
+        
+        onChangeItem?.Invoke();
+        
+        if (remaining > 0)
+        {
+            Debug.LogError($"[Inventory] {itemName} 제거 오류: {remaining}개가 부족합니다. HasItem 검사를 통과했어야 합니다.");
+        }
+    }
+
+    // 3. 중복되는 AddItem(Item, int) 오버로드는 기존 AddItem이 처리하므로 삭제함.
 }
