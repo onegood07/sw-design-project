@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.SceneManagement; 
 using System.Collections.Generic; 
 using Random = UnityEngine.Random;
+using Unity.Android.Gradle;
 
 // 게임 상태 관련 Enum 정의
 public enum GameEnding { None, Happy, GameOver, Bad } // 엔딩 종류
@@ -179,16 +180,16 @@ public class GameManager : MonoBehaviour
             switch (CurrentDay)
             {
                 case GameDays.FirstDay: 
-                    SetItemRatios(0.7f, 0.2f, 0.1f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
                 case GameDays.SecondDay: 
-                    SetItemRatios(0.5f, 0.3f, 0.2f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
                 case GameDays.ThirdDay: 
-                    SetItemRatios(0.3f, 0.4f, 0.3f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
                 case GameDays.FourthDay: 
-                    SetItemRatios(0.2f, 0.3f, 0.5f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
             }
 
@@ -210,16 +211,16 @@ public class GameManager : MonoBehaviour
             switch (CurrentDay)
             {
                 case GameDays.FirstDay: 
-                    SetItemRatios(0.5f, 0.3f, 0.2f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
                 case GameDays.SecondDay: 
-                    SetItemRatios(0.4f, 0.3f, 0.3f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
                 case GameDays.ThirdDay: 
-                    SetItemRatios(0.3f, 0.3f, 0.4f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
                 case GameDays.FourthDay: 
-                    SetItemRatios(0.2f, 0.3f, 0.5f); 
+                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
                     break;
             }
 
@@ -231,14 +232,45 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    // MARK: 아이템별 스폰 비율 설정
-    void SetItemRatios(float heal, float weapon, float lantern)
+    // MARK: 아이템별 스폰 확률 설정
+    void SetItemSectorRatios(float heal, float weapon, float lantern,float quest,float material,float submit)
     {
-        if (spawnManager != null && spawnManager.itemInfos != null && spawnManager.itemInfos.Length >= 3)
+        if (spawnManager != null && spawnManager.ItemSectorInfos != null && spawnManager.itemInfos != null &&spawnManager.itemInfos.Length >= 3)
         {
-            spawnManager.itemInfos[0].ratio = heal;
-            spawnManager.itemInfos[1].ratio = weapon;
-            spawnManager.itemInfos[2].ratio = lantern;
+            spawnManager.ItemSectorInfos[0].ratio = heal;
+            spawnManager.ItemSectorInfos[1].ratio = weapon;
+            spawnManager.ItemSectorInfos[2].ratio = lantern;
+            spawnManager.ItemSectorInfos[3].ratio = quest;
+            spawnManager.ItemSectorInfos[4].ratio = material;
+            spawnManager.ItemSectorInfos[5].ratio = submit;
+            SetItemRatios();
+        }
+    }
+    void SetItemRatios()
+    {
+        for(int i = 0; i < spawnManager.itemInfos.Length; i++)
+        {
+            switch (spawnManager.itemInfos[i].type)
+            {
+                case ItemType.Heal:
+                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[0].ratio * spawnManager.itemInfos[i].baseRatio;
+                    break;
+                case ItemType.Weapon:
+                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[1].ratio * spawnManager.itemInfos[i].baseRatio;
+                    break;
+                case ItemType.Lantern:
+                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[2].ratio * spawnManager.itemInfos[i].baseRatio;
+                    break;
+                case ItemType.Quest:
+                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[3].ratio * spawnManager.itemInfos[i].baseRatio;
+                    break;
+                case ItemType.Material:
+                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[4].ratio * spawnManager.itemInfos[i].baseRatio;
+                    break;
+                case ItemType.Submit:
+                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[5].ratio * spawnManager.itemInfos[i].baseRatio;
+                    break;
+            }
         }
     }
 
