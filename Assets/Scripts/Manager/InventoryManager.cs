@@ -130,7 +130,7 @@ public class InventoryManager : MonoBehaviour
         {
             // if(Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
             // 임시로 그냥 ConsumeQuickSlotItem 호출
-            ConsumeQuickSlotItem(index);
+            if (Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
 
             UsableItem.Use(heroT, useVec);
         }

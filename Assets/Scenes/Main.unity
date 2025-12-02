@@ -77703,19 +77703,68 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnManager
   groundTilemap: {fileID: 567846184}
   collisionTilemap: {fileID: 884975784}
+  ItemSectorInfos:
+  - type: 0
+    ratio: 0.3
+  - type: 1
+    ratio: 0.1
+  - type: 2
+    ratio: 0.1
+  - type: 3
+    ratio: 0.1
+  - type: 4
+    ratio: 0.2
+  - type: 5
+    ratio: 0.2
   itemInfos:
   - prefab: {fileID: 3972602249714406821, guid: 5d9a4a6bb9122432497b32b9a6cdd7e4, type: 3}
     type: 0
-    ratio: 0.23
+    baseRatio: 0.125
+    ratio: 0.125
   - prefab: {fileID: 3486718950983754090, guid: de5ea7b0032b64ef5bd4e7835c50934a, type: 3}
     type: 0
-    ratio: 0.52
+    baseRatio: 0.125
+    ratio: 0.125
   - prefab: {fileID: 4174347128712009735, guid: 0a964f875a8e24d87ae5ea4b26ad8646, type: 3}
     type: 2
-    ratio: 0.27
+    baseRatio: 1
+    ratio: 1
   - prefab: {fileID: 4665207699815735179, guid: 0feb895004e5a448b98cd5dbcae4ee9b, type: 3}
     type: 1
-    ratio: 0.45
+    baseRatio: 1
+    ratio: 1
+  - prefab: {fileID: 3034711626702233512, guid: 4561518ae6c81bb47ad02a786321c602, type: 3}
+    type: 0
+    baseRatio: 0.125
+    ratio: 0.125
+  - prefab: {fileID: 6602264428653247908, guid: 4734e92c3af77494f87d488d8e0d6f75, type: 3}
+    type: 0
+    baseRatio: 0.125
+    ratio: 0.125
+  - prefab: {fileID: 1715114082677771532, guid: 6c989bc03b49ad04a96b771c6c4031d6, type: 3}
+    type: 0
+    baseRatio: 0.125
+    ratio: 0.125
+  - prefab: {fileID: 8298581016742193680, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
+    type: 0
+    baseRatio: 0.125
+    ratio: 0.125
+  - prefab: {fileID: 5092631276881676153, guid: 9c0014343ab8b684aafc23314b0bfa19, type: 3}
+    type: 0
+    baseRatio: 0.125
+    ratio: 0.125
+  - prefab: {fileID: 1296834444985638504, guid: 7f140e7a38ddecd48bccfdb655f6529b, type: 3}
+    type: 3
+    baseRatio: 1
+    ratio: 1
+  - prefab: {fileID: 4568067346555366210, guid: a4efe08a771fb154887b4b28ec2637d6, type: 3}
+    type: 0
+    baseRatio: 0.125
+    ratio: 0.125
+  - prefab: {fileID: 193026521968951197, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
+    type: 5
+    baseRatio: 1
+    ratio: 1
   npcPrefabs:
   - {fileID: 4375253768732716613, guid: a9fc57bc648024cb58cf67018e5c9eb7, type: 3}
   - {fileID: 4375253768732716613, guid: 66647ea37ffbf40019a7b0d0aaf968c0, type: 3}
@@ -94973,6 +95022,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: fdc1a731-f86e-4c54-ad65-5fe10c8ddb3e
     m_ActionName: 'Player/ItemUse[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1380755847}
+        m_TargetAssemblyTypeName: HeroItemUse, Assembly-CSharp
+        m_MethodName: OnQuickSlot5
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 64e53bc1-3311-42fa-92b4-0d5941535aa7
+    m_ActionName: 'Player/QuickSlot5[/Keyboard/5]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1380755847}
+        m_TargetAssemblyTypeName: HeroItemUse, Assembly-CSharp
+        m_MethodName: OnQuickSlot6
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: cf3de15d-b19e-447c-a35d-523d6f0136cf
+    m_ActionName: 'Player/QuickSlot6[/Keyboard/6]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 

@@ -9,9 +9,17 @@ public struct ItemSpawnInfo
     public GameObject prefab; // 스폰할 아이템 프리팹
     public ItemType type; // 아이템 타입
     [Range(0f, 1f)]
-    public float ratio; // 스폰 비율 (총 아이템 수 대비)
+    public float baseRatio; // 스폰 확률 (아이템 타입별 스폰 확률 대비)
+    [HideInInspector]
+    public float ratio;
 }
-
+[System.Serializable]
+public struct ItemSectorSpawnProbablity
+{
+    public ItemType type; // 아이템 타입
+    [Range(0f,1f)]
+    public float ratio; // 아이템 타입 스폰 확률
+}
 public class SpawnManager : MonoBehaviour
 {
     // 싱글톤
@@ -21,8 +29,11 @@ public class SpawnManager : MonoBehaviour
     public Tilemap groundTilemap;    // 바닥 타일맵
     public Tilemap collisionTilemap; // 장애물/충돌 타일맵
 
-    [Header("Item Prefabs")]
-    public ItemSpawnInfo[] itemInfos; // 아이템 종류별 정보
+    [Header("아이템 종류별 스폰 확률 - 순서 변경 금지(ItemType 상의 순서로 고정)")]
+    public ItemSectorSpawnProbablity[] ItemSectorInfos; // 아이템 종류별 스폰 정보
+    [Header("Item Prefabs & 개별 아이템 스폰 확률(같은 아이템 종류 총합이 1을 넘지 않는 것을 권장)")]
+    public ItemSpawnInfo[] itemInfos; // 개별 아이템 스폰 정보
+
 
     [Header("NPC Prefabs")]
     public GameObject[] npcPrefabs;     // NPC 프리팹 담을 리스트
@@ -160,12 +171,65 @@ public class SpawnManager : MonoBehaviour
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
 
         // 아이템 종류별 비율 스폰
+        // 1-1. 전체 확률(Total Weight) 계산
+        float totalWeight = 0f;
         foreach (var info in itemInfos)
         {
-            int count = Mathf.RoundToInt(totalItemCount * info.ratio); // 비율 계산
-            List<Vector3> usedPositions = SpawnObjects(info.prefab, count, remainingPositions, spawnedItems, info.type);
-            remainingPositions.RemoveAll(pos => usedPositions.Contains(pos)); // 사용 위치 제거
+            totalWeight += info.ratio;
         }
+        // 1-2. 총 아이템 수만큼 반복하며 룰렛 돌리기
+        for (int i = 0; i < totalItemCount; i++)
+        {
+            if (remainingPositions.Count == 0) break; // 자리 없으면 중단
+
+            float randomPoint = Random.value * totalWeight; // 0 ~ TotalWeight 사이 랜덤 값
+            float currentWeightSum = 0f;
+            int selectedIndex = -1;
+
+            // 룰렛 확인: 어떤 아이템이 당첨됐나?
+            for (int j = 0; j < itemInfos.Length; j++)
+            {
+                currentWeightSum += itemInfos[j].ratio;
+                if (randomPoint <= currentWeightSum)
+                {
+                    selectedIndex = j;
+                    break;
+                }
+            }
+
+            // 당첨된 아이템 스폰
+            if (selectedIndex != -1)
+            {
+                var selectedInfo = itemInfos[selectedIndex];
+                
+                // 위치 랜덤 선정 및 리스트에서 제거 (RemoveAt 사용)
+                int posIndex = Random.Range(0, remainingPositions.Count);
+                Vector3 spawnPos = remainingPositions[posIndex];
+                remainingPositions.RemoveAt(posIndex);
+
+                // 생성 및 리스트 추가
+                GameObject obj = Instantiate(selectedInfo.prefab, spawnPos, Quaternion.identity);
+                spawnedItems.Add(obj);
+
+                if (itemManager != null)
+                    itemManager.RegisterSpawnedItem(obj, selectedInfo.type);
+            }
+        }
+        // foreach (var info in itemInfos)
+        // {
+        //     // info.ratio 를 확률로 계산해 두고 확률로 스폰 결정.
+        //     for(int i = 0; i < totalItemCount; i++)
+        //     {
+        //         float randomRatio = Random.value; // 0.0 ~ 1.0 사이의 랜덤 실수
+        //         for(int j = 0; i < itemInfos.Length; j++)
+        //         {
+
+        //         }
+        //     }
+        //     int count = Mathf.RoundToInt(totalItemCount * info.ratio); // 비율 계산
+        //     List<Vector3> usedPositions = SpawnObjects(info.prefab, count, remainingPositions, spawnedItems, info.type);
+        //     remainingPositions.RemoveAll(pos => usedPositions.Contains(pos)); // 사용 위치 제거
+        // }
 
         // NPC 스폰
         int actualNpcCount = Mathf.Min(npcCount, npcPrefabs.Length); // NPC 종류 수보다 많이 스폰하지 않도록 제한

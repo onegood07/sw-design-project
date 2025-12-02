@@ -5,7 +5,10 @@ public enum ItemType
 {
     Heal,
     Weapon,
-    Lantern
+    Lantern,
+    Quest,
+    Material,
+    Submit
 }
 
 public class ItemManager : MonoBehaviour
@@ -37,6 +40,10 @@ public class ItemManager : MonoBehaviour
 
     public void RegisterSpawnedItem(GameObject item, ItemType type)
     {
+        // 1. [핵심 수정] 딕셔너리에 해당 타입의 키가 아예 없으면 -> 리스트를 새로 만들어서 넣어준다.
+        if (!itemDictionary.ContainsKey(type))
+            itemDictionary[type] = new List<GameObject>();
+  
         if (!itemDictionary[type].Contains(item))
             itemDictionary[type].Add(item);
     }
