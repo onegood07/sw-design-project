@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 /// <summary>
 /// 쉘터용 납입 슬롯
@@ -15,11 +14,9 @@ public class ShelterSubmitSlot : Slot, IDropHandler
     [HideInInspector] public InventoryItem temporaryItem = null;
     [HideInInspector] public int temporaryItemIndex = -1;
 
-    // Slot UI
-    public Image itemIcon;
-    public Text itemCountText;
-
-    // 슬롯 초기화
+    /// <summary>
+    /// 슬롯 초기화
+    /// </summary>
     public void SetRequiredData(QuestData data)
     {
         if (data == null)
@@ -68,11 +65,9 @@ public class ShelterSubmitSlot : Slot, IDropHandler
             return;
         }
 
-        // 임시 저장
         temporaryItem = item;
         temporaryItemIndex = fromSlot.slotIndex;
 
-        // UI 업데이트
         if (itemCountText != null)
             itemCountText.text = $"{item.count} / {requiredAmount}";
     }
@@ -108,7 +103,7 @@ public class ShelterSubmitSlot : Slot, IDropHandler
                 itemIcon.color = Color.gray;
 
             if (itemCountText != null)
-                itemCountText.text = "납입 완료";
+                itemCountText.text = "";
         }
 
         return true;

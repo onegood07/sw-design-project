@@ -601,8 +601,8 @@ MonoBehaviour:
     itemImage: {fileID: 0}
     count: 0
     itemData: {fileID: 0}
-  itemIcon: {fileID: 7558624663860202039}
-  itemCountText: {fileID: 6618442330672861713}
+  itemIcon: {fileID: 7146906833007771545}
+  itemCountText: {fileID: 6874894384043231934}
   slotIndex: 0
   recipe: {fileID: 0}
   requiredItemName: 
@@ -1043,4 +1043,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85d23ac95719d2f4bb00e17b9d5da3f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemDragHandler
-  slot: {fileID: 0}
+  slot: {fileID: 918329705712772496}
