@@ -22,13 +22,11 @@ public class ExchangeRecipeItem : MonoBehaviour
     public Button submitButton;
 
     public QuestData Recipe { get; private set; }
-
     public Action<ExchangeRecipeItem> onSelected;
 
     public void Setup(QuestData recipe)
     {
         Recipe = recipe;
-
         if (recipe == null)
         {
             Debug.LogError("[ExchangeRecipeItem] Setup()에 null recipe 전달됨");
@@ -56,6 +54,7 @@ public class ExchangeRecipeItem : MonoBehaviour
         {
             submitButton.onClick.RemoveAllListeners();
             submitButton.onClick.AddListener(OnSubmitClicked);
+            submitButton.interactable = true; // 항상 초기 활성화
         }
     }
 
@@ -63,46 +62,40 @@ public class ExchangeRecipeItem : MonoBehaviour
     {
         if (submitButton != null && exchangeSlot != null && Recipe != null)
         {
-            // 예시: 항상 활성화
-            submitButton.interactable = true;
+            submitButton.interactable = exchangeSlot.submittedCount < exchangeSlot.requiredAmount;
         }
     }
 
-    // ===========================
-    // 선택/해제
-    // ===========================
     public void SetSelected(bool selected)
     {
         if (backgroundImage != null)
             backgroundImage.color = selected ? selectedColor : normalColor;
     }
 
-    // ===========================
-    // 클릭 처리
-    // ===========================
     public void OnClick()
     {
         onSelected?.Invoke(this);
     }
 
-    // ===========================
-    // 제출 버튼 클릭 처리
-    // ===========================
     private void OnSubmitClicked()
-{
-    if (exchangeSlot == null || Recipe == null)
     {
-        Debug.LogWarning("[ExchangeRecipeItem] 슬롯 또는 레시피 없음");
-        return;
+        if (exchangeSlot == null || Recipe == null)
+        {
+            Debug.LogWarning("[ExchangeRecipeItem] 슬롯 또는 레시피 없음");
+            return;
+        }
+
+        bool success = exchangeSlot.ConfirmSubmission();
+
+        if (success)
+        {
+            Debug.Log($"[ExchangeRecipeItem] '{Recipe.questName}' 교환 성공!");
+
+            // 교환 완료 시 버튼 비활성화
+            if (exchangeSlot.submittedCount >= exchangeSlot.requiredAmount && submitButton != null)
+            {
+                submitButton.interactable = false;
+            }
+        }
     }
-
-    bool success = exchangeSlot.ConfirmSubmission();
-
-    if (success)
-    {
-        Debug.Log($"[ExchangeRecipeItem] '{Recipe.questName}' 교환 성공!");
-        // 이미 ConfirmSubmission에서 슬롯 재세팅 처리했으므로 별도 처리 불필요
-    }
-}
-
 }

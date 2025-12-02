@@ -8,7 +8,6 @@ public class ExchangeSubmitSlot : Slot
 
     public string requiredItemName;
     public int requiredAmount;
-
     public int submittedCount = 0;
 
     [HideInInspector] public InventoryItem temporaryItem = null;
@@ -38,6 +37,7 @@ public class ExchangeSubmitSlot : Slot
         {
             itemIcon.sprite = data.requiredItemIcon;
             itemIcon.gameObject.SetActive(true);
+            itemIcon.color = Color.white;
         }
 
         if (itemCountText != null)
@@ -91,50 +91,51 @@ public class ExchangeSubmitSlot : Slot
             itemCountText.text = $"{item.count} / {requiredAmount}";
     }
 
-   public bool ConfirmSubmission()
-{
-    if (recipe == null)
+    public bool ConfirmSubmission()
     {
-        Debug.LogWarning("[Exchange] 레시피 없음");
-        return false;
+        if (recipe == null)
+        {
+            Debug.LogWarning("[Exchange] 레시피 없음");
+            return false;
+        }
+
+        if (temporaryItem == null)
+        {
+            Debug.LogWarning("[Exchange] 임시 아이템 없음");
+            return false;
+        }
+
+        Inventory inven = Inventory.instance;
+        InventoryItem item = inven.items[temporaryItemIndex];
+
+        int need = requiredAmount - submittedCount;
+        int give = Mathf.Min(need, item.count);
+
+        inven.ConsumeItemAt(temporaryItemIndex, give);
+        submittedCount += give;
+
+        // UI 업데이트
+        if (itemCountText != null)
+            itemCountText.text = $"{submittedCount} / {requiredAmount}";
+
+        temporaryItem = null;
+        temporaryItemIndex = -1;
+
+        if (submittedCount >= requiredAmount)
+        {
+            // 보상 지급
+            inven.AddItem(recipe.rewardItem, recipe.rewardCount);
+            ExchangeManager.Instance.NotifyTradeSuccess();
+
+            // 슬롯 UI 비활성화
+            if (itemCountText != null)
+                itemCountText.text = "0 / 0";
+            if (itemIcon != null)
+                itemIcon.color = Color.gray;
+        }
+
+        return true;
     }
-
-    if (temporaryItem == null)
-    {
-        Debug.LogWarning("[Exchange] 임시 아이템 없음");
-        return false;
-    }
-
-    Inventory inven = Inventory.instance;
-    InventoryItem item = inven.items[temporaryItemIndex];
-
-    int need = requiredAmount - submittedCount;
-    int give = Mathf.Min(need, item.count);
-
-    inven.ConsumeItemAt(temporaryItemIndex, give);
-
-    submittedCount += give;
-
-    // UI 업데이트
-    if (itemCountText != null)
-        itemCountText.text = $"{submittedCount} / {requiredAmount}";
-
-    temporaryItem = null;
-    temporaryItemIndex = -1;
-
-    if (submittedCount >= requiredAmount)
-    {
-        // 보상 지급
-        inven.AddItem(recipe.rewardItem, recipe.rewardCount);
-        ExchangeManager.Instance.NotifyTradeSuccess();
-
-        // ⭐ 슬롯 초기화 + 같은 레시피 재세팅
-        ResetSlot();
-        SetRequiredData(recipe);
-    }
-
-    return true;
-}
 
     public void ResetSlot()
     {
