@@ -253,6 +253,10 @@ MonoBehaviour:
   itemIcon: {fileID: 8077449824982514653}
   itemCountText: {fileID: 462612488116897033}
   slotIndex: 0
+  recipe: {fileID: 0}
+  requiredItemName: 
+  requiredAmount: 0
+  submittedCount: 0
   temporaryItem:
     itemType: 0
     itemName: 
@@ -1119,8 +1123,11 @@ MonoBehaviour:
   requiredIcon: {fileID: 3496549540287175790}
   rewardText: {fileID: 130135635364273668}
   rewardIcon: {fileID: 5013641891162155971}
-  tradeButton: {fileID: 6321909933370476535}
-  tradeButtonText: {fileID: 8347958615187304587}
+  backgroundImage: {fileID: 0}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  ExchangeSlot: {fileID: 3704694808161509875}
+  submitButton: {fileID: 6321909933370476535}
 --- !u!1 &8617394807157118480
 GameObject:
   m_ObjectHideFlags: 0
