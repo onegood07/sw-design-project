@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: -5984088972931491910}
   - component: {fileID: 3138272015581814652}
   m_Layer: 3
-  m_Name: HealItem
+  m_Name: Antiseptic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

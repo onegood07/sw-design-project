@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: -8838197168880746185}
   - component: {fileID: -295572257772085249}
   m_Layer: 3
-  m_Name: MedicineItem
+  m_Name: PainKiller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

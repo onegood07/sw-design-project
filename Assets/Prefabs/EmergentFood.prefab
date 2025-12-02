@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7273410942196873815}
   - component: {fileID: 5902908871419883377}
   - component: {fileID: 1200249886004421481}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EmergentFood
   m_TagString: Untagged
   m_Icon: {fileID: 0}

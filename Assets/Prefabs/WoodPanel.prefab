@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6313314562778895421}
   - component: {fileID: 8593398170448375627}
   - component: {fileID: 1117397670487763955}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WoodPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

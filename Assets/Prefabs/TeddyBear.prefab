@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8166588659463074049}
   - component: {fileID: 9176955911579025817}
   - component: {fileID: 8139856483393121534}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TeddyBear
   m_TagString: Untagged
   m_Icon: {fileID: 0}

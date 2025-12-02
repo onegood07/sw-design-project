@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3491103445436246052}
   - component: {fileID: 4668547257027372239}
   - component: {fileID: 8018865339420979663}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EnergyBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
