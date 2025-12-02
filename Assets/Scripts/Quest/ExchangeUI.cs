@@ -131,7 +131,7 @@ public class ExchangeUI : MonoBehaviour
             return;
         }
 
-        bool success = selectedRecipeItem.ExchangeSlot.ConfirmSubmission();
+        bool success = selectedRecipeItem.exchangeSlot.ConfirmSubmission();
 
         if (success)
         {

@@ -1126,7 +1126,7 @@ MonoBehaviour:
   backgroundImage: {fileID: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  ExchangeSlot: {fileID: 3704694808161509875}
+  exchangeSlot: {fileID: 3704694808161509875}
   submitButton: {fileID: 6321909933370476535}
 --- !u!1 &8617394807157118480
 GameObject:
