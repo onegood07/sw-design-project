@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 /// 인벤토리 슬롯에서 드래그한 아이템을 이 퀵슬롯에 등록해서
 /// 나중에 단축키(1~4번 등)로 사용할 수 있게 하기 위한 기본 구조입니다.
 /// </summary>
-public class QuickSlot : MonoBehaviour
+public class QuickSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("퀵슬롯 인덱스 (0~5)")]
     public int quickIndex;                  // QuickSlot1 = 0, QuickSlot2 = 1, ...
@@ -31,9 +31,15 @@ public class QuickSlot : MonoBehaviour
 
     private static readonly System.Collections.Generic.List<QuickSlot> allSlots
         = new System.Collections.Generic.List<QuickSlot>();
+    private static int currentHighlightedSlotNumber = 0;
 
     RectTransform rectTransform;
     Vector2 baseAnchoredPosition;
+    Canvas canvas;
+    CanvasGroup iconCanvasGroup;
+    Transform iconOriginalParent;
+    Vector2 iconOriginalAnchoredPos;
+    bool isDraggingIcon = false;
 
     private void Awake()
     {
@@ -44,11 +50,17 @@ public class QuickSlot : MonoBehaviour
         if (rectTransform != null)
             baseAnchoredPosition = rectTransform.anchoredPosition;
 
+        canvas = GetComponentInParent<Canvas>();
+
         // 처음에는 아이콘 숨김
         if (itemIcon != null)
         {
             itemIcon.gameObject.SetActive(false);
-            itemIcon.raycastTarget = false;
+            itemIcon.raycastTarget = true;
+            iconCanvasGroup = itemIcon.GetComponent<CanvasGroup>();
+            if (iconCanvasGroup == null)
+                iconCanvasGroup = itemIcon.gameObject.AddComponent<CanvasGroup>();
+            iconOriginalAnchoredPos = itemIcon.rectTransform.anchoredPosition;
         }
         if (itemCountText != null)
         {
@@ -233,6 +245,69 @@ public class QuickSlot : MonoBehaviour
             itemCountText.gameObject.SetActive(false);
 
         SetSelectedVisual(false);
+
+        if (quickIndex == currentHighlightedSlotNumber - 1)
+            HighlightSlotByNumber(0);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Right)
+            return;
+
+        InventoryManager.Instance?.ClearQuickSlotData(quickIndex);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (itemIcon == null || linkedItemData == null)
+            return;
+
+        isDraggingIcon = true;
+        iconOriginalParent = itemIcon.transform.parent;
+        iconOriginalAnchoredPos = itemIcon.rectTransform.anchoredPosition;
+
+        if (iconCanvasGroup != null)
+            iconCanvasGroup.blocksRaycasts = false;
+
+        if (canvas != null)
+            itemIcon.transform.SetParent(canvas.transform, true);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!isDraggingIcon || canvas == null || itemIcon == null)
+            return;
+
+        itemIcon.rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (!isDraggingIcon || itemIcon == null)
+            return;
+
+        isDraggingIcon = false;
+
+        if (iconCanvasGroup != null)
+            iconCanvasGroup.blocksRaycasts = true;
+
+        itemIcon.transform.SetParent(iconOriginalParent != null ? iconOriginalParent : transform, true);
+        itemIcon.rectTransform.anchoredPosition = iconOriginalAnchoredPos;
+
+        Vector2 pointerPos = eventData != null ? eventData.position : (Vector2)Input.mousePosition;
+        Camera uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+
+        RectTransform slotRect = transform as RectTransform;
+        bool droppedOnSelf = slotRect != null &&
+            RectTransformUtility.RectangleContainsScreenPoint(slotRect, pointerPos, uiCamera);
+
+        if (!droppedOnSelf)
+        {
+            InventoryManager.Instance?.ClearQuickSlotData(quickIndex);
+        }
     }
 }
 

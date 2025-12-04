@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -2052348383094473455}
   - component: {fileID: 1467303946012295050}
   - component: {fileID: 4645226753710193186}
-  - component: {fileID: 3109626532159891174}
+  - component: {fileID: 4872852100908297535}
   m_Layer: 3
   m_Name: HighPowerZombie
   m_TagString: Zombie
@@ -217,7 +217,7 @@ NavMeshAgent:
   m_BaseOffset: 0.34374997
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &3109626532159891174
+--- !u!114 &4872852100908297535
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -231,7 +231,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ZombieNavMove
   speed: 3
   chaseRange: 5
-  attackRange: 0.8
-  attackDelay: 0.5
+  attackRange: 1
+  attackDelay: 1
   wanderRadius: 2
   wanderInterval: 2
+  spriteRenderer: {fileID: 0}
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
+  hitStopDuration: 0.3
+  zombieAttackOffset: {x: 0, y: 0.5}
+  heroAttackOffset: {x: 0, y: 0.5}
+  attackClipDuration: 0.417
+  isInDialogue: 0

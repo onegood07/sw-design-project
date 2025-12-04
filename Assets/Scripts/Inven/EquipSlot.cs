@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 /// 인벤토리 슬롯(ScrollView 안의 Content 하위 슬롯)에서 드래그한 아이템을
 /// 타입에 맞게 받아와서 아이콘만 표시하는 기본 구조입니다.
 /// </summary>
-public class EquipSlot : MonoBehaviour
+public class EquipSlot : MonoBehaviour, IPointerClickHandler
 {
     [Header("이 슬롯이 받을 수 있는 아이템 타입")]
     public ItemView acceptedType;        // 예: Lantern, Weapon 등
@@ -63,7 +63,7 @@ public class EquipSlot : MonoBehaviour
         if (itemIcon != null)
         {
             itemIcon.gameObject.SetActive(false);
-            itemIcon.raycastTarget = false;   // 장비 아이콘은 드래그 대상이 아니라 표시 전용
+            itemIcon.raycastTarget = true;
         }
     }
 
@@ -187,6 +187,31 @@ public class EquipSlot : MonoBehaviour
                 Debug.Log($"[EquipSlot] 인벤토리 {idx}번 슬롯 아이템 제거 완료.", this);
             }
         }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Right)
+            return;
+
+        UnequipToInventory();
+    }
+
+    void UnequipToInventory()
+    {
+        if (equippedItem == null)
+            return;
+
+        Inventory inven = Inventory.instance;
+        if (inven != null)
+        {
+            inven.AddInventoryItemInstance(equippedItem);
+        }
+
+        equippedItem = null;
+
+        if (itemIcon != null)
+            itemIcon.gameObject.SetActive(false);
     }
 }
 

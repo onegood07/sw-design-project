@@ -162,8 +162,8 @@ public class HeroMoveControl : MonoBehaviour
         var kb = Keyboard.current;
         if (kb == null) return;
 
-        // 이번 프레임에 F키가 "눌린 순간"인지 확인 (누르고 있는 중이 아니라, 딱 눌린 그 프레임)
-        if (kb.fKey.wasPressedThisFrame)
+        // 이번 프레임에 스페이스바가 "눌린 순간"인지 확인
+        if (kb.spaceKey.wasPressedThisFrame)
         {
             // 구르기 방향:
             //  - 이동 입력이 있으면 입력 방향

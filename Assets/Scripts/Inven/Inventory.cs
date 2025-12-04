@@ -70,6 +70,20 @@ public class Inventory : MonoBehaviour
         return true;
     }
 
+    public void AddInventoryItemInstance(InventoryItem invItem)
+    {
+        if (invItem == null)
+            return;
+
+        int emptyIdx = items.FindIndex(i => i == null);
+        if (emptyIdx != -1)
+            items[emptyIdx] = invItem;
+        else
+            items.Add(invItem);
+
+        onChangeItem?.Invoke();
+    }
+
     /// <summary>
     /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다. (기존 ConsumeItemAt 유지)
     /// </summary>
