@@ -40,7 +40,7 @@ public class HeroItemUse : MonoBehaviour
             // 정규화
             mouseDirection.Normalize();
 
-            HeroMoveControl?.TriggerAttackAnimation();
+            TryAttackAnimation();
             UseQuickSlot(selectedItemIndex,transform,mouseDirection);
             // // 사용 가능한 아이템일 경우(IUsable 규칙을 상속받은 데이터의 경우) Use 메서드가 존재함
             // if(selectedItem is IUsable usableData)usableData.Use(transform,mouseDirection);
@@ -135,5 +135,46 @@ public class HeroItemUse : MonoBehaviour
             selectedItemIndex = slotNumber;
             QuickSlot.HighlightSlotByNumber(selectedItemIndex);
         }
+    }
+
+    void TryAttackAnimation()
+    {
+        if (HeroMoveControl == null)
+            return;
+
+        var currentData = GetSelectedQuickSlotItem();
+
+        if (currentData == null)
+            return;
+
+        if (IsWeaponData(currentData))
+            HeroMoveControl.TriggerAttackAnimation();
+    }
+
+    ItemData GetSelectedQuickSlotItem()
+    {
+        if (InventoryManager.Instance == null || selectedItemIndex <= 0)
+            return null;
+
+        int idx = selectedItemIndex - 1;
+        var quickSlots = InventoryManager.Instance.quickSlotItems;
+        if (idx < 0 || idx >= quickSlots.Length)
+            return null;
+
+        return quickSlots[idx];
+    }
+
+    bool IsWeaponData(ItemData data)
+    {
+        if (data == null || Inventory.instance == null)
+            return false;
+
+        foreach (var entry in Inventory.instance.items)
+        {
+            if (entry != null && entry.itemData == data)
+                return entry.itemType == ItemView.Weapon;
+        }
+
+        return false;
     }
 }
