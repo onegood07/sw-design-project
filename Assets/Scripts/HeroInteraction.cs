@@ -22,6 +22,7 @@ public class HeroInteraction : MonoBehaviour
     {
         if (context.performed) // 눌렀을 때만 실행 (spacebar)
         {
+            HeroMoveControl?.TriggerAttackAnimation();
             tryInteraction();
             // Debug.Log("interaction!");
         }    

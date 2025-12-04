@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -42,6 +43,13 @@ public class HeroMoveControl : MonoBehaviour
 
     // CrossFade 시간(짧게 줘서 방향 전환이 즉각적으로 느껴지도록)
     private const float animCrossFadeTime = 0.02f;
+
+    [Header("Attack Animation")]
+    [SerializeField] private float attackAnimDuration = 0.5f;
+
+    private readonly int paramAttack = Animator.StringToHash("Attack");
+    private Coroutine attackResetRoutine;
+    private bool isAttackAnimating;
 
     // ---- 구르기(회피) 관련 설정 ----
     [Header("Roll (Dodge) Settings")]
@@ -197,6 +205,9 @@ public class HeroMoveControl : MonoBehaviour
     // 이동/정지 상태와 마지막 방향에 따라 적절한 애니메이션 상태로 전환
     void UpdateAnimation(bool moving)
     {
+        if (isAttackAnimating)
+            return;
+
         int hashToPlay = stIdleDown; // 기본값: 아래 idle
 
         if (lastMoveDir.y > 0)       hashToPlay = moving ? stWalkUp    : stIdleUp;
@@ -286,6 +297,49 @@ public class HeroMoveControl : MonoBehaviour
 
         // 걷기 애니메이션 재생
         UpdateAnimation(true);
+    }
+
+    public void TriggerAttackAnimation()
+    {
+        if (animator == null)
+            return;
+
+        if (attackResetRoutine != null)
+            StopCoroutine(attackResetRoutine);
+
+        animator.SetBool(paramAttack, true);
+        isAttackAnimating = true;
+        attackResetRoutine = StartCoroutine(ResetAttackFlagAfterDelay());
+    }
+
+    public void OnAttackAnimationFinished()
+    {
+        if (attackResetRoutine != null)
+        {
+            StopCoroutine(attackResetRoutine);
+            attackResetRoutine = null;
+        }
+
+        ResetAttackState();
+    }
+
+    IEnumerator ResetAttackFlagAfterDelay()
+    {
+        yield return new WaitForSeconds(Mathf.Max(attackAnimDuration, 0.01f));
+        attackResetRoutine = null;
+        ResetAttackState();
+    }
+
+    void ResetAttackState()
+    {
+        if (animator != null)
+            animator.SetBool(paramAttack, false);
+
+        isAttackAnimating = false;
+
+        // 공격 종료 시 현재 입력 상태에 맞춰 이동 애니메이션 갱신
+        bool isCurrentlyMoving = moveInput.sqrMagnitude > 0.01f;
+        UpdateAnimation(isCurrentlyMoving);
     }
 
     // 외부에서 특정 위치로 워프할 때 사용 (타겟 위치로 순간 이동)
