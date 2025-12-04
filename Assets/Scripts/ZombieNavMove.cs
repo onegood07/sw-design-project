@@ -6,12 +6,16 @@ public class ZombieNavMove : MonoBehaviour
     [Header("이동 / 탐지")]
     [SerializeField] float speed = 3f;            // NavMeshAgent 기본 이동 속도
     [SerializeField] float chaseRange = 5f;       // 플레이어 추적을 시작하는 거리
-    [SerializeField] float attackRange = 1.5f;    // 공격이 가능해지는 거리
+    [SerializeField] float attackRange = 1.0f;    // 공격이 가능해지는 거리
     [SerializeField] float attackDelay = 1.0f;    // 공격 쿨타임 (1.0초)
 
     [Header("배회 설정")]
     [SerializeField] float wanderRadius = 2f;     // 배회 목적지의 랜덤 반경
     [SerializeField] float wanderInterval = 2f;   // 배회 목적지를 다시 설정하는 주기
+
+    [Header("공격 판정 오프셋")]
+    [SerializeField] Vector2 zombieAttackOffset = new Vector2(0f, 0.5f);
+    [SerializeField] Vector2 heroAttackOffset = new Vector2(0f, 0.5f);
 
     Animator animator;
     int paramAttack = Animator.StringToHash("Attack");
@@ -86,12 +90,19 @@ public class ZombieNavMove : MonoBehaviour
         return;
 
     float dt = Time.deltaTime;
-    float dist = Vector2.Distance(transform.position, heroTr.position);
+    // 핏값 기준점(발 위치)을 보정하기 위해 오프셋을 적용한 위치에서 거리 계산
+    Vector2 zombiePos = new Vector2(transform.position.x, transform.position.y) + zombieAttackOffset;
+    Vector2 heroPos = new Vector2(heroTr.position.x, heroTr.position.y) + heroAttackOffset;
+    float dist = Vector2.Distance(zombiePos, heroPos);
 
     // 1) 플레이어가 공격 사거리 안에 있으면 → 이동 중단 + 공격 처리
     if (dist <= attackRange)
     {
-        agent.isStopped = true;  // 공격 중엔 항상 정지
+        if (!agent.isStopped)
+            agent.isStopped = true;
+
+        if (agent.hasPath)
+            agent.ResetPath();
 
         // 공격을 위해 플레이어 방향으로 애니메이션 방향만 돌리기
         Vector2 toHero = (Vector2)(heroTr.position - transform.position);

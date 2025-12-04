@@ -41,6 +41,11 @@ public class HeroMoveControl : MonoBehaviour
     private readonly int stWalkLeft  = Animator.StringToHash("hero_Left");
     private readonly int stWalkRight = Animator.StringToHash("hero_Right");
 
+    private readonly int paramUp     = Animator.StringToHash("UP");
+    private readonly int paramDown   = Animator.StringToHash("DOWN");
+    private readonly int paramLeft   = Animator.StringToHash("LEFT");
+    private readonly int paramRight  = Animator.StringToHash("RIGHT");
+
     // CrossFade 시간(짧게 줘서 방향 전환이 즉각적으로 느껴지도록)
     private const float animCrossFadeTime = 0.02f;
 
@@ -50,6 +55,7 @@ public class HeroMoveControl : MonoBehaviour
     private readonly int paramAttack = Animator.StringToHash("Attack");
     private Coroutine attackResetRoutine;
     private bool isAttackAnimating;
+    private float attackLockTimer = 0f;
 
     // ---- 구르기(회피) 관련 설정 ----
     [Header("Roll (Dodge) Settings")]
@@ -182,6 +188,8 @@ public class HeroMoveControl : MonoBehaviour
 
     void Update()
     {
+        attackLockTimer -= Time.deltaTime;
+
         // 매 프레임 키보드 입력을 읽어 moveInput 갱신
         ReadKeyboardInput();
 
@@ -301,9 +309,10 @@ public class HeroMoveControl : MonoBehaviour
 
     public void TriggerAttackAnimation()
     {
-        if (animator == null)
+        if (animator == null || attackLockTimer > 0f)
             return;
 
+        attackLockTimer = attackAnimDuration;
         if (attackResetRoutine != null)
             StopCoroutine(attackResetRoutine);
 

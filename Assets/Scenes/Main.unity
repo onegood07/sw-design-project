@@ -95096,6 +95096,9 @@ MonoBehaviour:
   maxHunger: 1000
   speed: 50
   isSurvival: 0
+  spriteRenderer: {fileID: 0}
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
+  hitEffectDuration: 0.3
 --- !u!114 &1380755845
 MonoBehaviour:
   m_ObjectHideFlags: 0
