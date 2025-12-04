@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,6 +14,11 @@ public class ZombieNavMove : MonoBehaviour
     [SerializeField] float wanderRadius = 2f;     // 배회 목적지의 랜덤 반경
     [SerializeField] float wanderInterval = 2f;   // 배회 목적지를 다시 설정하는 주기
 
+    [Header("피격 연출")]
+    [SerializeField] float hitStopDuration = 0.3f;   // 피격 시 정지 시간
+    [SerializeField] Color hitColor = Color.red;     // 피격 시 색상
+    [SerializeField] SpriteRenderer spriteRenderer;  // 색상 변경 대상
+
     Animator animator;
     NavMeshAgent agent;
     Transform heroTr;
@@ -24,6 +30,9 @@ public class ZombieNavMove : MonoBehaviour
     float attackTimer = 0f;       // 공격 딜레이 타이머
     float wanderTimer = 0f;       // 배회 목적지 갱신 타이머
     Vector2Int lastMoveDir = Vector2Int.down; // 애니메이션에 사용할 마지막 이동 방향
+    Color originalColor;
+    Coroutine hitStopRoutine;
+    bool isHitStopped = false;
 
     public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
 
@@ -49,6 +58,12 @@ public class ZombieNavMove : MonoBehaviour
             agent.speed          = speed;   // 이동 속도 적용
         }
 
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+            originalColor = spriteRenderer.color;
+
         // 처음엔 Idle 방향으로 설정
         SetAnimDirection(Vector2Int.zero);
     }
@@ -61,6 +76,15 @@ public class ZombieNavMove : MonoBehaviour
             agent.isStopped = true;   // 이동 정지
 
         SetAnimDirection(Vector2Int.zero);
+
+        if (hitStopRoutine != null)
+        {
+            StopCoroutine(hitStopRoutine);
+            hitStopRoutine = null;
+        }
+
+        isHitStopped = false;
+        ResetSpriteColor();
     }
 
    void Update()
@@ -79,6 +103,15 @@ public class ZombieNavMove : MonoBehaviour
 
     if (!isLive || agent == null || heroTr == null)
         return;
+
+    if (isHitStopped)
+    {
+        if (agent != null && !agent.isStopped)
+            agent.isStopped = true;
+
+        SetAnimDirection(lastMoveDir);
+        return;
+    }
 
     float dt = Time.deltaTime;
     float dist = Vector2.Distance(transform.position, heroTr.position);
@@ -169,6 +202,17 @@ public class ZombieNavMove : MonoBehaviour
         }
     }
 
+    public void OnDamageTaken()
+    {
+        if (!isLive)
+            return;
+
+        if (hitStopRoutine != null)
+            StopCoroutine(hitStopRoutine);
+
+        hitStopRoutine = StartCoroutine(HitStopRoutine());
+    }
+
     // Animator에 오른쪽/왼쪽/위/아래 방향을 전달
     void SetAnimDirection(Vector2Int dir)
     {
@@ -189,5 +233,29 @@ public class ZombieNavMove : MonoBehaviour
             return new Vector2Int(v.x > 0 ? 1 : -1, 0);
         else
             return new Vector2Int(0, v.y > 0 ? 1 : -1);
+    }
+
+    IEnumerator HitStopRoutine()
+    {
+        isHitStopped = true;
+
+        if (agent != null && !agent.isStopped)
+            agent.isStopped = true;
+
+        if (spriteRenderer != null)
+            spriteRenderer.color = hitColor;
+
+        yield return new WaitForSeconds(hitStopDuration);
+
+        ResetSpriteColor();
+
+        isHitStopped = false;
+        hitStopRoutine = null;
+    }
+
+    void ResetSpriteColor()
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.color = originalColor;
     }
 }
