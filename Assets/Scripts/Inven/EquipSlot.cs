@@ -179,12 +179,14 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             int idx = fromSlot.slotIndex;
             if (idx >= 0 && idx < inven.items.Count)
             {
-                // 장착하자 마자 사용 되도록
-                if(inven.items[idx].itemData is IUsable usable)usable.Use(HeroStat.Instance.transform,Vector2.zero);
-                
+                // 자동 발동이 필요한 경우(예: 랜턴)에는 Use 호출
+                if (acceptedType == ItemView.Lantern && fromItem.itemData is IUsable autoUsable)
+                {
+                    autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
+                }
+
                 inven.items[idx] = null;
-                inven.onChangeItem?.Invoke();   // 인벤 UI 다시 그리기
-                Debug.Log($"[EquipSlot] 인벤토리 {idx}번 슬롯 아이템 제거 완료.", this);
+                inven.onChangeItem?.Invoke();
             }
         }
     }
@@ -206,6 +208,11 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         if (inven != null)
         {
             inven.AddInventoryItemInstance(equippedItem);
+        }
+
+        if (acceptedType == ItemView.Lantern && equippedItem.itemData is IUsable autoUsable)
+        {
+            autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
         }
 
         equippedItem = null;

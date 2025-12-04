@@ -51,32 +51,28 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            selectedItemIndex = 1;
-            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+            ToggleQuickSlotSelection(1);
         }
     }
     public void OnQuickSlot2(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItemIndex = 2;
-            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+            ToggleQuickSlotSelection(2);
         }
     }
     public void OnQuickSlot3(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItemIndex = 3;
-            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+            ToggleQuickSlotSelection(3);
         }
     }
     public void OnQuickSlot4(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItemIndex = 4;
-            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+            ToggleQuickSlotSelection(4);
         }
     }
 
@@ -84,8 +80,7 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            selectedItemIndex = 5;
-            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+            ToggleQuickSlotSelection(5);
         }
     }
 
@@ -93,8 +88,7 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            selectedItemIndex = 6;
-            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+            ToggleQuickSlotSelection(6);
         }
     }
 
@@ -127,5 +121,19 @@ public class HeroItemUse : MonoBehaviour
         
         // results 리스트에 무언가 있다면 (UI 요소가 있다면) true 반환
         return results.Count > 0;
+    }
+
+    void ToggleQuickSlotSelection(int slotNumber)
+    {
+        if (selectedItemIndex == slotNumber)
+        {
+            selectedItemIndex = 0;
+            QuickSlot.HighlightSlotByNumber(0);
+        }
+        else
+        {
+            selectedItemIndex = slotNumber;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+        }
     }
 }
