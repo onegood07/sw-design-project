@@ -13,7 +13,7 @@ public class HeroInteraction : MonoBehaviour
     private LayerMask interactableLayer; 
     public GameObject swordEffectPrefab;
     public float attackCoolTime;
-    private float lastAttackTime = -1f;
+    // private float lastAttackTime = -1f; 쿨타임용 변수. 좀비 상호작용 제거로 불필요하나 일단 보류
     private Vector2 mouseDirection;
 
     void Start()
@@ -68,29 +68,31 @@ public class HeroInteraction : MonoBehaviour
             IInteractable targetObj = hit.collider.GetComponent<IInteractable>();
             if(targetObj != null)
             {
-                if (hit.collider.CompareTag("Zombie"))
-                {
-                    if (Time.time < lastAttackTime + attackCoolTime)return;
-                    lastAttackTime = Time.time;
-                    createEffect(viewDirection);
-                    targetObj.OnInteract();
-                }
-                else targetObj.OnInteract();
+                // 좀비 인터렉션 없는 상태. 나중에 근접무기 추가하게 된다면 사용
+                // if (hit.collider.CompareTag("Zombie"))
+                // {
+                //     if (Time.time < lastAttackTime + attackCoolTime)return;
+                //     lastAttackTime = Time.time;
+                //     createEffect(viewDirection);
+                //     targetObj.OnInteract();
+                // }
+                targetObj.OnInteract();
                 // Debug.Log($"{targetObj} interaction target");
             }
         }
     }
-    void createEffect(Vector2 viewDirection)
-    {
-        Vector2 createPosition = transform.position + (Vector3)viewDirection.normalized;
-        GameObject effect = Instantiate(swordEffectPrefab,createPosition,quaternion.identity);
-        SwordEffect effectSetup = effect.GetComponent<SwordEffect>();
-        if(effect != null)
-        {
-            viewDirection = HeroMoveControl.CurrentViewDirection;
-            effectSetup.Setup(viewDirection);
-        }
-    }
+    // 좀비 이펙트. 총알 이펙트 사용시 참고
+    // void createEffect(Vector2 viewDirection)
+    // {
+    //     Vector2 createPosition = transform.position + (Vector3)viewDirection.normalized;
+    //     GameObject effect = Instantiate(swordEffectPrefab,createPosition,quaternion.identity);
+    //     SwordEffect effectSetup = effect.GetComponent<SwordEffect>();
+    //     if(effect != null)
+    //     {
+    //         viewDirection = HeroMoveControl.CurrentViewDirection;
+    //         effectSetup.Setup(viewDirection);
+    //     }
+    // }
     private bool IsPointerOverUIObject()
     {
         // 1. EventSystem 및 PointerData 생성
