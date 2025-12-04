@@ -52,6 +52,7 @@ public class HeroItemUse : MonoBehaviour
         if (context.performed)
         {
             selectedItemIndex = 1;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
         }
     }
     public void OnQuickSlot2(InputAction.CallbackContext context)
@@ -59,6 +60,7 @@ public class HeroItemUse : MonoBehaviour
         if (context.performed)
         {
             selectedItemIndex = 2;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
         }
     }
     public void OnQuickSlot3(InputAction.CallbackContext context)
@@ -66,6 +68,7 @@ public class HeroItemUse : MonoBehaviour
         if (context.performed)
         {
             selectedItemIndex = 3;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
         }
     }
     public void OnQuickSlot4(InputAction.CallbackContext context)
@@ -73,6 +76,7 @@ public class HeroItemUse : MonoBehaviour
         if (context.performed)
         {
             selectedItemIndex = 4;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
         }
     }
 
@@ -81,6 +85,7 @@ public class HeroItemUse : MonoBehaviour
         if (context.performed)
         {
             selectedItemIndex = 5;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
         }
     }
 
@@ -89,6 +94,7 @@ public class HeroItemUse : MonoBehaviour
         if (context.performed)
         {
             selectedItemIndex = 6;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
         }
     }
 

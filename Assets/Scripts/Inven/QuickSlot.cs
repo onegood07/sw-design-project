@@ -16,8 +16,9 @@ public class QuickSlot : MonoBehaviour
     public Image itemIcon;                  // 퀵슬롯에 표시될 아이콘
     public Text itemCountText;             // 수량 표시 텍스트(선택)
 
-    [Header("아이콘 표시 설정")]
+    [Header("표시 설정")]
     [SerializeField] private Vector2 iconSize = new Vector2(64f, 64f);
+    [SerializeField] private float selectedYOffset = 12f;
 
     [HideInInspector]
     public InventoryItem linkedItem;        // 이 퀵슬롯과 연결된 인벤토리 아이템
@@ -31,10 +32,17 @@ public class QuickSlot : MonoBehaviour
     private static readonly System.Collections.Generic.List<QuickSlot> allSlots
         = new System.Collections.Generic.List<QuickSlot>();
 
+    RectTransform rectTransform;
+    Vector2 baseAnchoredPosition;
+
     private void Awake()
     {
         if (!allSlots.Contains(this))
             allSlots.Add(this);
+
+        rectTransform = transform as RectTransform;
+        if (rectTransform != null)
+            baseAnchoredPosition = rectTransform.anchoredPosition;
 
         // 처음에는 아이콘 숨김
         if (itemIcon != null)
@@ -138,6 +146,29 @@ public class QuickSlot : MonoBehaviour
         }
     }
 
+    public static void HighlightSlotByNumber(int slotNumber)
+    {
+        int index = slotNumber - 1;
+
+        for (int i = 0; i < allSlots.Count; i++)
+        {
+            var slot = allSlots[i];
+            if (slot == null) continue;
+
+            bool selected = slotNumber > 0 && slot.quickIndex == index;
+            slot.SetSelectedVisual(selected);
+        }
+    }
+
+    public void SetSelectedVisual(bool selected)
+    {
+        if (rectTransform == null)
+            return;
+
+        float offsetY = selected ? selectedYOffset : 0f;
+        rectTransform.anchoredPosition = baseAnchoredPosition + new Vector2(0f, offsetY);
+    }
+
     /// <summary>
     /// 인벤토리의 Slot에서 끌어온 아이템을 이 퀵슬롯에 등록하는 함수.
     /// Drag 끝났을 때 ItemDragHandler 에서 직접 호출한다.
@@ -200,6 +231,8 @@ public class QuickSlot : MonoBehaviour
             itemIcon.gameObject.SetActive(false);
         if (itemCountText != null)
             itemCountText.gameObject.SetActive(false);
+
+        SetSelectedVisual(false);
     }
 }
 
