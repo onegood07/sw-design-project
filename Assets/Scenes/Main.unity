@@ -95074,6 +95074,7 @@ MonoBehaviour:
   stepTime: 0.4
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   initHeroPosition: {x: 0.5, y: -4.5}
+  attackAnimDuration: 0.5
   rollSpeed: 8
   rollDuration: 0.25
   rollCooldown: 0.5

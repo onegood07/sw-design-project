@@ -6,14 +6,19 @@ public class ZombieNavMove : MonoBehaviour
     [Header("이동 / 탐지")]
     [SerializeField] float speed = 3f;            // NavMeshAgent 기본 이동 속도
     [SerializeField] float chaseRange = 5f;       // 플레이어 추적을 시작하는 거리
-    [SerializeField] float attackRange = 0.8f;    // 공격이 가능해지는 거리
-    [SerializeField] float attackDelay = 0.5f;    // 공격 쿨타임 (0.5초 고정)
+    [SerializeField] float attackRange = 1.5f;    // 공격이 가능해지는 거리
+    [SerializeField] float attackDelay = 1.0f;    // 공격 쿨타임 (1.0초)
 
     [Header("배회 설정")]
     [SerializeField] float wanderRadius = 2f;     // 배회 목적지의 랜덤 반경
     [SerializeField] float wanderInterval = 2f;   // 배회 목적지를 다시 설정하는 주기
 
     Animator animator;
+    int paramAttack = Animator.StringToHash("Attack");
+    [SerializeField] float attackClipDuration = 0.417f; // 애니메이션 원본 길이
+    Coroutine attackRoutine;
+    bool isAttacking = false;
+    float originalAnimatorSpeed = 1f;
     NavMeshAgent agent;
     Transform heroTr;
     HeroStat heroStat;
@@ -86,7 +91,7 @@ public class ZombieNavMove : MonoBehaviour
     // 1) 플레이어가 공격 사거리 안에 있으면 → 이동 중단 + 공격 처리
     if (dist <= attackRange)
     {
-        agent.isStopped = true;  // NavMeshAgent 이동 완전 중단
+        agent.isStopped = true;  // 공격 중엔 항상 정지
 
         // 공격을 위해 플레이어 방향으로 애니메이션 방향만 돌리기
         Vector2 toHero = (Vector2)(heroTr.position - transform.position);
@@ -98,6 +103,7 @@ public class ZombieNavMove : MonoBehaviour
         if (!inAttackRange)
         {
             DoAttack();
+            PlayAttackAnimation();
             attackTimer = attackDelay; // 쿨타임 시작
             inAttackRange = true;
             return;
@@ -110,6 +116,7 @@ public class ZombieNavMove : MonoBehaviour
         {
             // 공격 실행 후 쿨타임 리셋
             DoAttack();
+            PlayAttackAnimation();
             attackTimer = attackDelay;
         }
 
@@ -119,7 +126,8 @@ public class ZombieNavMove : MonoBehaviour
     {
         // 공격 범위를 벗어나면 다시 이동 가능
         inAttackRange = false;
-        agent.isStopped = false;
+        if (!isAttacking)
+            agent.isStopped = false;
     }
 
     // 2) 추적 범위 안 → 플레이어를 계속 추적
@@ -167,6 +175,37 @@ public class ZombieNavMove : MonoBehaviour
         {
             heroStat.decreaseHp(zombieStat.power);
         }
+    }
+
+    void PlayAttackAnimation()
+    {
+        if (animator == null)
+            return;
+
+        if (!isAttacking)
+            originalAnimatorSpeed = animator.speed;
+
+        animator.speed = 1f;
+        animator.SetBool(paramAttack, true);
+        isAttacking = true;
+
+        if (attackRoutine != null)
+            StopCoroutine(attackRoutine);
+
+        attackRoutine = StartCoroutine(ResetAttackFlag());
+    }
+
+    System.Collections.IEnumerator ResetAttackFlag()
+    {
+        yield return new WaitForSeconds(Mathf.Max(attackClipDuration, 0.01f));
+
+        if (animator != null)
+            animator.SetBool(paramAttack, false);
+
+        isAttacking = false;
+        animator.speed = originalAnimatorSpeed;
+
+        attackRoutine = null;
     }
 
     // Animator에 오른쪽/왼쪽/위/아래 방향을 전달
