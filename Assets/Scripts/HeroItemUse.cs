@@ -40,6 +40,7 @@ public class HeroItemUse : MonoBehaviour
             // 정규화
             mouseDirection.Normalize();
 
+            HeroMoveControl?.TriggerAttackAnimation();
             UseQuickSlot(selectedItemIndex,transform,mouseDirection);
             // // 사용 가능한 아이템일 경우(IUsable 규칙을 상속받은 데이터의 경우) Use 메서드가 존재함
             // if(selectedItem is IUsable usableData)usableData.Use(transform,mouseDirection);

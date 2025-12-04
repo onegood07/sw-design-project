@@ -14,12 +14,24 @@ public class ZombieNavMove : MonoBehaviour
     [SerializeField] float wanderRadius = 2f;     // 배회 목적지의 랜덤 반경
     [SerializeField] float wanderInterval = 2f;   // 배회 목적지를 다시 설정하는 주기
 
+    [Header("애니메이션 / 피격 연출")]
+    [SerializeField] SpriteRenderer spriteRenderer;
+    [SerializeField] Color hitColor = Color.red;
+    [SerializeField] float hitStopDuration = 0.3f;
+
+    [Header("공격 판정 오프셋")]
+    [SerializeField] Vector2 zombieAttackOffset = new Vector2(0f, 0.5f);
+    [SerializeField] Vector2 heroAttackOffset = new Vector2(0f, 0.5f);
+
     Animator animator;
     int paramAttack = Animator.StringToHash("Attack");
     [SerializeField] float attackClipDuration = 0.417f; // 애니메이션 원본 길이
     Coroutine attackRoutine;
     bool isAttacking = false;
     float originalAnimatorSpeed = 1f;
+    Color originalColor;
+    Coroutine hitStopRoutine;
+    bool isHitStopped = false;
     NavMeshAgent agent;
     Transform heroTr;
     HeroStat heroStat;
@@ -30,10 +42,6 @@ public class ZombieNavMove : MonoBehaviour
     float attackTimer = 0f;       // 공격 딜레이 타이머
     float wanderTimer = 0f;       // 배회 목적지 갱신 타이머
     Vector2Int lastMoveDir = Vector2Int.down; // 애니메이션에 사용할 마지막 이동 방향
-    Color originalColor;
-    Coroutine hitStopRoutine;
-    bool isHitStopped = false;
-
     public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
 
     void Awake()
@@ -66,6 +74,12 @@ public class ZombieNavMove : MonoBehaviour
 
         // 처음엔 Idle 방향으로 설정
         SetAnimDirection(Vector2Int.zero);
+
+        if (hitStopRoutine != null)
+        {
+            StopCoroutine(hitStopRoutine);
+            hitStopRoutine = null;
+        }
     }
 
     // ZombieStat에서 사망 호출 시 실행
@@ -210,6 +224,48 @@ public class ZombieNavMove : MonoBehaviour
         {
             heroStat.decreaseHp(zombieStat.power);
         }
+    }
+
+    void PlayAttackAnimation()
+    {
+        if (animator == null)
+            return;
+
+        if (!isAttacking)
+            originalAnimatorSpeed = animator.speed;
+
+        animator.speed = 1f;
+        animator.SetBool(paramAttack, true);
+        isAttacking = true;
+
+        if (attackRoutine != null)
+            StopCoroutine(attackRoutine);
+
+        attackRoutine = StartCoroutine(ResetAttackFlag());
+    }
+
+    IEnumerator ResetAttackFlag()
+    {
+        yield return new WaitForSeconds(Mathf.Max(attackClipDuration, 0.01f));
+
+        if (animator != null)
+            animator.SetBool(paramAttack, false);
+
+        isAttacking = false;
+        animator.speed = originalAnimatorSpeed;
+
+        attackRoutine = null;
+    }
+
+    public void OnDamageTaken()
+    {
+        if (!isLive)
+            return;
+
+        if (hitStopRoutine != null)
+            StopCoroutine(hitStopRoutine);
+
+        hitStopRoutine = StartCoroutine(HitStopRoutine());
     }
 
     // Animator에 오른쪽/왼쪽/위/아래 방향을 전달
