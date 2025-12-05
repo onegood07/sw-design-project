@@ -2694,6 +2694,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
+--- !u!1 &551298493
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 551298494}
+  - component: {fileID: 551298495}
+  m_Layer: 5
+  m_Name: QuestPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &551298494
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 551298493}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2178825318162239174}
+  m_Father: {fileID: 2333156918328279893}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &551298495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 551298493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b514045c61eb4212885c22e65e2d180, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestUIController
+  submitButton: {fileID: 1848272459755047097}
+  closeButton: {fileID: 4348888790459416203}
+  mainQuestSlot: {fileID: 5620054648270703944}
+  questPanel: {fileID: 551298493}
+  submitImagePanel: {fileID: 4217482659516990410}
 --- !u!1 &552625157
 GameObject:
   m_ObjectHideFlags: 0
@@ -99568,7 +99622,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4217482659516990410}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -99581,12 +99635,12 @@ RectTransform:
   - {fileID: 2039782109}
   - {fileID: 1614129788}
   - {fileID: 1183453552}
-  m_Father: {fileID: 2333156918328279893}
+  m_Father: {fileID: 551298494}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -225, y: -5}
-  m_SizeDelta: {x: -970, y: -390}
+  m_SizeDelta: {x: 850, y: 590}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2201879620889654709
 GameObject:
@@ -99675,7 +99729,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2178825318162239174}
+  - {fileID: 551298494}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -99762,7 +99816,6 @@ GameObject:
   - component: {fileID: 2178825318162239174}
   - component: {fileID: 3940707903507333240}
   - component: {fileID: 6307000363919530976}
-  - component: {fileID: 8835606901590213312}
   m_Layer: 5
   m_Name: SubmitImage
   m_TagString: Untagged
@@ -100119,23 +100172,6 @@ RectTransform:
   m_AnchoredPosition: {x: 260, y: 80}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8835606901590213312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4217482659516990410}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b514045c61eb4212885c22e65e2d180, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::QuestUIController
-  submitButton: {fileID: 1848272459755047097}
-  closeButton: {fileID: 4348888790459416203}
-  mainQuestSlot: {fileID: 5620054648270703944}
-  questPanel: {fileID: 7506570532329956688}
-  submitImagePanel: {fileID: 4217482659516990410}
 --- !u!224 &9195548175300726455 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4268264977765860211, guid: de2ff019ed3694eecbfb8cb0197b0cbd, type: 3}

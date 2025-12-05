@@ -15,7 +15,7 @@ MonoBehaviour:
   questName: Exchange1
   questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
     \uC124\uC815\uB429\uB2C8\uB2E4."
-  requiredItemName: Pistol
+  requiredItemName: Can
   requiredItemIcon: {fileID: 7032184553362833509, guid: 38c3d8231c4eb73478464217531b4925, type: 3}
   requiredAmount: 1
   rewardItem: {fileID: -5984088972931491910, guid: 5d9a4a6bb9122432497b32b9a6cdd7e4, type: 3}
