@@ -17,7 +17,7 @@ MonoBehaviour:
   Icon: {fileID: 0}
   MaxStackCount: 99
   isAvailable: 1
-  coolTime: 0
+  originCoolTime: 0.5
   whichStat:
   - hunger
   healAmount:

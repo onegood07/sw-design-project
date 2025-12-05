@@ -128,11 +128,20 @@ public class InventoryManager : MonoBehaviour
         }
         if (Item is IUsable UsableItem)
         {
-            // if(Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
-            // 임시로 그냥 ConsumeQuickSlotItem 호출
-            if (Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
+            // 쿨타임 체크
+            if (!(CoolTimeManager.Instance.GetCurrentCooltime(Item.getItemName, Item.getCoolTime) > 0))
+            {
+                // if(Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
+                // 임시로 그냥 ConsumeQuickSlotItem 호출
+                if (Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
 
-            UsableItem.Use(heroT, useVec);
+                UsableItem.Use(heroT, useVec);
+                CoolTimeManager.Instance.AddCooltimeQueue(Item.getItemName,Item.getCoolTime);
+            }
+            else
+            {
+                Debug.Log("쿨타임 로딩중");
+            }
         }
         else Debug.Log("사용할 수 없는 아이템");
     }

@@ -54,13 +54,13 @@ public abstract class ItemData : ScriptableObject
     }
 
     // 아이템 사용시 쿨타임
-    [Header("아이템 사용시 쿨타임 - 미구현")]
-    [SerializeField]private float coolTime;
+    [Header("아이템 사용시 쿨타임")]
+    [SerializeField]private float originCoolTime;
     public float getCoolTime
     {
         get
         {
-            return coolTime;
+            return originCoolTime;
         }
     }
 }
