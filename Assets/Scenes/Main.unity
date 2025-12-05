@@ -78210,6 +78210,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestManager
   submitCanvas: {fileID: 7506570532329956688}
+  QuestPanel: {fileID: 551298493}
+  submitImagePanel: {fileID: 4217482659516990410}
   requiredItemImageComponent: {fileID: 1726047374}
   submitAmountText: {fileID: 2039782110}
   submitButton: {fileID: 1848272459755047097}
@@ -99964,9 +99966,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ItemSubmitManager, Assembly-CSharp
-        m_MethodName: CloseExchangeUI
+      - m_Target: {fileID: 551298495}
+        m_TargetAssemblyTypeName: QuestUIController, Assembly-CSharp
+        m_MethodName: ClosePanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

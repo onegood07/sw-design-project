@@ -50,4 +50,4 @@ MonoBehaviour:
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  startNodeIndex: -1
+  startNodeIndex: 0

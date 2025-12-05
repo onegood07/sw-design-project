@@ -14,7 +14,7 @@ public class DialogueUI : MonoBehaviour
     public Text dialogueText;    // 대화 텍스트 표시 영역
     public Transform choicesParent; // 선택지 버튼들이 배치될 부모 오브젝트
     public GameObject choiceButtonPrefab; // 선택지 버튼 프리팹
-
+    
     private DialogueNode currentNode;
     private Coroutine typeTextCoroutine;
 
