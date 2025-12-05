@@ -10,8 +10,8 @@ public class QuestManager : MonoBehaviour
     
     [Header("UI 계층 구조")]
     public GameObject QuestPanel;   // SubmitCanvas의 자식 QuestPanel 연결
-    public GameObject submitImagePanel; // QuestPanel의 자식 SubmitImage 연결 (✅ 새로 추가 및 연결 필요)
-
+    public GameObject submitImagePanel; // QuestPanel의 자식 SubmitImage 연결
+    
     [Header("UI 요소")]
     public Image requiredItemImageComponent;
     public Text submitAmountText;
@@ -35,7 +35,7 @@ public class QuestManager : MonoBehaviour
     }
 
     // ───────────────────────────────
-    // OpenSubmitUI: UI 열기 (✅ 계층적 활성화 로직 추가)
+    // OpenSubmitUI: UI 열기 (✅ 인벤토리 열기 로직 추가)
     public void OpenSubmitUI(QuestData data, int nextIndex)
     {
         Debug.Log($"[OpenSubmitUI] 호출: data={(data != null ? data.questName : "null")}, nextIndex={nextIndex}");
@@ -90,6 +90,17 @@ public class QuestManager : MonoBehaviour
         else
             Debug.LogError("[QuestManager] SubmitImagePanel이 Inspector에 연결되지 않았습니다. UI 콘텐츠가 보이지 않습니다.");
 
+        // 4. ✅ 인벤토리 UI 활성화 (퀘스트 납입 시 인벤토리 열기)
+        if (InventoryUI.instance != null) 
+        {
+            InventoryUI.instance.OpenInventory();
+            Debug.Log("[QuestManager] 퀘스트 제출 UI와 함께 인벤토리 UI를 열었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("[QuestManager] InventoryUI 인스턴스를 찾을 수 없습니다. 인벤토리를 열 수 없습니다.");
+        }
+
         Debug.Log("[OpenSubmitUI] UI 열림 완료");
     }
 
@@ -127,7 +138,7 @@ public class QuestManager : MonoBehaviour
 
     // ───────────────────────────────
     /// <summary>
-    /// UI 닫기 (X 버튼 클릭 또는 완료 후 호출) (✅ 계층적 비활성화 로직 추가)
+    /// UI 닫기 (X 버튼 클릭 또는 완료 후 호출) (✅ 인벤토리 닫기 로직 추가)
     /// </summary>
     public void CloseSubmitUI()
     {
@@ -139,6 +150,13 @@ public class QuestManager : MonoBehaviour
             // DialogueManager의 EndDialogue()를 호출하여 currentNPC, IsDialogueActive 등을 정리
             DialogueManager.Instance.EndDialogue(); 
             Debug.Log("[CloseSubmitUI] DialogueManager 상태 강제 종료 처리 완료.");
+        }
+
+        // 4. ✅ 인벤토리 UI 비활성화
+        if (InventoryUI.instance != null) 
+        {
+            InventoryUI.instance.CloseInventory();
+            Debug.Log("[CloseSubmitUI] 인벤토리 UI를 닫았습니다.");
         }
 
         // 1. SubmitImagePanel 비활성화
@@ -173,11 +191,11 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"[HandleQuestCompletion] 보상 지급 시작");
 
         // 보상 지급 로직 (Inventory 클래스가 존재한다고 가정)
-        // if (slot.RewardItem != null && Inventory.instance != null)
-        // {
-        //     Inventory.instance.AddItem(slot.RewardItem, slot.RewardCount);
-        //     Debug.Log($"[HandleQuestCompletion] 보상: {slot.RewardItem.itemName} x{slot.RewardCount}");
-        // }
+        if (slot.RewardItem != null && Inventory.instance != null)
+        {
+            Inventory.instance.AddItem(slot.RewardItem, slot.RewardCount);
+            Debug.Log($"[HandleQuestCompletion] 보상: {slot.RewardItem.itemName} x{slot.RewardCount}");
+        }
 
         // 대화 재개 (성공 시)
         if (DialogueManager.Instance != null && nextDialogueNodeIndex != -1)

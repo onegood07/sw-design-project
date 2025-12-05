@@ -7,12 +7,26 @@ using UnityEngine.UI;
 /// </summary>
 public class InventoryUI : MonoBehaviour
 {
+    // ✅ 싱글톤 인스턴스 추가
+    public static InventoryUI instance;
+    
     Inventory inven;
     public GameObject inventoryPanel;
     bool activeInventory = false;
 
     public Slot[] slots;
     public Transform slotHolder;
+    
+    private void Awake()
+    {
+        // ✅ 싱글톤 초기화
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+    }
 
     private void Start()
     {
@@ -53,8 +67,47 @@ public class InventoryUI : MonoBehaviour
     {
         if (Keyboard.current.tabKey.wasPressedThisFrame)
         {
-            activeInventory = !activeInventory;
-            inventoryPanel.SetActive(activeInventory);
+            // 인벤토리 활성화 상태를 토글합니다.
+            ToggleInventory();
+        }
+    }
+    
+    /// <summary>
+    /// 인벤토리 활성화 상태를 토글합니다. (탭 키 입력 처리)
+    /// </summary>
+    public void ToggleInventory()
+    {
+        activeInventory = !activeInventory;
+        inventoryPanel.SetActive(activeInventory);
+        
+        // 인벤토리가 열릴 때, 슬롯 UI를 갱신합니다. (선택적)
+        if(activeInventory) RedrawSlotUI();
+    }
+
+    /// <summary>
+    /// 외부(QuestManager 등)에서 인벤토리 패널을 열 때 호출됩니다.
+    /// </summary>
+    public void OpenInventory()
+    {
+        if (inventoryPanel != null && !activeInventory)
+        {
+            activeInventory = true;
+            inventoryPanel.SetActive(true);
+            RedrawSlotUI();
+            Debug.Log("[InventoryUI] 외부 요청으로 인벤토리 열림.");
+        }
+    }
+    
+    /// <summary>
+    /// 외부(QuestManager 등)에서 인벤토리 패널을 닫을 때 호출됩니다.
+    /// </summary>
+    public void CloseInventory()
+    {
+        if (inventoryPanel != null && activeInventory)
+        {
+            activeInventory = false;
+            inventoryPanel.SetActive(false);
+            Debug.Log("[InventoryUI] 외부 요청으로 인벤토리 닫힘.");
         }
     }
 
