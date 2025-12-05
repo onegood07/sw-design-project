@@ -26,29 +26,15 @@ public class HeroInteraction : MonoBehaviour
     {
         if (context.performed) // 눌렀을 때만 실행 (spacebar)
         {
-            if (context.performed)
-            {
-                if (IsPointerOverUIObject())
-                {
-                    return;
-                }
-                // 스크린 포인트 값을 월드 포지션 값으로 변환함.
-                // 스크린 포인트 값은 화면 왼쪽 아래가 0,0 임.
-                Vector3 mouseWorldPosition3D = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-                Vector2 mouseWorldPosition = new Vector2(mouseWorldPosition3D.x, mouseWorldPosition3D.y);
-
-                // 마우스 위치 - Hero 위치
-                mouseDirection = mouseWorldPosition - (Vector2)transform.position;
-                // 정규화
-                mouseDirection.Normalize();
-                tryInteraction(mouseDirection);
-            }
+            tryInteraction();
+            // Debug.Log("interaction!");
         }    
     }
-    void tryInteraction(Vector2 mouseDirection)
+    void tryInteraction()
     {
-        // 마우스 방향으로 rayCast 진행
-        rayCast(mouseDirection);
+        // 시야 방향으로 rayCast 진행
+        viewDirection = HeroMoveControl.CurrentViewDirection;
+        rayCast(viewDirection);
     }
     void rayCast(Vector2 viewDirection)
     {

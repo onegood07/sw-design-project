@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -2052348383094473455}
   - component: {fileID: 1467303946012295050}
   - component: {fileID: 3010204717705701861}
-  - component: {fileID: -422301000355810174}
+  - component: {fileID: 8690743564670343826}
   m_Layer: 3
   m_Name: NormalZombie
   m_TagString: Zombie
@@ -114,6 +114,7 @@ MonoBehaviour:
   BaseHp: 1000
   BaseSpeedFactor: 1.1
   BasePower: 40
+  baseNavSpeed: 1.5
 --- !u!114 &-6914990703295645560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,7 +217,7 @@ NavMeshAgent:
   m_BaseOffset: 0.34374997
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &-422301000355810174
+--- !u!114 &8690743564670343826
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -230,7 +231,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ZombieNavMove
   speed: 3
   chaseRange: 5
-  attackRange: 0.8
+  attackRange: 1
   attackDelay: 1
   wanderRadius: 2
   wanderInterval: 2
+  zombieAttackOffset: {x: 0, y: 0.5}
+  heroAttackOffset: {x: 0, y: 0.5}
+  attackClipDuration: 0.417
+  isInDialogue: 0

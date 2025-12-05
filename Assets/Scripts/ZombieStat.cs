@@ -37,6 +37,7 @@ public class ZombieStat : MonoBehaviour
     private float currentSpeedFactor;
 
     private HeroStat heroStat;
+    private ZombieNavMove zombieNavMove;
 
     // NavMesh 관련
     private AgentOverride2d agent2d;
@@ -60,6 +61,8 @@ public class ZombieStat : MonoBehaviour
         {
             Debug.LogWarning("[ZombieStat] NavMeshAgent를 찾지 못했습니다. 이동 속도 조절이 적용되지 않습니다.", this);
         }
+
+        zombieNavMove = GetComponent<ZombieNavMove>();
     }
 
     void Start()
@@ -141,6 +144,7 @@ public class ZombieStat : MonoBehaviour
     public void takeDamage(float damage)
     {
         currentHp -= damage;
+        zombieNavMove?.OnDamageTaken();
         if (currentHp <= 0)
             DestroyZombie();
     }

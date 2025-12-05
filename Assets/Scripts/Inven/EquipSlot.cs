@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 /// 인벤토리 슬롯(ScrollView 안의 Content 하위 슬롯)에서 드래그한 아이템을
 /// 타입에 맞게 받아와서 아이콘만 표시하는 기본 구조입니다.
 /// </summary>
-public class EquipSlot : MonoBehaviour
+public class EquipSlot : MonoBehaviour, IPointerClickHandler
 {
     [Header("이 슬롯이 받을 수 있는 아이템 타입")]
     public ItemView acceptedType;        // 예: Lantern, Weapon 등
@@ -63,7 +63,7 @@ public class EquipSlot : MonoBehaviour
         if (itemIcon != null)
         {
             itemIcon.gameObject.SetActive(false);
-            itemIcon.raycastTarget = false;   // 장비 아이콘은 드래그 대상이 아니라 표시 전용
+            itemIcon.raycastTarget = true;
         }
     }
 
@@ -179,14 +179,46 @@ public class EquipSlot : MonoBehaviour
             int idx = fromSlot.slotIndex;
             if (idx >= 0 && idx < inven.items.Count)
             {
-                // 장착하자 마자 사용 되도록
-                if(inven.items[idx].itemData is IUsable usable)usable.Use(HeroStat.Instance.transform,Vector2.zero);
-                
+                // 자동 발동이 필요한 경우(예: 랜턴)에는 Use 호출
+                if (acceptedType == ItemView.Lantern && fromItem.itemData is IUsable autoUsable)
+                {
+                    autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
+                }
+
                 inven.items[idx] = null;
-                inven.onChangeItem?.Invoke();   // 인벤 UI 다시 그리기
-                Debug.Log($"[EquipSlot] 인벤토리 {idx}번 슬롯 아이템 제거 완료.", this);
+                inven.onChangeItem?.Invoke();
             }
         }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Right)
+            return;
+
+        UnequipToInventory();
+    }
+
+    void UnequipToInventory()
+    {
+        if (equippedItem == null)
+            return;
+
+        Inventory inven = Inventory.instance;
+        if (inven != null)
+        {
+            inven.AddInventoryItemInstance(equippedItem);
+        }
+
+        if (acceptedType == ItemView.Lantern && equippedItem.itemData is IUsable autoUsable)
+        {
+            autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
+        }
+
+        equippedItem = null;
+
+        if (itemIcon != null)
+            itemIcon.gameObject.SetActive(false);
     }
 }
 

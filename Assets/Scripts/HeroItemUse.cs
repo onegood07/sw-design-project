@@ -40,6 +40,7 @@ public class HeroItemUse : MonoBehaviour
             // 정규화
             mouseDirection.Normalize();
 
+            TryAttackAnimation();
             UseQuickSlot(selectedItemIndex,transform,mouseDirection);
             // // 사용 가능한 아이템일 경우(IUsable 규칙을 상속받은 데이터의 경우) Use 메서드가 존재함
             // if(selectedItem is IUsable usableData)usableData.Use(transform,mouseDirection);
@@ -50,28 +51,28 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            selectedItemIndex = 1;
+            ToggleQuickSlotSelection(1);
         }
     }
     public void OnQuickSlot2(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItemIndex = 2;
+            ToggleQuickSlotSelection(2);
         }
     }
     public void OnQuickSlot3(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItemIndex = 3;
+            ToggleQuickSlotSelection(3);
         }
     }
     public void OnQuickSlot4(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            selectedItemIndex = 4;
+            ToggleQuickSlotSelection(4);
         }
     }
 
@@ -79,7 +80,7 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            selectedItemIndex = 5;
+            ToggleQuickSlotSelection(5);
         }
     }
 
@@ -87,7 +88,7 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
-            selectedItemIndex = 6;
+            ToggleQuickSlotSelection(6);
         }
     }
 
@@ -120,5 +121,60 @@ public class HeroItemUse : MonoBehaviour
         
         // results 리스트에 무언가 있다면 (UI 요소가 있다면) true 반환
         return results.Count > 0;
+    }
+
+    void ToggleQuickSlotSelection(int slotNumber)
+    {
+        if (selectedItemIndex == slotNumber)
+        {
+            selectedItemIndex = 0;
+            QuickSlot.HighlightSlotByNumber(0);
+        }
+        else
+        {
+            selectedItemIndex = slotNumber;
+            QuickSlot.HighlightSlotByNumber(selectedItemIndex);
+        }
+    }
+
+    void TryAttackAnimation()
+    {
+        if (HeroMoveControl == null)
+            return;
+
+        var currentData = GetSelectedQuickSlotItem();
+
+        if (currentData == null)
+            return;
+
+        if (IsWeaponData(currentData))
+            HeroMoveControl.TriggerAttackAnimation();
+    }
+
+    ItemData GetSelectedQuickSlotItem()
+    {
+        if (InventoryManager.Instance == null || selectedItemIndex <= 0)
+            return null;
+
+        int idx = selectedItemIndex - 1;
+        var quickSlots = InventoryManager.Instance.quickSlotItems;
+        if (idx < 0 || idx >= quickSlots.Length)
+            return null;
+
+        return quickSlots[idx];
+    }
+
+    bool IsWeaponData(ItemData data)
+    {
+        if (data == null || Inventory.instance == null)
+            return false;
+
+        foreach (var entry in Inventory.instance.items)
+        {
+            if (entry != null && entry.itemData == data)
+                return entry.itemType == ItemView.Weapon;
+        }
+
+        return false;
     }
 }

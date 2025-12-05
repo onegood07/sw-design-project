@@ -1,8 +1,8 @@
 using UnityEngine;
-using System.Collections; 
+using System.Collections;
 
 public class HeroStat : MonoBehaviour 
-{
+{ 
     public static HeroStat Instance { get; private set; }
 
     // 생명력
@@ -19,6 +19,12 @@ public class HeroStat : MonoBehaviour
 
     // 부스트 코루틴 활성 여부
     private Coroutine activeBoostCoroutine;
+    [Header("Hit Effect")]
+    [SerializeField] SpriteRenderer spriteRenderer;
+    [SerializeField] Color hitColor = Color.red;
+    [SerializeField] float hitEffectDuration = 0.3f;
+    Color originalColor;
+    Coroutine hitRoutine;
 
     private void Awake()
     {
@@ -28,6 +34,15 @@ public class HeroStat : MonoBehaviour
             return;
         }
         Instance = this;
+    }
+
+    void OnEnable()
+    {
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+            originalColor = spriteRenderer.color;
     }
 
      void Start()
@@ -51,6 +66,7 @@ public class HeroStat : MonoBehaviour
     {
         // 좀비의 공격력(Power)만큼 생명력 감소
         hp -= zombiePower;
+        PlayHitEffect();
 
         if (hp <= 0 && isSurvival) 
         {
@@ -97,6 +113,25 @@ public class HeroStat : MonoBehaviour
         }
         // 다시 시작하거나, 첫 시작을 함.
         activeBoostCoroutine = StartCoroutine(HeroSpeedBoostCoroutine(duration,percentage));
+    }
+
+    void PlayHitEffect()
+    {
+        if (spriteRenderer == null)
+            return;
+
+        if (hitRoutine != null)
+            StopCoroutine(hitRoutine);
+
+        hitRoutine = StartCoroutine(HitEffectRoutine());
+    }
+
+    IEnumerator HitEffectRoutine()
+    {
+        spriteRenderer.color = hitColor;
+        yield return new WaitForSeconds(hitEffectDuration);
+        spriteRenderer.color = originalColor;
+        hitRoutine = null;
     }
 
     // 일정 시간마다 허기 감소 코루틴

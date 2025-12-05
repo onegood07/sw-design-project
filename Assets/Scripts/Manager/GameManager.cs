@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine.SceneManagement; 
 using System.Collections.Generic; 
 using Random = UnityEngine.Random;
-using Unity.Android.Gradle;
 
 // 게임 상태 관련 Enum 정의
 public enum GameEnding { None, Happy, GameOver, Bad } // 엔딩 종류
