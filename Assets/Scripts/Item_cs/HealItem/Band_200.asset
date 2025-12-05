@@ -17,7 +17,7 @@ MonoBehaviour:
   Icon: {fileID: 0}
   MaxStackCount: 0
   isAvailable: 0
-  coolTime: 0
+  originCoolTime: 1
   whichStat:
   - hp
   healAmount:

@@ -17,7 +17,7 @@ MonoBehaviour:
   Icon: {fileID: 2619156217251398772, guid: a4d9ddf8d7e6b0146a1fdbc0159db0f4, type: 3}
   MaxStackCount: 99
   isAvailable: 1
-  coolTime: 0
+  originCoolTime: 2
   whichStat:
   - hp
   - 
