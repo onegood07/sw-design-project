@@ -15,7 +15,7 @@ MonoBehaviour:
   nodes:
   - text: "\uD750\uC73D\u2026 \uC81C \uACF0\uC778\uD615\uC744 \uC783\uC5B4\uBC84\uB838\uC5B4\uC694\u2026
       \uBB34\uC12D\uAC8C \uC0DD\uAE34 \uAD34\uBB3C\uC774 \uAC00\uC838\uAC14\uC5B4\uC694..."
-    typingSpeed: 0.08
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 1
@@ -28,10 +28,10 @@ MonoBehaviour:
     nextNodeIndex: 0
   - text: "\uC5B4, \uD639\uC2DC \uCC3E\uC558\uC5B4\uC694..? \uC800\uD55C\uD14C \uC8FC\uBA74
       \uC548\uB3FC\uC694?"
-    typingSpeed: 0.08
+    typingSpeed: 0.05
     questToStart: {fileID: 11400000, guid: ab0c15206349347ccbbefe7fd6563578, type: 2}
     shouldStartSubmission: 1
-    hasChoices: 1
+    hasChoices: 0
     choices: []
     nextNodeIndex: 3
   - text: "\uC544\uB2C8\uC5D0\uC694\u2026 \uACF0\uC778\uD615\uC744 \uBABB \uCC3E\uC73C\uBA74
