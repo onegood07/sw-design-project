@@ -15,8 +15,8 @@ MonoBehaviour:
   questName: DenOwnerQuest
   questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
     \uC124\uC815\uB429\uB2C8\uB2E4."
-  requiredItemName: Pistol
-  requiredItemIcon: {fileID: 2594633261877268010, guid: 7e4b87674c09cec4e8f5306a0fa018a7, type: 3}
+  requiredItemName: FirstAidKit
+  requiredItemIcon: {fileID: 1142586732419344882, guid: 7e4b87674c09cec4e8f5306a0fa018a7, type: 3}
   requiredAmount: 1
-  rewardItem: {fileID: -7234725743834073140, guid: 0a964f875a8e24d87ae5ea4b26ad8646, type: 3}
+  rewardItem: {fileID: 8018865339420979663, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
   rewardCount: 2

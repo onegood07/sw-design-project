@@ -29,6 +29,9 @@ public class ShelterSubmitUI : MonoBehaviour
         Hide();
     }
 
+    // ===========================
+    //     UI Show (✅ 인벤토리 열기 추가)
+    // ===========================
     public void Show(QuestData[] recipes)
     {
         currentRecipes = recipes;
@@ -39,8 +42,22 @@ public class ShelterSubmitUI : MonoBehaviour
 
         if (currentItems.Count > 0)
             SelectItem(currentItems[0]);
+
+        // ✅ 인벤토리 UI 활성화
+        if (InventoryUI.instance != null)
+        {
+            InventoryUI.instance.OpenInventory();
+            Debug.Log("[ShelterSubmitUI] 납입 UI가 열리면서 인벤토리 UI를 열었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("[ShelterSubmitUI] InventoryUI 인스턴스를 찾을 수 없습니다. 인벤토리를 열 수 없습니다.");
+        }
     }
 
+    // ===========================
+    //     UI Hide (✅ 인벤토리 닫기 추가)
+    // ===========================
     public void Hide()
     {
         if (visualRootPanel != null)
@@ -48,6 +65,13 @@ public class ShelterSubmitUI : MonoBehaviour
 
         ClearItems();
         selectedItem = null;
+        
+        // ✅ 인벤토리 UI 비활성화
+        if (InventoryUI.instance != null)
+        {
+            InventoryUI.instance.CloseInventory();
+            Debug.Log("[ShelterSubmitUI] 납입 UI가 닫히면서 인벤토리 UI를 닫았습니다.");
+        }
     }
 
     private void GenerateItems(QuestData[] recipes)
@@ -102,5 +126,8 @@ public class ShelterSubmitUI : MonoBehaviour
 
         if (success)
             Debug.Log($"[ShelterSubmitUI] '{selectedItem.Recipe.questName}' 납입 성공!");
+            
+            // 납입 성공 후 가용성 갱신 (선택적)
+            UpdateAllItemsAvailability();
     }
 }

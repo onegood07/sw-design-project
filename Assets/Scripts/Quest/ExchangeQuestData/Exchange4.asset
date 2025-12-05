@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b9d23b7e2d3f7488f9436d3da4f1d5ec, type: 3}
-  m_Name: Exchange2
+  m_Name: Exchange4
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questName: Exchange2
+  questName: Exchange3
   questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
     \uC124\uC815\uB429\uB2C8\uB2E4."
-  requiredItemName: Water
-  requiredItemIcon: {fileID: 6049605792901559095, guid: aac519b06e4484c4399686d58ca83138, type: 3}
+  requiredItemName: Band
+  requiredItemIcon: {fileID: 1462799768519014029, guid: 9c77f37515354464aae966cdb8782afa, type: 3}
   requiredAmount: 1
-  rewardItem: {fileID: -8838197168880746185, guid: de5ea7b0032b64ef5bd4e7835c50934a, type: 3}
+  rewardItem: {fileID: 1117397670487763955, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
   rewardCount: 1
