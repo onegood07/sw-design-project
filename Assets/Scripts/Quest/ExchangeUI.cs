@@ -21,6 +21,7 @@ public class ExchangeUI : MonoBehaviour
     {
         if (closeButton != null)
         {
+            // ExchangeManager.Instance.CloseTradeUI()를 호출하면 ExchangeUI.Hide()가 실행됩니다.
             closeButton.onClick.AddListener(() => ExchangeManager.Instance.CloseTradeUI());
         }
 
@@ -34,7 +35,7 @@ public class ExchangeUI : MonoBehaviour
     }
 
     // ===========================
-    //     UI Show
+    //     UI Show (✅ 인벤토리 열기 추가)
     // ===========================
     public void Show(QuestData[] recipes)
     {
@@ -50,10 +51,21 @@ public class ExchangeUI : MonoBehaviour
         {
             SelectRecipeItem(currentRecipeItems[0]);
         }
+        
+        // ✅ 인벤토리 UI 활성화
+        if (InventoryUI.instance != null)
+        {
+            InventoryUI.instance.OpenInventory();
+            Debug.Log("[ExchangeUI] 교환 UI가 열리면서 인벤토리 UI를 열었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("[ExchangeUI] InventoryUI 인스턴스를 찾을 수 없습니다. 인벤토리를 열 수 없습니다.");
+        }
     }
 
     // ===========================
-    //     UI Hide
+    //     UI Hide (✅ 인벤토리 닫기 추가)
     // ===========================
     public void Hide()
     {
@@ -62,6 +74,13 @@ public class ExchangeUI : MonoBehaviour
 
         ClearRecipeItems();
         selectedRecipeItem = null;
+
+        // ✅ 인벤토리 UI 비활성화
+        if (InventoryUI.instance != null)
+        {
+            InventoryUI.instance.CloseInventory();
+            Debug.Log("[ExchangeUI] 교환 UI가 닫히면서 인벤토리 UI를 닫았습니다.");
+        }
     }
 
     // ===========================
@@ -136,6 +155,8 @@ public class ExchangeUI : MonoBehaviour
         if (success)
         {
             Debug.Log($"[ExchangeUI] '{selectedRecipeItem.Recipe.questName}' 교환 성공!");
+            // 교환 성공 후 ExchangeManager를 통해 레시피 가용성 갱신을 요청할 수 있습니다.
+            ExchangeManager.Instance.NotifyTradeSuccess(); 
         }
     }
 

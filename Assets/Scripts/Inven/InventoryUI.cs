@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// </summary>
 public class InventoryUI : MonoBehaviour
 {
-    // ✅ 싱글톤 인스턴스 추가
+    // ✅ 싱글톤 인스턴스
     public static InventoryUI instance;
     
     Inventory inven;
@@ -85,7 +85,7 @@ public class InventoryUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 외부(QuestManager 등)에서 인벤토리 패널을 열 때 호출됩니다.
+    /// 외부(ExchangeUI 등)에서 인벤토리 패널을 열 때 호출됩니다.
     /// </summary>
     public void OpenInventory()
     {
@@ -99,7 +99,7 @@ public class InventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 외부(QuestManager 등)에서 인벤토리 패널을 닫을 때 호출됩니다.
+    /// 외부(ExchangeUI 등)에서 인벤토리 패널을 닫을 때 호출됩니다.
     /// </summary>
     public void CloseInventory()
     {
