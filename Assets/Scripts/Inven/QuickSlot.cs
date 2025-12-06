@@ -41,6 +41,38 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
     Vector2 iconOriginalAnchoredPos;
     bool isDraggingIcon = false;
 
+    [SerializeField] private Image CooltimeImage; //아이템 쿨타임 이미지
+    private void Update()
+    {
+        // 1. 필수 컴포넌트나 데이터가 없으면 조기 리턴 (안정성 확보)
+        if (CooltimeImage == null) {
+            Debug.Log("쿨타임 이미지 없음");
+            return;
+        }
+
+        // 아이템이 없으면 쿨타임 이미지를 0으로 만들고 종료
+        if (linkedItemData == null)
+        {
+            Debug.Log("no linkedItemData");
+            if (CooltimeImage.fillAmount > 0) CooltimeImage.fillAmount = 0f;
+            return;
+        }
+        if (CoolTimeManager.Instance == null) return;
+        // 3. 0으로 나누기 방지 (쿨타임이 0이거나 음수인 아이템 처리)
+        float maxCoolTime = linkedItemData.getCoolTime;
+        if (maxCoolTime <= 0)
+        {
+            Debug.Log("zero division");
+            CooltimeImage.fillAmount = 0f;
+            return;
+        }
+        // 4. 실제 쿨타임 계산
+        float currentCoolTime = CoolTimeManager.Instance.GetCurrentCooltime(linkedItemData.getItemName);
+        
+        // 5. fillAmount 갱신 (0~1 사이 값으로 클램핑하여 안전성 확보 권장 - 선택 사항)
+        CooltimeImage.fillAmount = currentCoolTime / maxCoolTime;
+    }    
+
     private void Awake()
     {
         if (!allSlots.Contains(this))
