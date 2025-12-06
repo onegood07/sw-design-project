@@ -11,12 +11,11 @@ GameObject:
   - component: {fileID: 6875743572020977146}
   - component: {fileID: 7802953469812169975}
   - component: {fileID: -7325215797412698943}
-  - component: {fileID: -6914990703295645560}
   - component: {fileID: -2052348383094473455}
   - component: {fileID: 1467303946012295050}
   - component: {fileID: 3010204717705701861}
   - component: {fileID: 8690743564670343826}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: NormalZombie
   m_TagString: Zombie
   m_Icon: {fileID: 0}
@@ -109,24 +108,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieStat
   type: 0
-  dropItem: {fileID: 2287141480163034400, guid: 7f140e7a38ddecd48bccfdb655f6529b, type: 3}
-  dropRate: 0.8
+  dropItem: {fileID: 1296834444985638504, guid: 7f140e7a38ddecd48bccfdb655f6529b, type: 3}
+  dropRate: 0.1
   BaseHp: 1000
   BaseSpeedFactor: 1.1
   BasePower: 40
   baseNavSpeed: 1.5
---- !u!114 &-6914990703295645560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6989195092527803693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f27fa371b66006c44823b81d30e6b5d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ZombieInteraction
 --- !u!61 &-2052348383094473455
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -235,6 +222,9 @@ MonoBehaviour:
   attackDelay: 1
   wanderRadius: 2
   wanderInterval: 2
+  spriteRenderer: {fileID: 0}
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
+  hitStopDuration: 0.3
   zombieAttackOffset: {x: 0, y: 0.5}
   heroAttackOffset: {x: 0, y: 0.5}
   attackClipDuration: 0.417
