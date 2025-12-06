@@ -57,6 +57,11 @@ public class HeroMoveControl : MonoBehaviour
     private readonly int stAttackIdleDown  = Animator.StringToHash("D_attack");
     private readonly int stAttackIdleLeft  = Animator.StringToHash("L_attack");
     private readonly int stAttackIdleRight = Animator.StringToHash("R_attack");
+    // Roll 애니메이션 해시값
+    private readonly int stRollUp    = Animator.StringToHash("hero_Up_Roll");
+    private readonly int stRollDown  = Animator.StringToHash("hero_Down_Roll");
+    private readonly int stRollLeft  = Animator.StringToHash("hero_Left_Roll");
+    private readonly int stRollRight = Animator.StringToHash("hero_Right_Roll");
 
     // CrossFade 시간(짧게 줘서 방향 전환이 즉각적으로 느껴지도록)
     private const float animCrossFadeTime = 0.02f;
@@ -161,6 +166,18 @@ public class HeroMoveControl : MonoBehaviour
 
         // WASD 조합 방향(대각 포함)
         moveInput = dir;
+    }
+    void PlayRollAnimation()
+    {
+        int rollHash = stRollDown;
+
+        // rollDirection 기준으로 방향 선택
+        if (rollDirection.y > 0)       rollHash = stRollUp;
+        else if (rollDirection.y < 0)  rollHash = stRollDown;
+        else if (rollDirection.x < 0)  rollHash = stRollLeft;
+        else if (rollDirection.x > 0)  rollHash = stRollRight;
+
+        animator.CrossFade(rollHash, animCrossFadeTime);
     }
 
     // 스페이스바로 구르기를 시작할 수 있는지 검사하고, 가능하면 구르기 상태로 전환
@@ -289,6 +306,7 @@ public class HeroMoveControl : MonoBehaviour
             {
                 // 구르기 종료
                 isRolling = false;
+                animator.SetBool("ROLL", false);   // 애니메이터 bool도 false로
 
                 // 구르기 종료 후 입력이 없으면 즉시 멈추고 Idle 애니메이션
                 if (moveInput.sqrMagnitude <= 0.01f)
@@ -299,9 +317,8 @@ public class HeroMoveControl : MonoBehaviour
                 }
             }
 
-            // 구르는 동안에는 계속 "움직이는" 애니메이션 유지
-            // (나중에 Roll 전용 애니메이션이 생기면 여기서 변경 가능)
-            UpdateAnimation(true);
+            // 구르는 동안에는 롤 애니메이션만 재생
+            PlayRollAnimation();
             return;
         }
 
