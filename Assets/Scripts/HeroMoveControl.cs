@@ -41,10 +41,22 @@ public class HeroMoveControl : MonoBehaviour
     private readonly int stWalkLeft  = Animator.StringToHash("hero_Left");
     private readonly int stWalkRight = Animator.StringToHash("hero_Right");
 
-    private readonly int paramUp     = Animator.StringToHash("UP");
-    private readonly int paramDown   = Animator.StringToHash("DOWN");
-    private readonly int paramLeft   = Animator.StringToHash("LEFT");
-    private readonly int paramRight  = Animator.StringToHash("RIGHT");
+    private readonly int paramUp    = Animator.StringToHash("UP");
+    private readonly int paramDown  = Animator.StringToHash("DOWN");
+    private readonly int paramLeft  = Animator.StringToHash("LEFT");
+    private readonly int paramRight = Animator.StringToHash("RIGHT");
+
+    // Gun Attack Walk (총을 든 상태의 6프레임 걷기 애니메이션)
+    private readonly int stAttackUp    = Animator.StringToHash("Up_attack");
+    private readonly int stAttackDown  = Animator.StringToHash("Down_attack");
+    private readonly int stAttackLeft  = Animator.StringToHash("Left_attack");
+    private readonly int stAttackRight = Animator.StringToHash("Right_attack");
+
+    // Gun Attack Idle (총을 든 상태의 정지 애니메이션 – 1프레임 / 루프X 클립 권장)
+    private readonly int stAttackIdleUp    = Animator.StringToHash("U_attack");
+    private readonly int stAttackIdleDown  = Animator.StringToHash("D_attack");
+    private readonly int stAttackIdleLeft  = Animator.StringToHash("L_attack");
+    private readonly int stAttackIdleRight = Animator.StringToHash("R_attack");
 
     // CrossFade 시간(짧게 줘서 방향 전환이 즉각적으로 느껴지도록)
     private const float animCrossFadeTime = 0.02f;
@@ -52,7 +64,8 @@ public class HeroMoveControl : MonoBehaviour
     [Header("Attack Animation")]
     [SerializeField] private float attackAnimDuration = 0.5f;
 
-    private readonly int paramAttack = Animator.StringToHash("Attack");
+    // Attack 파라미터: 0 = 맨손, 1 = 총 장착(걷기/Idle 모션 전환 용도)
+    private const string paramAttack = "Attack";
     private Coroutine attackResetRoutine;
     private bool isAttackAnimating;
     private float attackLockTimer = 0f;
@@ -150,7 +163,7 @@ public class HeroMoveControl : MonoBehaviour
         moveInput = dir;
     }
 
-    // F 키를 눌렀을 때 구르기를 시작할 수 있는지 검사하고, 가능하면 구르기 상태로 전환
+    // 스페이스바로 구르기를 시작할 수 있는지 검사하고, 가능하면 구르기 상태로 전환
     void TryStartRoll()
     {
         // 이미 구르는 중이면 시작 불가
@@ -197,7 +210,7 @@ public class HeroMoveControl : MonoBehaviour
         if (rollCooldownTimer > 0f)
             rollCooldownTimer -= Time.deltaTime;
 
-        // F 키 입력 확인 후, 구르기 시작 시도
+        // 스페이스 입력 확인 후, 구르기 시작 시도
         TryStartRoll();
     }
 
@@ -216,14 +229,31 @@ public class HeroMoveControl : MonoBehaviour
         if (isAttackAnimating)
             return;
 
-        int hashToPlay = stIdleDown; // 기본값: 아래 idle
+        // 이동 여부 파라미터 (필요하면 Animator에서 사용)
+        animator.SetBool("IsMoving", moving);
 
+        bool hasGun = animator.GetInteger(paramAttack) == 1;
+
+        int hashToPlay = stIdleDown;
+
+        if (hasGun)
+        {
+            // 총 든 상태의 걷기/Idle 애니메이션
+            if (lastMoveDir.y > 0)       hashToPlay = moving ? stAttackUp    : stAttackIdleUp;
+            else if (lastMoveDir.y < 0)  hashToPlay = moving ? stAttackDown  : stAttackIdleDown;
+            else if (lastMoveDir.x < 0)  hashToPlay = moving ? stAttackLeft  : stAttackIdleLeft;
+            else if (lastMoveDir.x > 0)  hashToPlay = moving ? stAttackRight : stAttackIdleRight;
+
+            animator.CrossFade(hashToPlay, animCrossFadeTime);
+            return;
+        }
+
+        // --- 기본 애니메이션 (총 안 든 상태) ---
         if (lastMoveDir.y > 0)       hashToPlay = moving ? stWalkUp    : stIdleUp;
         else if (lastMoveDir.y < 0)  hashToPlay = moving ? stWalkDown  : stIdleDown;
         else if (lastMoveDir.x < 0)  hashToPlay = moving ? stWalkLeft  : stIdleLeft;
         else if (lastMoveDir.x > 0)  hashToPlay = moving ? stWalkRight : stIdleRight;
 
-        // CrossFade를 사용하여 부드럽게 상태 전환
         animator.CrossFade(hashToPlay, animCrossFadeTime);
     }
 
@@ -307,6 +337,7 @@ public class HeroMoveControl : MonoBehaviour
         UpdateAnimation(true);
     }
 
+    // (필요하면 쓰는 공격 애니메이션용 – 안 쓰면 무시해도 됨)
     public void TriggerAttackAnimation()
     {
         if (animator == null || attackLockTimer > 0f)
@@ -316,7 +347,7 @@ public class HeroMoveControl : MonoBehaviour
         if (attackResetRoutine != null)
             StopCoroutine(attackResetRoutine);
 
-        animator.SetBool(paramAttack, true);
+        animator.SetInteger(paramAttack, 1);
         isAttackAnimating = true;
         attackResetRoutine = StartCoroutine(ResetAttackFlagAfterDelay());
     }
@@ -342,13 +373,32 @@ public class HeroMoveControl : MonoBehaviour
     void ResetAttackState()
     {
         if (animator != null)
-            animator.SetBool(paramAttack, false);
+            animator.SetInteger(paramAttack, 0);
 
         isAttackAnimating = false;
 
         // 공격 종료 시 현재 입력 상태에 맞춰 이동 애니메이션 갱신
         bool isCurrentlyMoving = moveInput.sqrMagnitude > 0.01f;
         UpdateAnimation(isCurrentlyMoving);
+    }
+
+    // 총 장착/해제 (인벤토리/무기 시스템에서 호출)
+    public void SetAttackEquipState(bool value)
+    {
+        if (animator == null)
+            return;
+
+        Debug.Log($"[HeroMoveControl] SetAttackEquipState -> {value}");
+        animator.SetInteger(paramAttack, value ? 1 : 0);
+
+        if (!value && attackResetRoutine != null)
+        {
+            StopCoroutine(attackResetRoutine);
+            attackResetRoutine = null;
+        }
+
+        if (!value)
+            isAttackAnimating = false;
     }
 
     // 외부에서 특정 위치로 워프할 때 사용 (타겟 위치로 순간 이동)
