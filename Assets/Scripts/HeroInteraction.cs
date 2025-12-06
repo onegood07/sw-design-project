@@ -26,15 +26,23 @@ public class HeroInteraction : MonoBehaviour
     {
         if (context.performed) // 눌렀을 때만 실행 (spacebar)
         {
-            tryInteraction();
+
+            if (IsPointerOverUIObject())
+            {
+                return;
+            }            
+            Vector3 mouseWorldPosition3D = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            Vector2 mouseWorldPosition = new Vector2(mouseWorldPosition3D.x, mouseWorldPosition3D.y);
+
+            mouseDirection = mouseWorldPosition - (Vector2)transform.position;
+            tryInteraction(mouseDirection);
             // Debug.Log("interaction!");
         }    
     }
-    void tryInteraction()
+    void tryInteraction(Vector2 mouseDirection)
     {
         // 시야 방향으로 rayCast 진행
-        viewDirection = HeroMoveControl.CurrentViewDirection;
-        rayCast(viewDirection);
+        rayCast(mouseDirection);
     }
     void rayCast(Vector2 viewDirection)
     {

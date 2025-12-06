@@ -129,7 +129,7 @@ public class InventoryManager : MonoBehaviour
         if (Item is IUsable UsableItem)
         {
             // 쿨타임 체크
-            if (!(CoolTimeManager.Instance.GetCurrentCooltime(Item.getItemName, Item.getCoolTime) > 0))
+            if (!(CoolTimeManager.Instance.GetCurrentCooltime(Item.getItemName) > 0))
             {
                 // if(Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
                 // 임시로 그냥 ConsumeQuickSlotItem 호출
