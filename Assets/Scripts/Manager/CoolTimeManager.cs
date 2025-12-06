@@ -48,11 +48,10 @@ public class CoolTimeManager : MonoBehaviour
         currentCooling.Add(itemID);
     }
 
-    public float GetCurrentCooltime(int itemID,float originCooltime)
+    public float GetCurrentCooltime(int itemID)
     {
         if (!coolTimes.ContainsKey(itemID))
         {
-            AddCooltimeQueue(itemID,originCooltime);
             return 0;
         }
         float cooltime;
