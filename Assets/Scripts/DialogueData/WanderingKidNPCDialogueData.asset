@@ -28,7 +28,7 @@ MonoBehaviour:
     nextNodeIndex: 0
   - text: "\uC815\uB9D0? \uB098 \uCD08\uCF5C\uB9BF \uBA39\uACE0 \uC2F6\uC5B4!"
     typingSpeed: 0.05
-    questToStart: {fileID: 11400000, guid: 24e18528c2bf54cfb9d4ef46c44ebcff, type: 2}
+    questToStart: {fileID: 11400000, guid: 074ab42adbeef4ea68c6616b0a92b80a, type: 2}
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []

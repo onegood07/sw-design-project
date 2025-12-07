@@ -9,55 +9,37 @@ public class ShelterSubmitUI : MonoBehaviour
     public GameObject contentParent;
     public ShelterSubmitItem itemPrefab;
     public Button closeButton;
-    public Button submitButton;
 
     private List<ShelterSubmitItem> currentItems = new List<ShelterSubmitItem>();
     private ShelterSubmitItem selectedItem;
-    private QuestData[] currentRecipes;
 
     private void Start()
     {
-        if (closeButton != null)
+        if (closeButton != null && ShelterSubmitManager.Instance != null)
             closeButton.onClick.AddListener(() => ShelterSubmitManager.Instance.CloseSubmitUI());
-
-        if (submitButton != null)
-        {
-            submitButton.onClick.RemoveAllListeners();
-            submitButton.onClick.AddListener(OnSubmitButtonClicked);
-        }
-
+        
         Hide();
     }
 
-    // ===========================
-    //     UI Show (✅ 인벤토리 열기 추가)
-    // ===========================
-    public void Show(QuestData[] recipes)
+    public void Show() 
     {
-        currentRecipes = recipes;
+        if (GameManager.Instance == null)
+        {
+            Debug.LogError("[ShelterSubmitUI] GameManager가 초기화되지 않았습니다.");
+            return;
+        }
+
+        var requiredItemsData = GameManager.Instance.CurrentRequiredItemsData; 
+
         if (visualRootPanel != null)
             visualRootPanel.SetActive(true);
 
-        GenerateItems(recipes);
+        GenerateItems(requiredItemsData);
 
         if (currentItems.Count > 0)
             SelectItem(currentItems[0]);
-
-        // ✅ 인벤토리 UI 활성화
-        if (InventoryUI.instance != null)
-        {
-            InventoryUI.instance.OpenInventory();
-            Debug.Log("[ShelterSubmitUI] 납입 UI가 열리면서 인벤토리 UI를 열었습니다.");
-        }
-        else
-        {
-            Debug.LogWarning("[ShelterSubmitUI] InventoryUI 인스턴스를 찾을 수 없습니다. 인벤토리를 열 수 없습니다.");
-        }
     }
 
-    // ===========================
-    //     UI Hide (✅ 인벤토리 닫기 추가)
-    // ===========================
     public void Hide()
     {
         if (visualRootPanel != null)
@@ -65,27 +47,35 @@ public class ShelterSubmitUI : MonoBehaviour
 
         ClearItems();
         selectedItem = null;
-        
-        // ✅ 인벤토리 UI 비활성화
-        if (InventoryUI.instance != null)
-        {
-            InventoryUI.instance.CloseInventory();
-            Debug.Log("[ShelterSubmitUI] 납입 UI가 닫히면서 인벤토리 UI를 닫았습니다.");
-        }
     }
 
-    private void GenerateItems(QuestData[] recipes)
+    // Item Dictionary를 기반으로 아이템 생성 (수정됨)
+    private void GenerateItems(Dictionary<Item, int> requiredItemsData)
     {
         ClearItems();
 
-        if (recipes == null || itemPrefab == null || contentParent == null)
+        if (requiredItemsData == null || itemPrefab == null || contentParent == null || GameManager.Instance == null)
             return;
 
-        foreach (QuestData recipe in recipes)
+        foreach (var entry in requiredItemsData)
         {
+            Item requiredItem = entry.Key;
+            int requiredAmount = entry.Value;
+
             ShelterSubmitItem newItem = Instantiate(itemPrefab, contentParent.transform);
-            newItem.Setup(recipe);
+            
+            // 1. 기본 요구 데이터 설정
+            newItem.Setup(requiredItem, requiredAmount); 
             newItem.onSelected += SelectItem;
+
+            // 2. ✅ GameManager에서 저장된 제출 수량 반영
+            int submittedCount = 0;
+            if (GameManager.Instance.CurrentSubmittedData.TryGetValue(requiredItem, out submittedCount))
+            {
+                // ShelterSubmitSlot에 저장된 수량을 반영하도록 요청
+                newItem.submitSlot.ReflectSubmittedCount(submittedCount);
+            }
+
             currentItems.Add(newItem);
         }
 
@@ -96,14 +86,15 @@ public class ShelterSubmitUI : MonoBehaviour
     {
         foreach (var item in currentItems)
         {
-            item.onSelected -= SelectItem;
-            Destroy(item.gameObject);
+            if (item != null)
+                Destroy(item.gameObject);
         }
         currentItems.Clear();
     }
 
     public void UpdateAllItemsAvailability()
     {
+        // 모든 납입 항목에 대해 납입 가능 여부(UI)를 갱신
         foreach (var item in currentItems)
             item.CheckAvailability();
     }
@@ -117,17 +108,9 @@ public class ShelterSubmitUI : MonoBehaviour
         selectedItem.SetSelected(true);
     }
 
-    private void OnSubmitButtonClicked()
-    {
-        if (selectedItem == null)
-            return;
-
-        bool success = selectedItem.submitSlot.ConfirmSubmission();
-
-        if (success)
-            Debug.Log($"[ShelterSubmitUI] '{selectedItem.Recipe.questName}' 납입 성공!");
-            
-            // 납입 성공 후 가용성 갱신 (선택적)
-            UpdateAllItemsAvailability();
-    }
+    // ❌ OnSubmitButtonClicked 함수 제거
+    // private void OnSubmitButtonClicked()
+    // {
+    //     // 이 로직은 이제 ShelterSubmitItem.OnClick() 내부에서 처리됩니다.
+    // }
 }

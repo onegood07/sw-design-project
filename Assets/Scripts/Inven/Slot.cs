@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// 인벤토리 UI 한 칸을 나타내며 아이콘 표시/드랍 교환을 처리합니다.
+/// 인벤토리 UI 한 칸을 나타내며 아이콘 표시/드랍 이동을 처리합니다.
 /// </summary>
 public class Slot : MonoBehaviour, IDropHandler
 {
@@ -91,7 +91,7 @@ public class Slot : MonoBehaviour, IDropHandler
 
     // 드래그된 아이템이 이 슬롯 위로 드랍되었을 때 호출됨
     /// <summary>
-    /// 다른 슬롯에서 드래그된 아이템을 받아 이동/교환합니다.
+    /// 다른 슬롯에서 드래그된 아이템을 받아 **비어 있는 슬롯으로만** 이동합니다.
     /// </summary>
     public virtual void OnDrop(PointerEventData eventData)
     {
@@ -112,18 +112,18 @@ public class Slot : MonoBehaviour, IDropHandler
         if (fromIdx >= ui.slots.Length || toIdx >= ui.slots.Length) return;
 
         // 필요한 경우 리스트 크기 확장
+        // (주의: 인벤토리 슬롯 확장이 허용되지 않는 경우 이 코드는 제거해야 합니다)
         while (inven.items.Count <= Mathf.Max(fromIdx, toIdx))
             inven.items.Add(null);
 
-        // 더 이상 "스왑"은 허용하지 않고, 비어 있는 슬롯으로만 이동시킨다.
-        // 대상 슬롯이 비어 있으면 fromIdx → toIdx 로 이동, 아니면 아무 일도 하지 않음.
+        // 대상 슬롯이 비어 있으면 "이동" (fromIdx → toIdx), 아니면 아무 일도 하지 않음
         if (inven.items[toIdx] == null)
         {
+            // 인벤토리 데이터 이동 처리
             inven.items[toIdx] = inven.items[fromIdx];
             inven.items[fromIdx] = null;
 
-            // 인벤토리 데이터 변경을 알리고, InventoryUI.RedrawSlotUI 쪽에서
-            // 모든 슬롯의 item / 아이콘을 다시 그리도록 맡긴다.
+            // UI 갱신 이벤트 호출 (InventoryUI.RedrawSlotUI 등에서 처리)
             inven.onChangeItem?.Invoke();
         }
     }

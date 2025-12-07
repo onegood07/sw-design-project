@@ -82,7 +82,7 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             return;
         }
 
-        // 혹시 slot.item 이 인벤토리 데이터와 싱크가 안 맞는 경우를 대비해 한 번 동기화
+        // 혹시 slot.item 이 인벤토리 데이터와 싱크가 안 맞는 경우를 대비해 한 번 동기화 (최신 버전 추가 로직)
         if (slot.item == null && Inventory.instance != null)
         {
             int idx = slot.slotIndex;
@@ -168,7 +168,7 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
 
     /// <summary>
-    /// 외부(예: TrashZone)에서 드래그 아이콘을 원래 부모/위치로 되돌리고 싶을 때 호출합니다.
+    /// 외부(예: TrashZone)에서 드래그 아이콘을 원래 부모/위치로 되돌리고 싶을 때 호출합니다. (최신 버전 추가 함수)
     /// </summary>
     public void RestoreToOriginal()
     {

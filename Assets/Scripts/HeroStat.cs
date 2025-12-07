@@ -61,6 +61,21 @@ public class HeroStat : MonoBehaviour
         if (hunger <= 100) speed = 100;
     }
 
+    // 🌟 [추가] HP 회복 로직 (Heal 메서드)
+    public void Heal(float amount)
+    {
+        if (!isSurvival) return;
+
+        hp += amount;
+        
+        // Max HP를 초과하지 않도록 보정
+        if (hp > maxHp)
+        {
+            hp = maxHp;
+        }
+        Debug.Log($"HP 회복: +{amount}. 현재 HP: {hp}/{maxHp}");
+    }
+
     // 생명력 감소 로직
     public void decreaseHp(float zombiePower)
     {
@@ -70,10 +85,15 @@ public class HeroStat : MonoBehaviour
 
         if (hp <= 0 && isSurvival) 
         {
+            hp = 0; // HP를 0으로 고정
             isSurvival = false;
             Debug.Log("플레이어 사망!");
             // 플레이어 사망 시에 GameManager의 플레이어 사망 로직 불러오기
-            GameManager.Instance?.PlayerDied();
+            // GameManager가 싱글톤임을 가정합니다.
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.PlayerDied();
+            }
         }
     }
 
@@ -154,4 +174,3 @@ public class HeroStat : MonoBehaviour
         }
     }
 }
-

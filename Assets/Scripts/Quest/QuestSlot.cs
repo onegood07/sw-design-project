@@ -25,7 +25,28 @@ public class QuestSlot : Slot
     [HideInInspector] public InventoryItem temporaryItem = null;
     [HideInInspector] public int temporaryItemIndex = -1; 
     
+    // QuestSlot의 Raycast Target을 담당하는 Image 컴포넌트 (슬롯 배경)
+    private Image slotBackground;
+
     // 가정: itemIcon과 itemCountText는 부모 클래스 Slot에 정의되어 있습니다.
+
+    void Awake()
+    {
+        // 슬롯 자체의 Image 컴포넌트를 가져옴
+        slotBackground = GetComponent<Image>();
+        
+        // ⭐ [추가된 로직] 슬롯이 항상 드롭 가능하도록 Raycast Target을 강제로 활성화
+        if (slotBackground != null)
+        {
+            // 이 설정을 통해 itemIcon의 SetActive 상태와 무관하게 슬롯 영역 클릭 가능
+            slotBackground.raycastTarget = true;
+            // Debug.Log("[QuestSlot] 배경 Raycast Target 활성화됨."); 
+        }
+        else
+        {
+             Debug.LogWarning("[QuestSlot] QuestSlot에 Image 컴포넌트를 찾을 수 없습니다. 드롭 이벤트가 작동하지 않을 수 있습니다.");
+        }
+    }
     
     /// <summary>
     /// QuestData 객체를 주입받아 슬롯을 초기화하는 함수.
@@ -152,7 +173,11 @@ public class QuestSlot : Slot
         UpdateQuestSlotUI(temporaryItem); 
         
         // ⭐ QuestManager에게 제출 완료 알림 (보상 지급 트리거)
-        QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this);
+        // QuestManager.instance는 외부에서 참조 가능하다고 가정합니다.
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this);
+        }
         
         ClearTemporarySlot(); // 임시 배치 상태 해제
         

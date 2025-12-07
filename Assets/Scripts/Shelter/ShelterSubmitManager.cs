@@ -29,13 +29,15 @@ public class ShelterSubmitManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 납입 UI 열기
+    /// 납입 UI 열기 (인자 없이 호출)
     /// </summary>
-    public void OpenSubmitUI(QuestData[] recipes)
+    public void OpenSubmitUI()
     {
         if (submitUI != null)
         {
-            submitUI.Show(recipes);
+            // ShelterSubmitUI.Show()를 인자 없이 호출합니다.
+            // ShelterSubmitUI는 내부에서 GameManager 데이터를 로드합니다.
+            submitUI.Show(); 
             Debug.Log("[ShelterSubmitManager] 납입 UI 활성화");
         }
     }
