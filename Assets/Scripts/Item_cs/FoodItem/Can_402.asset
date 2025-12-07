@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Can_402
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 402
+  Score: 5
   Description: "\uD1B5\uC870\uB9BC"
   Icon: {fileID: 0}
   MaxStackCount: 99

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: FirstAidKit_203
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 203
+  Score: 10
   Description: "\uC751\uAE09 \uAD6C\uAE09\uC0C1\uC790"
   Icon: {fileID: 0}
   MaxStackCount: 99

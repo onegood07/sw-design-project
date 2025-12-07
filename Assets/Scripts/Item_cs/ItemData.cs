@@ -14,6 +14,16 @@ public abstract class ItemData : ScriptableObject
             return ItemName;
         }
     }
+    [Header("납입아이템의 경우 점수")]
+    [SerializeField]private int Score;
+    public int getScore
+    {
+        get
+        {
+            return Score;
+        }
+    }
+
 
     // 아이템 상세 설명
     [Header("아이템 설명")]

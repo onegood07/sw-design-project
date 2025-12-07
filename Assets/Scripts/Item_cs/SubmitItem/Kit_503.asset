@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Kit_503
   m_EditorClassIdentifier: Assembly-CSharp::SubmitData
   ItemName: 503
+  Score: 10
   Description: "\uC758\uB8CC\uC6A9 \uD0A4\uD2B8"
   Icon: {fileID: 0}
   MaxStackCount: 0
   isAvailable: 0
-  coolTime: 0
+  originCoolTime: 0

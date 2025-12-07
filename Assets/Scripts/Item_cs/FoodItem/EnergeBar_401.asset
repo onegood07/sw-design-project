@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: EnergeBar_401
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 401
+  Score: 5
   Description: "\uC5D0\uB108\uC9C0 \uBC14"
   Icon: {fileID: 0}
   MaxStackCount: 99

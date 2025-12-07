@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Band_200
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 200
+  Score: 3
   Description: "\uBD95\uB300"
   Icon: {fileID: 0}
   MaxStackCount: 0
