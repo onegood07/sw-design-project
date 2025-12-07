@@ -115,20 +115,16 @@ public class Slot : MonoBehaviour, IDropHandler
         while (inven.items.Count <= Mathf.Max(fromIdx, toIdx))
             inven.items.Add(null);
 
-        // 대상 슬롯이 비어 있으면 "이동", 아니면 "교환"
+        // 더 이상 "스왑"은 허용하지 않고, 비어 있는 슬롯으로만 이동시킨다.
+        // 대상 슬롯이 비어 있으면 fromIdx → toIdx 로 이동, 아니면 아무 일도 하지 않음.
         if (inven.items[toIdx] == null)
         {
             inven.items[toIdx] = inven.items[fromIdx];
             inven.items[fromIdx] = null;
-        }
-        else
-        {
-            var temp = inven.items[fromIdx];
-            inven.items[fromIdx] = inven.items[toIdx];
-            inven.items[toIdx] = temp;
-        }
 
-        // UI 갱신 이벤트 호출
-        inven.onChangeItem?.Invoke();
+            // 인벤토리 데이터 변경을 알리고, InventoryUI.RedrawSlotUI 쪽에서
+            // 모든 슬롯의 item / 아이콘을 다시 그리도록 맡긴다.
+            inven.onChangeItem?.Invoke();
+        }
     }
 }

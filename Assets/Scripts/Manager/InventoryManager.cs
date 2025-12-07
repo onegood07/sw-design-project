@@ -167,6 +167,25 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 인벤토리 쪽에서 특정 슬롯이 완전히 비워졌을 때 호출해 주면,
+    /// 해당 슬롯을 참조하던 퀵슬롯들을 함께 정리합니다.
+    /// (예: 인벤토리에서 아이템을 버렸을 때, 연동된 퀵슬롯도 같이 비우기)
+    /// </summary>
+    public void OnInventorySlotCleared(int inventoryIndex)
+    {
+        if (inventoryIndex < 0)
+            return;
+
+        for (int i = 0; i < quickSlotInventoryIndices.Length; i++)
+        {
+            if (quickSlotInventoryIndices[i] == inventoryIndex)
+            {
+                ClearQuickSlotData(i);
+            }
+        }
+    }
+
     // 퀵슬롯에 남아 있는 개수를 반환합니다.
     public int GetQuickSlotCount(int slotNum)
     {
@@ -220,6 +239,24 @@ public class InventoryManager : MonoBehaviour
         if (slot != null)
         {
             slot.ClearSlotVisual();
+        }
+    }
+
+    /// <summary>
+    /// 인벤토리 내부에서 아이템 순서를 앞으로 당길 때(압축할 때),
+    /// 특정 인덱스에 있던 아이템이 새 인덱스로 이동했음을 퀵슬롯에 알려줍니다.
+    /// </summary>
+    public void OnInventorySlotMoved(int oldIndex, int newIndex)
+    {
+        if (oldIndex == newIndex || oldIndex < 0 || newIndex < 0)
+            return;
+
+        for (int i = 0; i < quickSlotInventoryIndices.Length; i++)
+        {
+            if (quickSlotInventoryIndices[i] == oldIndex)
+            {
+                quickSlotInventoryIndices[i] = newIndex;
+            }
         }
     }
 }

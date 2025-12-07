@@ -47,7 +47,22 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         } else {
             Debug.Log("[ItemDragHandler.Awake] Canvas 컴포넌트 발견: " + canvas.name, this);
         }
+    }
 
+    /// <summary>
+    /// 아이콘이 다시 활성화될 때마다 레이캐스트를 복구해서 드래그가 막히지 않도록 한다.
+    /// (TrashZone에서 버리는 과정 중 OnEndDrag가 호출되지 않으면 blocksRaycasts 가 false로 남을 수 있음)
+    /// </summary>
+    void OnEnable()
+    {
+        if (canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>();
+
+        if (canvasGroup != null)
+            canvasGroup.blocksRaycasts = true;
+
+        if (currentlyDragging == this)
+            currentlyDragging = null;
     }
 
     /// <summary>
@@ -66,6 +81,17 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             Debug.LogWarning("OnBeginDrag: canvas가 null이어서 드래그를 시작할 수 없습니다. 객체: " + gameObject.name);
             return;
         }
+
+        // 혹시 slot.item 이 인벤토리 데이터와 싱크가 안 맞는 경우를 대비해 한 번 동기화
+        if (slot.item == null && Inventory.instance != null)
+        {
+            int idx = slot.slotIndex;
+            if (idx >= 0 && idx < Inventory.instance.items.Count)
+            {
+                slot.item = Inventory.instance.items[idx];
+            }
+        }
+
         if (slot.item == null) // ★ InventoryItem 기준
         {
             Debug.LogWarning("OnBeginDrag: slot.item이 null이어서 드래그를 시작할 수 없습니다. (슬롯이 비어있음) 객체: " + gameObject.name);
@@ -139,5 +165,19 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         rectTransform.anchoredPosition = originalPos;
 
         currentlyDragging = null;
+    }
+
+    /// <summary>
+    /// 외부(예: TrashZone)에서 드래그 아이콘을 원래 부모/위치로 되돌리고 싶을 때 호출합니다.
+    /// </summary>
+    public void RestoreToOriginal()
+    {
+        if (rectTransform == null)
+            return;
+
+        if (originalParent != null)
+            transform.SetParent(originalParent, true);
+
+        rectTransform.anchoredPosition = originalPos;
     }
 }
