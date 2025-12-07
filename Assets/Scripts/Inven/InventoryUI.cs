@@ -7,7 +7,6 @@ using UnityEngine.UI;
 /// </summary>
 public class InventoryUI : MonoBehaviour
 {
-    // ✅ 싱글톤 인스턴스
     public static InventoryUI instance;
     
     Inventory inven;
@@ -138,5 +137,15 @@ public class InventoryUI : MonoBehaviour
             slots[i].item = inven.items[i];
             slots[i].UpdateSlotUI();
         }
+    }
+
+    /// <summary>
+    /// 버튼 등에서 호출하여 인벤토리 아이템들을 앞쪽으로 압축(빈칸 제거)합니다.
+    /// </summary>
+    public void CompactInventory()
+    {
+        if (inven == null) return;
+
+        inven.CompactItems();
     }
 }

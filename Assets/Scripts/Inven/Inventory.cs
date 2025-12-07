@@ -167,4 +167,36 @@ public class Inventory : MonoBehaviour
     }
 
     // 3. 중복되는 AddItem(Item, int) 오버로드는 기존 AddItem이 처리하므로 삭제함.
+
+    /// <summary>
+    /// 인벤토리 리스트에서 null 슬롯을 제거하고, 남은 아이템들을 앞쪽으로 당겨 재배치합니다.
+    /// (아이템 순서는 유지, 퀵슬롯과의 인덱스 연동도 갱신)
+    /// </summary>
+    public void CompactItems()
+    {
+        if (items == null || items.Count == 0)
+            return;
+
+        List<InventoryItem> newItems = new List<InventoryItem>(items.Count);
+
+        for (int oldIndex = 0; oldIndex < items.Count; oldIndex++)
+        {
+            var it = items[oldIndex];
+            if (it == null)
+                continue;
+
+            int newIndex = newItems.Count;
+            newItems.Add(it);
+
+            // 퀵슬롯에서 이 인덱스를 참조하고 있다면 새 인덱스로 갱신
+            if (InventoryManager.Instance != null)
+            {
+                InventoryManager.Instance.OnInventorySlotMoved(oldIndex, newIndex);
+            }
+        }
+
+        items = newItems;
+
+        onChangeItem?.Invoke();
+    }
 }

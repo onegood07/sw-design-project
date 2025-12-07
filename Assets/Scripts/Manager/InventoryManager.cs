@@ -241,4 +241,22 @@ public class InventoryManager : MonoBehaviour
             slot.ClearSlotVisual();
         }
     }
+
+    /// <summary>
+    /// 인벤토리 내부에서 아이템 순서를 앞으로 당길 때(압축할 때),
+    /// 특정 인덱스에 있던 아이템이 새 인덱스로 이동했음을 퀵슬롯에 알려줍니다.
+    /// </summary>
+    public void OnInventorySlotMoved(int oldIndex, int newIndex)
+    {
+        if (oldIndex == newIndex || oldIndex < 0 || newIndex < 0)
+            return;
+
+        for (int i = 0; i < quickSlotInventoryIndices.Length; i++)
+        {
+            if (quickSlotInventoryIndices[i] == oldIndex)
+            {
+                quickSlotInventoryIndices[i] = newIndex;
+            }
+        }
+    }
 }
