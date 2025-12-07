@@ -25,6 +25,8 @@ public class DialogueManager : MonoBehaviour
 
         IsDialogueActive = true; 
 
+        GameManager.Instance?.StartInteraction();
+
         if (DialogueUI.Instance == null)
         {
             DialogueUI ui = FindAnyObjectByType<DialogueUI>(FindObjectsInactive.Include); 
@@ -100,6 +102,7 @@ public class DialogueManager : MonoBehaviour
         ShowNode(currentNodeIndex);
 
         IsDialogueActive = true;
+        GameManager.Instance?.StartInteraction();
         Debug.Log($"[DialogueManager] 퀘스트 완료 후 노드 {nodeIndex}에서 대화를 재개합니다.");
     }
     
@@ -147,5 +150,6 @@ public class DialogueManager : MonoBehaviour
         }
 
         IsDialogueActive = false;
+        GameManager.Instance?.EndInteraction();
     }
 }

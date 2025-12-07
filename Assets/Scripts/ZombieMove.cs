@@ -42,7 +42,7 @@ public class ZombieMove : MonoBehaviour
     // 직전 프레임에 공격 범위 안에 있었는지
     bool inAttackRange = false;
 
-    public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
+    // public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
 
     // 이동 방향에 따라 애니메이션 bool을 설정하는 함수
     void SetAnimDirection(Vector2Int dir)
@@ -168,7 +168,9 @@ public class ZombieMove : MonoBehaviour
     // 메인 루프
     void FixedUpdate()
     {
-       if (!isLive || isInDialogue) // isInDialogue일 때 좀비 움직임 정지
+        bool dialogueActive = GameManager.Instance != null && GameManager.Instance.IsDialogueActive;
+
+       if (!isLive || dialogueActive) // isInDialogue일 때 좀비 움직임 정지
     {
         // Rigidbody 속도 초기화 (물리적 움직임 방지)
         if (zombie != null)
