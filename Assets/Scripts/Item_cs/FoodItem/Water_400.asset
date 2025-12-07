@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Water_400
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 400
+  Score: 3
   Description: "\uC0DD\uC218"
   Icon: {fileID: 0}
   MaxStackCount: 99

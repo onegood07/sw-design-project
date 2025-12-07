@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Painkiller_202
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 202
+  Score: 7
   Description: "\uC9C4\uD1B5\uC81C"
   Icon: {fileID: 4475158985010180414, guid: a4d9ddf8d7e6b0146a1fdbc0159db0f4, type: 3}
   MaxStackCount: 99
