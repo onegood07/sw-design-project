@@ -85,7 +85,8 @@ public class Inventory : MonoBehaviour
     }
 
     /// <summary>
-    /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다. (기존 ConsumeItemAt 유지)
+    /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다.
+    /// 슬롯이 완전히 비워지면, 해당 인덱스를 참조하고 있던 퀵슬롯도 함께 정리합니다.
     /// </summary>
     public int ConsumeItemAt(int index, int amount = 1)
     {
@@ -98,6 +99,12 @@ public class Inventory : MonoBehaviour
         {
             items[index] = null;
             item.count = 0;
+
+            // 이 인벤토리 슬롯을 참조하던 퀵슬롯이 있으면 함께 비워준다.
+            if (InventoryManager.Instance != null)
+            {
+                InventoryManager.Instance.OnInventorySlotCleared(index);
+            }
         }
 
         onChangeItem?.Invoke();
