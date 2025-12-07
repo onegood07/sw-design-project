@@ -77,8 +77,8 @@ public class GameManager : MonoBehaviour
     
     // 일차 변경 UI 설정
     [Header("Day Change UI")]
-    public GameObject DayChangePanel;      
-    public Text DayChangeText; 
+    public GameObject DayChangePanel;      // 인스펙터에 할당되어야 합니다.
+    public Text DayChangeText;             // 인스펙터에 할당되어야 합니다.
     public float DayChangeDisplayTime = 3.0f;
     public float SlideDuration = 0.5f; 
 
@@ -88,10 +88,14 @@ public class GameManager : MonoBehaviour
     private RectTransform dayChangeRectTransform; 
     // CanvasGroup 참조
     private CanvasGroup dayChangeCanvasGroup; 
+    
+    // ⭐ 추가: 초기 중앙 위치 저장용 변수
+    private Vector2 initialMidPosition; 
 
     // 대화창 관련 플래그
     public bool IsDialogueActive { get; private set; } = false;
 
+    // MARK: Awake 함수 (UI 초기화 로직 수정)
     void Awake()
     {
         CurrentEnding = GameEnding.None;
@@ -104,12 +108,19 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject); 
         }
-
+        
+        // ⭐ 수정 1: Awake에서 SetActive(false) 제거. 씬 로드 시에 처리합니다.
+        // DayChangePanel이 DontDestroyOnLoad 되지 않기 때문에, 첫 씬 로드 시의 참조만 잡아둡니다.
         if (DayChangePanel != null)
         {
-            DayChangePanel.SetActive(false);
             // RectTransform 초기화 및 저장
             dayChangeRectTransform = DayChangePanel.GetComponent<RectTransform>(); 
+            
+            // ⭐ 추가: 첫 씬 로드 시의 중앙 위치를 저장합니다.
+            if (dayChangeRectTransform != null)
+            {
+                initialMidPosition = dayChangeRectTransform.anchoredPosition;
+            }
             
             // CanvasGroup 초기화 및 저장 (없으면 추가)
             dayChangeCanvasGroup = DayChangePanel.GetComponent<CanvasGroup>();
@@ -120,7 +131,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-  IEnumerator Start()
+    IEnumerator Start()
     {
         CurrentDay = GameDays.FirstDay;
         CurrentPhase = Phase.Day;
@@ -183,6 +194,7 @@ public class GameManager : MonoBehaviour
         {
             // LightController가 외부에서 정의되어 있다고 가정합니다.
          
+            // LightController.Instance는 GameManager와 별도로 구현되어야 합니다.
             if (LightController.Instance != null)
             {
                 LightController.Instance.UpdateGlobalLight(CurrentPhase); 
@@ -213,7 +225,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(nightDuration); 
 
             // 2. 다음 날로 전환 (점수 계산 및 날짜 업데이트)
-            NextDay();
+            NextDay(); 
             
             // 4일차 종료 시 루프 종료
             if (CurrentDay > GameDays.FourthDay) break; 
@@ -223,12 +235,14 @@ public class GameManager : MonoBehaviour
             Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
             ApplyGlobalLight(); 
             StartDayPhase();    
-            yield return new WaitForSeconds(dayDuration);
+            
+            // 4. 낮 페이즈 지속 시간 동안 대기 (낮 타이머 시작)
+            yield return new WaitForSeconds(dayDuration); 
         }
 
         Debug.Log("모든 날이 종료되었습니다!");
     }
-
+    
     // MARK: 납입 점수 기준에 따른 생존자 감소 계산
     private int CalculateSurvivorLoss()
     {
@@ -482,10 +496,11 @@ void StartNightPhase()
             Item item = pair.Key;
             int submittedCount = pair.Value;
             
-            if (item != null && item.itemDataAsset != null)
-            {
-                PreviousDaySubmittedScore += submittedCount * item.itemDataAsset.getScore;
-            }
+            // Item 클래스 및 ItemDataAsset 클래스는 외부에서 정의되어 있다고 가정합니다.
+            // if (item != null && item.itemDataAsset != null)
+            // {
+            //     PreviousDaySubmittedScore += submittedCount * item.itemDataAsset.getScore;
+            // }
         }
         
         int survivorLoss = CalculateSurvivorLoss();
@@ -512,7 +527,14 @@ void StartNightPhase()
 
         if (CurrentDay != previousDay && CurrentDay <= GameDays.FourthDay)
         {
-            GenerateRequiredItems();
+            // 일차 변경 시 모든 아이템/NPC 영구 데이터 및 현재 씬 오브젝트 초기화
+            if (spawnManager != null)
+            {
+                spawnManager.ResetPersistentData();
+                Debug.Log("[GameManager] 일차 변경으로 아이템/NPC/좀비 영구 데이터 및 씬 오브젝트 초기화 완료.");
+            }
+            
+            GenerateRequiredItems(); 
             ShowDayChangeMessage(CurrentDay, survivorLoss); 
         }
     }
@@ -520,9 +542,10 @@ void StartNightPhase()
     // MARK: 일차 변경 안내문 표시
     public void ShowDayChangeMessage(GameDays newDay, int lossCount)
     {
+        // 씬 로드 직후 DayChangePanel이 null일 수 있으므로 다시 확인
         if (DayChangePanel == null || DayChangeText == null)
         {
-            Debug.LogWarning("[GameManager] DayChange UI 참조 누락!");
+            Debug.LogWarning("[GameManager] DayChange UI 참조 누락! OnSceneLoaded 복구 로직을 확인하세요.");
             return;
         }
         
@@ -558,28 +581,26 @@ void StartNightPhase()
             yield break;
         }
     
-        // --- 🌟 [중요 수정] 위치 설정: 현재 위치를 도착점(midPos)으로 사용 ---
+        // ⭐ 수정: 중앙 도착 위치를 initialMidPosition으로 고정
+        Vector2 midPos = initialMidPosition; 
         
-        // 1. 패널의 현재 위치 (인스펙터에서 설정된 위치)를 '중앙 도착 위치'로 지정합니다.
-        //    이제 이 위치가 패널이 멈춰서 메시지를 보여줄 위치가 됩니다.
-        Vector2 midPos = dayChangeRectTransform.anchoredPosition; 
-        
-        // 2. 애니메이션의 '시작 위치'는 도착 위치(midPos)의 X축에서 오른쪽으로 800.0f 떨어진 곳으로 설정합니다.
+        // 2. 애니메이션의 '시작 위치' (오른쪽 800.0f)
         Vector2 startPos = new Vector2(midPos.x + 800.0f, midPos.y); 
-        
-        // 3. 퇴장 위치는 도착 위치(midPos)의 X축에서 왼쪽으로 -2000.0f 떨어진 곳으로 설정합니다.
+        // 3. 퇴장 위치 (왼쪽 -2000.0f)
         Vector2 endPos = new Vector2(midPos.x - 2000f, midPos.y); 
         
         dayChangeCanvasGroup.alpha = 1f;
         DayChangePanel.SetActive(true);
 
+        // 애니메이션 시작 전에 RectTransform을 시작 위치로 강제 설정
+        if (dayChangeRectTransform != null)
+        {
+            dayChangeRectTransform.anchoredPosition = startPos;
+        }
+
         // 1. 화면 중앙으로 진입 (Slide In)
         float elapsedTime = 0f;
         
-        // 시작 위치 설정 (midPos + 800.0f)
-        dayChangeRectTransform.anchoredPosition = startPos;
-        
-        // 중앙으로 진입 (midPos)
         while (elapsedTime < SlideDuration)
         {
             if (dayChangeRectTransform == null) yield break;
@@ -597,7 +618,7 @@ void StartNightPhase()
         // 2. 대기 시간
         yield return new WaitForSeconds(DayChangeDisplayTime);
         
-        // --- 3. 화면 밖 왼쪽으로 퇴장 (Slide Out and Fade Out) ---
+        // 3. 화면 밖 왼쪽으로 퇴장 (Slide Out and Fade Out)
         float fadeOutDuration = SlideDuration;
         elapsedTime = 0f;
 
@@ -607,7 +628,7 @@ void StartNightPhase()
             
             float t = elapsedTime / fadeOutDuration;
             
-            // 위치 이동 (midPos에서 endPos로 이동)
+            // 위치 이동
             dayChangeRectTransform.anchoredPosition = Vector2.Lerp(midPos, endPos, t);
             
             // 페이드 아웃
@@ -622,12 +643,11 @@ void StartNightPhase()
         {
             DayChangePanel.SetActive(false);
             dayChangeCanvasGroup.alpha = 1f;
-            // 애니메이션이 끝난 후 midPos로 위치를 재설정할 필요는 없으나,
-            // 다음 애니메이션 시작 시 startPos 계산을 위해 위치를 유지합니다.
         }
         
         dayChangeCoroutine = null; 
     }
+    
     private string GetDayString(GameDays day)
     {
         switch (day)
@@ -640,7 +660,7 @@ void StartNightPhase()
         }
     }
     
-    // MARK: 씬 로드 시 실행 (UI 참조 복구 로직 유지)
+    // MARK: 씬 로드 시 실행 (UI 참조 복구 로직 강화)
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         IsInShelter = (scene.name == ShelterSceneName); 
@@ -653,27 +673,45 @@ void StartNightPhase()
                 Debug.LogWarning("[GameManager] Main 씬이 로드되었으나 SpawnManager를 찾을 수 없습니다.");
             }
             
-            // Main 씬 로드 시 UI 컴포넌트 참조 복구
+            // ⭐ 수정 2: DayChangePanel이 null이 되었을 경우 씬에서 다시 찾아서 할당합니다.
             if (DayChangePanel == null)
             {
-                // DayChangePanel GameObject를 씬에서 찾는 로직이 필요합니다.
-                if (DayChangePanel == null)
+                // DayChangePanel은 인스펙터에 할당되지만, 씬 전환 시 파괴되므로 이름으로 다시 찾습니다.
+                // 주의: Hierarchy에서 DayChangePanel의 정확한 이름을 사용해야 합니다. 
+                GameObject newPanelObject = GameObject.Find("DayChangePanel"); 
+                
+                if (newPanelObject != null)
                 {
-                    Debug.LogWarning("[GameManager] Main 씬 로드 후 DayChangePanel 참조를 복구하지 못했습니다. 인스펙터 할당을 확인하세요.");
+                    DayChangePanel = newPanelObject;
+                    DayChangeText = DayChangePanel.GetComponentInChildren<Text>(); 
+                    dayChangeRectTransform = DayChangePanel.GetComponent<RectTransform>(); 
+                    dayChangeCanvasGroup = DayChangePanel.GetComponent<CanvasGroup>();
+                    
+                    // CanvasGroup이 없으면 추가
+                    if (dayChangeCanvasGroup == null)
+                    {
+                         dayChangeCanvasGroup = DayChangePanel.AddComponent<CanvasGroup>();
+                    }
+                    
+                    // ⭐ 추가: RectTransform 위치를 저장된 초기 위치로 강제 복원
+                    if (dayChangeRectTransform != null)
+                    {
+                        dayChangeRectTransform.anchoredPosition = initialMidPosition;
+                        Debug.Log($"[GameManager] UI 위치 강제 복원 완료: {initialMidPosition}");
+                    }
+                    
+                    Debug.Log("[GameManager] Main 씬 로드 후 UI 참조 복구 완료.");
                 }
                 else
                 {
-                    // UI 컴포넌트 참조 복구
-                    dayChangeRectTransform = DayChangePanel.GetComponent<RectTransform>(); 
-                    dayChangeCanvasGroup = DayChangePanel.GetComponent<CanvasGroup>();
-                    if (dayChangeCanvasGroup == null)
-                    {
-                        dayChangeCanvasGroup = DayChangePanel.AddComponent<CanvasGroup>();
-                    }
-                    DayChangeText = DayChangePanel.GetComponentInChildren<Text>(); 
-                    DayChangePanel.SetActive(false);
-                    Debug.Log("[GameManager] Main 씬 UI 참조 복구 완료.");
+                    Debug.LogWarning("[GameManager] Main 씬 로드 후 DayChangePanel을 찾을 수 없습니다. Hierarchy 이름이 정확한지 확인하세요!");
                 }
+            }
+
+            // 씬 로드 시 DayChangePanel이 비활성화 상태로 시작하도록 설정
+            if (DayChangePanel != null)
+            {
+                DayChangePanel.SetActive(false);
             }
         } 
         else 
@@ -682,6 +720,39 @@ void StartNightPhase()
         }
 
         ApplyGlobalLight(); 
+    }
+
+    public void ResetGameSession()
+    {
+        Debug.Log("=========================================");
+        Debug.Log("[GameManager] 전체 게임 세션 초기화 시작.");
+        
+        // 1. 상태 변수 초기화
+        CurrentEnding = GameEnding.None;
+        CurrentDay = GameDays.FirstDay;
+        CurrentPhase = Phase.Day;
+        IsInShelter = false;
+        IsDialogueActive = false;
+        
+        // 2. 스폰/생존자/점수 초기화
+        CurrentZombieSpawnCount = BaseZombieSpawnCount;
+        SurvivorCount = InitialSurvivorCount;
+        ShelterItemScore = 0;
+        PreviousDayTargetScore = 0; 
+        PreviousDaySubmittedScore = 0; 
+
+        // 3. 납입 데이터 초기화
+        CurrentRequiredItemsData.Clear();
+        CurrentSubmittedData.Clear();
+        
+        // 4. SpawnManager 영구 데이터 초기화
+        if (spawnManager != null)
+        {
+            spawnManager.ResetPersistentData();
+        }
+        
+        Debug.Log("[GameManager] 전체 게임 세션 초기화 완료.");
+        Debug.Log("=========================================");
     }
 
     // 대화 시작 시 호출

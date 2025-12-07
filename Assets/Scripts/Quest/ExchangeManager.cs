@@ -37,6 +37,7 @@ public class ExchangeManager : MonoBehaviour
         exchangeUI.Hide();
     }
 
+    // ───────────────────────────────
     /// <summary>
     /// 대상 NPC & 레시피 전달 후 UI 활성화
     /// </summary>
@@ -49,10 +50,15 @@ public class ExchangeManager : MonoBehaviour
 
             exchangeUI.Show(currentRecipes);
 
+            // ⭐ 추가: GameManager에 상호작용 시작 알림 (좀비/플레이어 행동 정지)
+            GameManager.Instance?.StartInteraction();
+            Debug.Log("[ExchangeManager] GameManager.StartInteraction() 호출 완료.");
+
             Debug.Log($"[ExchangeManager] 교환 UI 활성화 및 {recipes.Length}개의 레시피 로드.");
         }
     }
 
+    // ───────────────────────────────
     /// <summary>
     /// 교환 UI 종료 요청
     /// </summary>
@@ -69,11 +75,16 @@ public class ExchangeManager : MonoBehaviour
             }
 
             currentRecipes = null;
+            
+            // ⭐ 추가: GameManager에 상호작용 종료 알림 (좀비/플레이어 행동 재개)
+            GameManager.Instance?.EndInteraction();
+            Debug.Log("[ExchangeManager] GameManager.EndInteraction() 호출 완료.");
 
             Debug.Log("[ExchangeManager] 교환 UI 비활성화 및 NPC 종료 알림");
         }
     }
 
+    // ───────────────────────────────
     /// <summary>
     /// 교환 성공 시 레시피 목록에서 가용성 갱신
     /// </summary>

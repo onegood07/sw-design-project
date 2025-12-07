@@ -78225,7 +78225,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -230, y: -100}
+  m_AnchoredPosition: {x: -318, y: -100}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &720319384
@@ -78250,7 +78250,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: ee61a054f43f9f94cb8dbae068c9bf07, type: 3}
-    m_FontSize: 20
+    m_FontSize: 24
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
@@ -94316,7 +94316,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: 80}
+  m_AnchoredPosition: {x: 700, y: 95.2}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1183453553
@@ -94791,11 +94791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   AvailableSubmitItems:
-  - {fileID: 6018710217024802697, guid: 4734e92c3af77494f87d488d8e0d6f75, type: 3}
-  - {fileID: 8018865339420979663, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
   - {fileID: 1117397670487763955, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
-  - {fileID: 1117397670487763955, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
-  - {fileID: 5121982099103303279, guid: a4efe08a771fb154887b4b28ec2637d6, type: 3}
   TargetRequiredScore: 100
   MaxRequiredIncrease: 3
   NightSpeedMultiplier: 1.3
@@ -97257,7 +97253,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1674353676598910932, guid: fd60deea88bc75742bd8f1788d95557c, type: 3}
+  m_Sprite: {fileID: 4796889811297207966, guid: a55d747ea343520479b7362009ebdf8b, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -101170,7 +101166,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 260, y: 80}
+  m_AnchoredPosition: {x: 259.3, y: 92.3}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &9195548175300726455 stripped

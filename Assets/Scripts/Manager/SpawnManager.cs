@@ -214,67 +214,71 @@ public class SpawnManager : MonoBehaviour
     }
 
     // MARK: 오브젝트 스폰 공용 함수 (🌟 [수정] 지속 데이터 기록 로직 추가)
-    private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> availablePositions, List<GameObject> outputList, ItemType? type = null)
+  // SpawnManager.cs
+
+private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> availablePositions, List<GameObject> outputList, ItemType? type = null)
+{
+    List<Vector3> usedPositions = new List<Vector3>();
+    List<Vector3> copy = new List<Vector3>(availablePositions);
+    
+    // ❌ isDialogueActive 변수를 사용하여 좀비를 수동으로 잠글 필요가 없어졌습니다.
+    // bool isDialogueActive = DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive; 
+    
+    // Item/NPC 프리팹 이름 가져오기
+    string prefabName = prefab.name;
+
+    for (int i = 0; i < count; i++)
     {
-        List<Vector3> usedPositions = new List<Vector3>();
-        List<Vector3> copy = new List<Vector3>(availablePositions);
-        
-        bool isDialogueActive = DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive;
-        
-        // Item/NPC 프리팹 이름 가져오기
-        string prefabName = prefab.name;
+        if (copy.Count == 0) break; 
 
-        for (int i = 0; i < count; i++)
+        int index = Random.Range(0, copy.Count); 
+        Vector3 spawnPos = copy[index];
+        GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity); 
+
+        outputList.Add(obj); 
+
+        // 아이템일 경우 ItemManager에 등록 및 Persistent Item Data 기록
+        if (type.HasValue && itemManager != null)
         {
-            if (copy.Count == 0) break; 
-
-            int index = Random.Range(0, copy.Count); 
-            Vector3 spawnPos = copy[index];
-            GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity); 
-
-            outputList.Add(obj); 
-
-            // 아이템일 경우 ItemManager에 등록 및 Persistent Item Data 기록
-            if (type.HasValue && itemManager != null)
-            {
-                itemManager.RegisterSpawnedItem(obj, type.Value);
-                
-                // 🌟 Persistent Item Data 기록
-                persistentItems.Add(new PersistentItemData
-                {
-                    position = spawnPos,
-                    prefabName = prefabName,
-                    type = type.Value
-                });
-            }
-            // NPC일 경우 Persistent NPC Data 기록 (type이 null이면서 NPC 프리팹인 경우)
-            else if (type == null && outputList == spawnedNPCs)
-            {
-                // 🌟 Persistent NPC Data 기록
-                persistentNPCs.Add(new PersistentNPCData
-                {
-                    position = spawnPos,
-                    prefabName = prefabName
-                });
-            }
+            itemManager.RegisterSpawnedItem(obj, type.Value);
             
-            // 대화 중 상태 적용 (좀비인 경우만 해당)
-            if (isDialogueActive)
+            // 🌟 Persistent Item Data 기록
+            persistentItems.Add(new PersistentItemData
             {
-                var zombieMove = obj.GetComponent<ZombieMove>(); 
-                if (zombieMove != null) { zombieMove.isInDialogue = true; }
-                
-                var zombieNavMove = obj.GetComponent<ZombieNavMove>(); 
-                if (zombieNavMove != null) { zombieNavMove.isInDialogue = true; }
-            }
-
-            usedPositions.Add(spawnPos);
-            copy.RemoveAt(index); 
+                position = spawnPos,
+                prefabName = prefabName,
+                type = type.Value
+            });
         }
+        // NPC일 경우 Persistent NPC Data 기록 (type이 null이면서 NPC 프리팹인 경우)
+        else if (type == null && outputList == spawnedNPCs)
+        {
+            // 🌟 Persistent NPC Data 기록
+            persistentNPCs.Add(new PersistentNPCData
+            {
+                position = spawnPos,
+                prefabName = prefabName
+            });
+        }
+        
+        // ❌ 좀비 정지 로직 제거 (이제 GameManager 상태에 따라 좀비 스스로 정지합니다.)
+        /*
+        if (isDialogueActive)
+        {
+            var zombieMove = obj.GetComponent<ZombieMove>(); 
+            if (zombieMove != null) { zombieMove.isInDialogue = true; }
+            
+            var zombieNavMove = obj.GetComponent<ZombieNavMove>(); 
+            if (zombieNavMove != null) { zombieNavMove.isInDialogue = true; }
+        }
+        */
 
-        return usedPositions; 
+        usedPositions.Add(spawnPos);
+        copy.RemoveAt(index); 
     }
 
+    return usedPositions; 
+}
     // MARK: - 🌟 [추가] 지속 오브젝트 복원 함수
     public void RestorePersistentObjects()
     {
@@ -545,4 +549,17 @@ public class SpawnManager : MonoBehaviour
             if (npc != null) Destroy(npc);
         spawnedNPCs.Clear();
     }
+
+    // MARK: - 영구 데이터 초기화 함수
+    public void ResetPersistentData()
+{
+    // 영구 데이터 리스트를 비웁니다.
+    persistentItems.Clear();
+    persistentNPCs.Clear();
+    
+    // 현재 씬에 스폰된 모든 오브젝트를 클리어합니다.
+    ClearAll(); 
+    
+    Debug.Log("[SpawnManager] 모든 영구 스폰 데이터(아이템, NPC)가 초기화되었습니다.");
+}
 }
