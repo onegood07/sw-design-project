@@ -93936,7 +93936,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1154482402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94791,11 +94791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   AvailableSubmitItems:
-  - {fileID: 6018710217024802697, guid: 4734e92c3af77494f87d488d8e0d6f75, type: 3}
-  - {fileID: 8018865339420979663, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
   - {fileID: 1117397670487763955, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
-  - {fileID: 1117397670487763955, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
-  - {fileID: 5121982099103303279, guid: a4efe08a771fb154887b4b28ec2637d6, type: 3}
   TargetRequiredScore: 100
   MaxRequiredIncrease: 3
   NightSpeedMultiplier: 1.3
@@ -101153,7 +101149,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8107305774188148978
 RectTransform:
   m_ObjectHideFlags: 0

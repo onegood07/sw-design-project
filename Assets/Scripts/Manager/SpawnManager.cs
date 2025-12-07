@@ -549,4 +549,17 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
             if (npc != null) Destroy(npc);
         spawnedNPCs.Clear();
     }
+
+    // MARK: - 영구 데이터 초기화 함수
+    public void ResetPersistentData()
+{
+    // 영구 데이터 리스트를 비웁니다.
+    persistentItems.Clear();
+    persistentNPCs.Clear();
+    
+    // 현재 씬에 스폰된 모든 오브젝트를 클리어합니다.
+    ClearAll(); 
+    
+    Debug.Log("[SpawnManager] 모든 영구 스폰 데이터(아이템, NPC)가 초기화되었습니다.");
+}
 }
