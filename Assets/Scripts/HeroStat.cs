@@ -7,14 +7,17 @@ public class HeroStat : MonoBehaviour
 
     // 생명력
     public float hp;
+    public float baseHp = 1000f;
     public float maxHp = 1000f;
 
     // 허기
     public float hunger;
+    public float baseHunger = 1000f;
     public float maxHunger = 1000f;
 
     // 이동속도
-    public float speed;
+    public float speed = 1000f;
+    public float baseSpeed = 1000f;
     public bool isSurvival;
 
     // 부스트 코루틴 활성 여부
@@ -88,9 +91,13 @@ public class HeroStat : MonoBehaviour
     */
     IEnumerator HeroSpeedBoostCoroutine(float duration, float percentage)
     {
-        var mul = speed*percentage/100;
-        Debug.Log("이동속도 증가");
+        var mul = baseSpeed*percentage/100;
+        if(speed+mul > baseSpeed * 2)
+        {
+            yield break;
+        }
         speed += mul;
+        Debug.Log("이동속도 증가");
 
         // 지정 시간 동안 지속
         yield return new WaitForSeconds(duration);
