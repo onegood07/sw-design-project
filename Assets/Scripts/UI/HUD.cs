@@ -52,7 +52,7 @@ public class HUD : MonoBehaviour
                 break;              // 게임 매니저의 날짜 열거 변수를 받아와 적용
             
             case InfoType.NowSurvivals:     // 생존자 수 표시 - 텍스트 박스
-                myText.text = string.Format("{0}", GameManager.Instance.SurvivorScore);
+                myText.text = string.Format("{0}", GameManager.Instance.SurvivorCount);
                 break; // 게임 매니저의 "생존자 수 점수" 변수를 받아와 적용
         }
     }

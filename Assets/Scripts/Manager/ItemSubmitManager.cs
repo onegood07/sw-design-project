@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Text; 
 
+// 🚨 주의: 이 스크립트는 ItemType 기반의 Dictionary를 사용하고 있으나,
+// GameManager는 이미 Dictionary<Item, int>로 변경되었으므로,
+// ItemType 대신 Item을 처리하도록 타입을 변경해야 합니다.
 
 public class ItemSubmitManager : MonoBehaviour
 {
@@ -48,18 +51,20 @@ public class ItemSubmitManager : MonoBehaviour
         // GameManager 인스턴스 유효성 확인
         if (GameManager.Instance == null)
         {
-            Debug.LogError("[ItemSubmitManager] GameManager.Instance is null. Cannot load required items. Make sure GameManager exists and is initialized.");
+            Debug.LogError("[ItemSubmitManager] GameManager.Instance is null. Cannot load required items.");
             requiredItemsText.text = "Error: GameManager not initialized."; // 에러 표시
             return;
         }
 
-        // 납입 요구 목록 가져오기
-        Dictionary<ItemType, int> requiredItems = GameManager.Instance.CurrentRequiredItems;
+        // 납입 요구 목록 가져오기 (타입 변경 필요)
+        // ❌ 기존: Dictionary<ItemType, int> requiredItems = GameManager.Instance.CurrentRequiredItems;
+        // ✅ 수정: Dictionary<Item, int>로 타입을 바꾸고, 변수 이름을 CurrentRequiredItemsData로 변경합니다.
+        Dictionary<Item, int> requiredItemsData = GameManager.Instance.CurrentRequiredItemsData;
 
         // UI Text 컴포넌트 연결 확인
         if (requiredItemsText == null)
         {
-            Debug.LogError("[ItemSubmitManager] requiredItemsText is not assigned in the Inspector. Please link a UI Text (Legacy) component.");
+            Debug.LogError("[ItemSubmitManager] requiredItemsText is not assigned in the Inspector.");
             return;
         }
 
@@ -69,19 +74,20 @@ public class ItemSubmitManager : MonoBehaviour
         int currentDay = (int)GameManager.Instance.CurrentDay + 1;
     
         // MARK: [디버그 로그] 가져온 아이템 개수 로그
-        Debug.Log($"[ItemSubmitManager] Attempting to display {requiredItems.Count} required items.");
+        Debug.Log($"[ItemSubmitManager] Attempting to display {requiredItemsData.Count} required items.");
 
 
-        if (requiredItems.Count == 0)
+        if (requiredItemsData.Count == 0)
         {
             sb.AppendLine("\n오늘 요구되는 납입품이 없습니다.\n");
         }
         else
         {
-            foreach (var item in requiredItems)
+            // Dictionary 키가 ItemType에서 Item으로 변경되었으므로 Key.itemName을 사용합니다.
+            foreach (var item in requiredItemsData)
             {
-                // ItemType 이름과 요구 수량을 포맷 및 추가
-                sb.AppendLine($"[ {item.Key} ] : {item.Value} 개 필요");
+                // ✅ Key.itemName을 사용하여 아이템 이름을 표시합니다.
+                sb.AppendLine($"[ {item.Key.itemName} ] : {item.Value} 개 필요"); 
             }
         }
         

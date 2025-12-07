@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using System.Collections.Generic; // List를 사용하기 위해 추가 (과거 버전에서 가져옴)
 
 /// <summary>
 /// 인벤토리 패널 열기/닫기와 슬롯 UI 갱신을 담당하는 프리젠테이션 계층입니다.
 /// </summary>
 public class InventoryUI : MonoBehaviour
 {
+    // ✅ 싱글톤 인스턴스
     public static InventoryUI instance;
     
     Inventory inven;
@@ -30,6 +32,7 @@ public class InventoryUI : MonoBehaviour
     private void Start()
     {
         inven = Inventory.instance;
+        // 슬롯 컴포넌트를 모두 가져와 저장
         slots = slotHolder.GetComponentsInChildren<Slot>();
 
         // 각 슬롯에 인덱스 부여
@@ -38,16 +41,24 @@ public class InventoryUI : MonoBehaviour
             slots[i].slotIndex = i;
         }
 
+        // Inventory 데이터 변경 이벤트 구독
         inven.onSlotCountChange += SlotChange;
         inven.onChangeItem += RedrawSlotUI;
 
         // 시작하자마자 모든 슬롯 활성화
         SlotChange(slots.Length);
 
-         RedrawSlotUI(); 
+        RedrawSlotUI(); 
 
-        // 처음엔 인벤토리 비활성
-        inventoryPanel.SetActive(activeInventory);
+        // 처음엔 인벤토리 비활성 (과거 버전의 안전성 로직 반영)
+        if (inventoryPanel != null)
+        {
+            inventoryPanel.SetActive(activeInventory);
+        }
+        else
+        {
+            Debug.LogError("[InventoryUI] inventoryPanel 참조 누락!");
+        }
     }
 
     // 슬롯 개수와 관계없이 항상 전부 활성화
@@ -58,7 +69,11 @@ public class InventoryUI : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            slots[i].GetComponent<Button>().interactable = true;
+            // ⭐ 과거 버전의 안전성 로직 반영
+            if (slots[i] != null && slots[i].GetComponent<Button>() != null)
+            {
+                slots[i].GetComponent<Button>().interactable = true;
+            }
         }
     }
 
@@ -77,9 +92,11 @@ public class InventoryUI : MonoBehaviour
     public void ToggleInventory()
     {
         activeInventory = !activeInventory;
-        inventoryPanel.SetActive(activeInventory);
+        // 과거 버전의 안전성 로직 반영
+        if (inventoryPanel != null)
+            inventoryPanel.SetActive(activeInventory);
         
-        // 인벤토리가 열릴 때, 슬롯 UI를 갱신합니다. (선택적)
+        // 인벤토리가 열릴 때, 슬롯 UI를 갱신합니다.
         if(activeInventory) RedrawSlotUI();
     }
 
@@ -115,27 +132,41 @@ public class InventoryUI : MonoBehaviour
     /// </summary>
     public void AddSlot()
     {
-        // 슬롯 제한 안 쓸 거면 사실상 의미 없지만, 일단 맞춰줌
         inven.slotCnt++;
         SlotChange(slots.Length);
     }
 
     /// <summary>
-    /// 인벤토리 데이터와 UI 슬롯 간 내용을 동기화합니다.
+    /// 인벤토리 데이터와 UI 슬롯 간 내용을 동기화합니다. (과거 버전의 안전성 로직 반영)
     /// </summary>
     void RedrawSlotUI()
     {
-        // 모든 슬롯 초기화
+        if (inven == null || slots == null) return;
+        
+        // 1. 모든 슬롯을 순회하며 초기화 및 갱신
         for (int i = 0; i < slots.Length; i++)
         {
-            slots[i].RemoveSlot();
-        }
+            Slot currentSlot = slots[i];
 
-        // 인벤토리 아이템 다시 채우기
-        for (int i = 0; i < inven.items.Count && i < slots.Length; i++)
-        {
-            slots[i].item = inven.items[i];
-            slots[i].UpdateSlotUI();
+            // ⭐ 과거 버전의 핵심 안전성 로직: Slot 인스턴스 자체가 파괴되었는지 확인
+            if (currentSlot == null)
+            {
+                Debug.LogWarning($"[InventoryUI] slots[{i}] 인스턴스가 파괴되어 건너뜁니다.");
+                continue;
+            }
+
+            // 2. 인벤토리 아이템을 채웁니다.
+            if (i < inven.items.Count)
+            {
+                // 인벤토리 데이터를 슬롯에 할당하고 UI 갱신
+                currentSlot.item = inven.items[i];
+                currentSlot.UpdateSlotUI();
+            }
+            else
+            {
+                // 인벤토리 데이터가 없는 슬롯은 내용을 비웁니다.
+                currentSlot.RemoveSlot();
+            }
         }
     }
 

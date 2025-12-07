@@ -3,11 +3,14 @@ using System.Collections;
 using UnityEngine.SceneManagement; 
 using System.Collections.Generic; 
 using Random = UnityEngine.Random;
+using UnityEngine.UI; 
+using System.Linq; 
 
 // 게임 상태 관련 Enum 정의
-public enum GameEnding { None, Happy, GameOver, Bad } // 엔딩 종류
-public enum GameDays { FirstDay, SecondDay, ThirdDay, FourthDay } // 게임 일차
-public enum Phase { Day, Night } // 낮/밤 페이즈
+public enum GameEnding { None, Happy, GameOver, Bad } 
+public enum GameDays { FirstDay, SecondDay, ThirdDay, FourthDay } 
+public enum Phase { Day, Night } 
+
 
 public class GameManager : MonoBehaviour
 {
@@ -15,45 +18,52 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     // 게임 상태 변수
-    public GameEnding CurrentEnding { get; private set; } // 현재 엔딩 상태
-    public GameDays CurrentDay { get; private set; } // 현재 일차
-    public Phase CurrentPhase { get; private set; } // 현재 페이즈
+    public GameEnding CurrentEnding { get; private set; } 
+    public GameDays CurrentDay { get; private set; } 
+    public Phase CurrentPhase { get; private set; } 
 
-    public bool IsInShelter { get; set; } = false; // 현재 씬이 쉘터 내부인지 확인
+    public bool IsInShelter { get; set; } = false; 
 
     // MARK: 납입품 관련 설정
     [Header("Item Submission Settings")]
-    // 일차별로 생성된 납입 요구 아이템 목록 (아이템 타입, 요구 수량)
-    public Dictionary<ItemType, int> CurrentRequiredItems { get; private set; } = new Dictionary<ItemType, int>();
-    public int BaseRequiredAmount = 5; // 기본 요구 수량
-    public int MaxRequiredIncrease = 3; // 일차별 최대 증가 수량
+    public Item[] AvailableSubmitItems; 
+    
+    public Dictionary<Item, int> CurrentRequiredItemsData { get; private set; } = new Dictionary<Item, int>();
+    public Dictionary<Item, int> CurrentSubmittedData { get; private set; } = new Dictionary<Item, int>();
+    
+    // 납입 목표는 이제 '점수'입니다.
+    public int TargetRequiredScore = 100; 
+    public int MaxRequiredIncrease = 3; 
 
-    // MARK: 좀비 능력치 배율 설정 (밤페이즈 특수 좀비용도)
+    // MARK: 좀비 능력치 배율 설정
     [Header("Zombie Multipliers")]
-    // 밤에 적용할 이동 속도 배율 (ex. 1.5면 50% 증가)
     public float NightSpeedMultiplier = 1.3f; 
-    // 밤에 적용할 체력 배율 
     public float NightHpMultiplier = 1.2f; 
-    // 밤에 적용할 공격력 배율 
     public float NightPowerMultiplier = 1.5f; 
 
-    // 점수 관련
-    [Header("Scores")]
-    public int ShelterItemScore = 0; // 납입품 점수
-    public int SurvivorScore = 10; // 생존자 수 점수
+    // MARK: 점수 및 생존자 관련
+    [Header("Scores & Survivors")]
+    public int ShelterItemScore = 0; 
+    public int SurvivorScore = 10; 
+    public int InitialSurvivorCount = 10;     
+    [HideInInspector] public int SurvivorCount; 
+    
+    // 이전 날의 요구/납입 점수 추적
+    private int PreviousDayTargetScore = 0; 
+    private int PreviousDaySubmittedScore = 0; 
 
     // 스폰 관련 설정
     [Header("Spawn Settings")]
-    public SpawnManager spawnManager; // 스폰 관리 매니저
-    public int ItemSpawnCount = 5;    // 낮/밤 아이템 스폰 수
-    public int NPCSpawnCount = 3;     // NPC 스폰 수
-    public int BaseZombieSpawnCount = 10; // 초기 좀비 스폰 수
-    private int CurrentZombieSpawnCount;  // 현재 좀비 스폰 수
+    public SpawnManager spawnManager; 
+    public int ItemSpawnCount = 5;
+    public int NPCSpawnCount = 3;
+    public int BaseZombieSpawnCount = 10; 
+    private int CurrentZombieSpawnCount;
 
-    // 페이즈 지속 시간
+    // 페이즈 지속 시간 (시간 비율 조정: 예시로 60초/120초로 늘림)
     [Header("Phase Duration")]
-    public float dayDuration = 1.0f;
-    public float nightDuration = 20.0f;
+    public float dayDuration = 2.0f; // 낮 지속 시간
+    public float nightDuration = 20.0f; // 밤 지속 시간
     
     // 씬 이름 설정
     [Header("Scene Settings")]
@@ -62,41 +72,84 @@ public class GameManager : MonoBehaviour
 
     // 게임엔딩 UI
     [Header("GameEnding Settings")]
-    public GameObject gameOverPanel; // 게임오버 UI
-    public GameObject uiRoot;        // 기본 UI 루트
+    public GameObject gameOverPanel; 
+    public GameObject uiRoot;
+    
+    // 일차 변경 UI 설정
+    [Header("Day Change UI")]
+    public GameObject DayChangePanel;      
+    public Text DayChangeText; 
+    public float DayChangeDisplayTime = 3.0f;
+    public float SlideDuration = 0.5f; 
 
-    private Coroutine gameLoopCoroutine; // 전체 게임 루프 코루틴
+    private Coroutine gameLoopCoroutine; 
+    private Coroutine dayChangeCoroutine = null; 
+
+    private RectTransform dayChangeRectTransform; 
+    // CanvasGroup 참조
+    private CanvasGroup dayChangeCanvasGroup; 
+
+    // 대화창 관련 플래그
+    public bool IsDialogueActive { get; private set; } = false;
 
     void Awake()
     {
-        // 게임 시작 시 엔딩 초기화
         CurrentEnding = GameEnding.None;
-
-        // 싱글톤 초기화
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 씬 전환 시 파괴되지 않음
+            DontDestroyOnLoad(gameObject); 
         }
         else 
         {
-            Destroy(gameObject); // 중복 제거
+            Destroy(gameObject); 
+        }
+
+        if (DayChangePanel != null)
+        {
+            DayChangePanel.SetActive(false);
+            // RectTransform 초기화 및 저장
+            dayChangeRectTransform = DayChangePanel.GetComponent<RectTransform>(); 
+            
+            // CanvasGroup 초기화 및 저장 (없으면 추가)
+            dayChangeCanvasGroup = DayChangePanel.GetComponent<CanvasGroup>();
+            if (dayChangeCanvasGroup == null)
+            {
+                 dayChangeCanvasGroup = DayChangePanel.AddComponent<CanvasGroup>();
+            }
         }
     }
 
-    void Start()
+  IEnumerator Start()
     {
-        // 초기 게임 상태 설정 -> 1일차 낮
         CurrentDay = GameDays.FirstDay;
         CurrentPhase = Phase.Day;
 
-        CurrentZombieSpawnCount = BaseZombieSpawnCount; // 초기 좀비 수
+        CurrentZombieSpawnCount = BaseZombieSpawnCount;
+        SurvivorCount = InitialSurvivorCount; 
 
-        ApplyGlobalLight(); // 조명 반영
-        GenerateRequiredItems();  // 아이템 납입 리스트 생성
-
-        // 게임 전체 루프 시작
+        ApplyGlobalLight(); 
+        
+        // 납입 요구 목록 생성 (100점 목표)
+        GenerateRequiredItems(); 
+        
+        // 1일차 시작 메시지
+        if (DayChangePanel != null && DayChangeText != null)
+        {
+            DayChangeText.text = $"{GetDayString(CurrentDay)} 납입품 리스트는 쉘터로 복귀해서 확인해봐.";
+            
+            // UI 코루틴을 yield return 없이 시작
+            StartCoroutine(ShowDayChangeCoroutine(0)); 
+        }
+        
+        // 1일차 낮 스폰을 즉시 실행
+        Debug.Log($"☀️ [{CurrentDay}] 낮 시작! (즉시 스폰)");
+        StartDayPhase(); 
+        
+        // UI 대기 없이 게임 루프 시작
         gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
+        
+        yield break;
     }
 
     // MARK: 플레이어 사망 처리
@@ -105,15 +158,12 @@ public class GameManager : MonoBehaviour
         CurrentEnding = GameEnding.GameOver;
         Debug.Log("[GameManager] 게임 오버 엔딩");
 
-        // 기존 UI 비활성화
         if (uiRoot != null)
             uiRoot.SetActive(false);
 
-        // 게임 오버 UI 표시
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
 
-        // 게임 루프 중단
         if (gameLoopCoroutine != null)
             StopCoroutine(gameLoopCoroutine);
     }
@@ -126,204 +176,320 @@ public class GameManager : MonoBehaviour
         if (currentScene == ShelterSceneName)
         {
             Debug.Log($"[GameManager] {currentScene} 씬은 쉘터이므로 조명을 변경하지 않습니다.");
-            return; // 쉘터에서는 조명 변경하지 않음
+            return; 
         }
 
         if (currentScene == MainWorldSceneName)
         {
-            // 낮/밤 페이즈에 따라 조명 업데이트
-            LightController.Instance?.UpdateGlobalLight(CurrentPhase); 
-        }
-        else
-        {
-            Debug.Log($"[GameManager] {currentScene} 씬은 월드가 아니므로 조명을 변경하지 않습니다.");
+            // LightController가 외부에서 정의되어 있다고 가정합니다.
+         
+            if (LightController.Instance != null)
+            {
+                LightController.Instance.UpdateGlobalLight(CurrentPhase); 
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] Main 씬이지만 LightController.Instance를 찾을 수 없습니다.");
+            }
+           
         }
     }
 
     // MARK: 전체 게임 루프 코루틴
     IEnumerator GameLoopCoroutine()
     {
-        // 마지막 날(4일차)까지 반복
+        // 1일차 낮이 시작된 직후부터 루프 시작 (1일차 낮 지속 시간을 기다리는 것부터 시작)
+        yield return new WaitForSeconds(dayDuration);
+        
+        // 1일차 밤부터 시작하여 2일차, 3일차, 4일차까지 낮/밤 반복
         while (CurrentDay <= GameDays.FourthDay)
         {
-            // 낮 페이즈 시작
-            CurrentPhase = Phase.Day;
-            Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
-            ApplyGlobalLight(); // 조명 반영
-            StartDayPhase();    // 낮 페이즈 로직 시작
-            yield return new WaitForSeconds(dayDuration); // 낮 지속
-
-            // 밤 페이즈 시작
+            // 1. 밤 페이즈 시작
             CurrentPhase = Phase.Night;
-            CurrentZombieSpawnCount += 20; // 밤마다 좀비 증가
+            CurrentZombieSpawnCount += 20; 
             Debug.Log($"🌙 [{CurrentDay}] 밤 시작!");
             ApplyGlobalLight();
             StartNightPhase();
-            yield return new WaitForSeconds(nightDuration); // 밤 지속
+            yield return new WaitForSeconds(nightDuration); 
 
-            // 다음 날로 전환
+            // 2. 다음 날로 전환 (점수 계산 및 날짜 업데이트)
             NextDay();
+            
+            // 4일차 종료 시 루프 종료
+            if (CurrentDay > GameDays.FourthDay) break; 
+            
+            // 3. 다음 날의 낮 페이즈 시작
+            CurrentPhase = Phase.Day;
+            Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
+            ApplyGlobalLight(); 
+            StartDayPhase();    
+            yield return new WaitForSeconds(dayDuration);
         }
 
         Debug.Log("모든 날이 종료되었습니다!");
     }
 
-    // MARK: 낮 페이즈 로직
-    void StartDayPhase()
+    // MARK: 납입 점수 기준에 따른 생존자 감소 계산
+    private int CalculateSurvivorLoss()
     {
-        if (!IsInShelter)
-        {
-            spawnManager.ClearAll(); // 기존 스폰 초기화
+        // TargetScore(100)를 기준으로 계산
+        if (PreviousDayTargetScore <= 0) return 0; 
 
-            // 일차별 낮 아이템 비율 설정
-            switch (CurrentDay)
-            {
-                case GameDays.FirstDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-                case GameDays.SecondDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-                case GameDays.ThirdDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-                case GameDays.FourthDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-            }
+        int submittedScore = PreviousDaySubmittedScore;
+        int lossCount = 0;
 
-            // 아이템/NPC/좀비 스폰
-            spawnManager.StartSpawnProcess(ItemSpawnCount, NPCSpawnCount, CurrentZombieSpawnCount);
-        } 
-        else
+        if (submittedScore >= 100)
         {
-            Debug.Log("[GameManager] 쉘터에서는 낮 스폰 생략");
+            lossCount = 0; // 100점 이상 달성: 0명 감소
         }
+        else if (submittedScore >= 70)
+        {
+            lossCount = 2; // 70점 이상 (100점 미만): 2명 감소
+        }
+        else if (submittedScore >= 50)
+        {
+            lossCount = 3; // 50점 이상 (70점 미만): 3명 감소
+        }
+        else if (submittedScore >= 40)
+        {
+            lossCount = 4; // 40점 이상 (50점 미만): 4명 감소
+        }
+        else 
+        {
+            lossCount = 5; // 40점 미만: 5명 감소
+        }
+        
+        // 생존자 감소 반영
+        int actualLoss = Mathf.Min(lossCount, SurvivorCount);
+        SurvivorCount -= actualLoss;
+        
+        Debug.Log($"[Survival Check] 납입 점수: {submittedScore} / {PreviousDayTargetScore}. 생존자 {actualLoss}명 감소. 잔여 생존자: {SurvivorCount}");
+
+        if (SurvivorCount <= 0)
+        {
+             if (CurrentEnding == GameEnding.None)
+                PlayerDied(); 
+        }
+
+        return actualLoss;
     }
 
-    // MARK: 밤 페이즈 로직
-    void StartNightPhase()
+// MARK: 낮 페이즈 로직
+void StartDayPhase()
+{
+    if (IsInShelter) 
     {
-        if (!IsInShelter)
-        {
-            // 일차별 밤 아이템 비율 설정
-            switch (CurrentDay)
-            {
-                case GameDays.FirstDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-                case GameDays.SecondDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-                case GameDays.ThirdDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-                case GameDays.FourthDay: 
-                    SetItemSectorRatios(0.3f, 0.1f, 0.1f,0.1f,0.2f,0.2f);
-                    break;
-            }
+        Debug.Log("[GameManager] 쉘터 내부이므로 낮 스폰을 생략합니다.");
+        return; 
+    }
+    
+    if (spawnManager != null)
+    {
+        // 동적으로 스폰 비율 설정 (납입품 점수 기반)
+        DynamicSetItemRatios(); 
+        
+        // 복원 데이터가 없으면 초기 스폰을 시도합니다.
+        spawnManager.StartSpawnProcess(ItemSpawnCount, NPCSpawnCount, CurrentZombieSpawnCount);
+    }
+    else
+    {
+        Debug.LogWarning("[GameManager] SpawnManager가 연결되지 않았습니다. 메인 씬 스폰 생략.");
+    }
+}
 
-            spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount); // 좀비만 스폰
-        } 
-        else
+// MARK: 밤 페이즈 로직 
+void StartNightPhase()
+{
+    if (IsInShelter)
+    {
+        Debug.Log("[GameManager] 쉘터 내부이므로 밤 스폰을 생략합니다.");
+        return;
+    }
+
+    if (spawnManager != null)
+    {
+        // 동적으로 스폰 비율 설정 (납입품 점수 기반)
+        DynamicSetItemRatios(); 
+
+        spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount); 
+    }
+    else
+    {
+        Debug.LogWarning("[GameManager] SpawnManager가 연결되지 않았습니다. 메인 씬 밤 스폰 생략.");
+    }
+}
+    
+    // MARK: SpawnManager에 아이템 섹터 비율을 전달하는 함수
+    void SetItemSectorRatios(float heal, float weapon, float lantern,float quest,float material,float submit)
+    {
+        if (spawnManager != null)
         {
-            Debug.Log("[GameManager] 쉘터에서는 밤 스폰 생략");
+            // SpawnManager의 ApplyItemSectorRatios 함수로 비율 전달 및 개별 아이템 비율 업데이트
+             spawnManager.ApplyItemSectorRatios(heal, weapon, lantern, quest, material, submit);
         }
     }
     
-    // MARK: 아이템별 스폰 확률 설정
-    void SetItemSectorRatios(float heal, float weapon, float lantern,float quest,float material,float submit)
+    // MARK: 아이템 섹터 비율 동적 설정 (납입품 점수 기반 가중치 부여)
+    void DynamicSetItemRatios()
     {
-        if (spawnManager != null && spawnManager.ItemSectorInfos != null && spawnManager.itemInfos != null &&spawnManager.itemInfos.Length >= 3)
-        {
-            spawnManager.ItemSectorInfos[0].ratio = heal;
-            spawnManager.ItemSectorInfos[1].ratio = weapon;
-            spawnManager.ItemSectorInfos[2].ratio = lantern;
-            spawnManager.ItemSectorInfos[3].ratio = quest;
-            spawnManager.ItemSectorInfos[4].ratio = material;
-            spawnManager.ItemSectorInfos[5].ratio = submit;
-            SetItemRatios();
-        }
+        int requiredScore = GetCurrentRequiredTotalScore();
+        float scoreRatio = Mathf.Clamp01((float)requiredScore / TargetRequiredScore); 
+        
+        // 납입품 점수에 따라 0.1f에서 최대 0.4f까지 스폰 비율 증가
+        float submitRatio = 0.1f + scoreRatio * 0.3f;
+        
+        float baseTotalOtherRatio = 1.0f - submitRatio;
+
+        // 나머지 섹터 (Heal, Weapon, Lantern, Quest, Material)의 기본 비율 합계 (0.8f)
+        float baseOthersTotal = 0.8f; 
+        
+        // 나머지 섹터 비율 재분배 (0.3/0.1/0.1/0.1/0.2 기준)
+        float healRatio = baseTotalOtherRatio * (0.3f / baseOthersTotal); 
+        float weaponRatio = baseTotalOtherRatio * (0.1f / baseOthersTotal);
+        float lanternRatio = baseTotalOtherRatio * (0.1f / baseOthersTotal);
+        float questRatio = baseTotalOtherRatio * (0.1f / baseOthersTotal);
+        float materialRatio = baseTotalOtherRatio * (0.2f / baseOthersTotal);
+        
+        SetItemSectorRatios(healRatio, weaponRatio, lanternRatio, questRatio, materialRatio, submitRatio);
     }
-    void SetItemRatios()
+
+    // MARK: 현재 요구되는 납입품의 총 점수 계산
+    private int GetCurrentRequiredTotalScore()
     {
-        for(int i = 0; i < spawnManager.itemInfos.Length; i++)
+        int requiredScore = 0;
+        foreach (var pair in CurrentRequiredItemsData)
         {
-            switch (spawnManager.itemInfos[i].type)
+            if (pair.Key != null && pair.Key.itemDataAsset != null)
             {
-                case ItemType.Heal:
-                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[0].ratio * spawnManager.itemInfos[i].baseRatio;
-                    break;
-                case ItemType.Weapon:
-                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[1].ratio * spawnManager.itemInfos[i].baseRatio;
-                    break;
-                case ItemType.Lantern:
-                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[2].ratio * spawnManager.itemInfos[i].baseRatio;
-                    break;
-                case ItemType.Quest:
-                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[3].ratio * spawnManager.itemInfos[i].baseRatio;
-                    break;
-                case ItemType.Material:
-                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[4].ratio * spawnManager.itemInfos[i].baseRatio;
-                    break;
-                case ItemType.Submit:
-                    spawnManager.itemInfos[i].ratio = spawnManager.ItemSectorInfos[5].ratio * spawnManager.itemInfos[i].baseRatio;
-                    break;
+                requiredScore += pair.Value * pair.Key.itemDataAsset.getScore;
             }
         }
+        return requiredScore;
     }
 
-    // MARK: 일차별 랜덤 납입품 목록 생성 로직
+    // MARK: 일차별 랜덤 납입품 목록 생성 로직 
     void GenerateRequiredItems()
     {
-        CurrentRequiredItems.Clear(); // 이전 날의 목록 초기화
+        CurrentRequiredItemsData.Clear(); 
+        CurrentSubmittedData.Clear(); 
 
-        // 현재 일차에 따른 요구 수량 증가 폭 계산
-        int dayIndex = (int)CurrentDay; // 0, 1, 2, 3
-        
-        // 요구 수량 - 기본 수량 + 일차에 비례한 랜덤 증가량
-        int baseAmount = BaseRequiredAmount + Random.Range(0, dayIndex * MaxRequiredIncrease);
-
-        // 납입 요구 아이템 타입 목록 (현재는 모든 타입)
-        ItemType[] allTypes = (ItemType[])System.Enum.GetValues(typeof(ItemType));
-        
-        // 요구할 아이템 개수를 랜덤하게 결정
-        int requiredItemCount = Random.Range(1, allTypes.Length); 
-        
-        // 아이템 타입 리스트를 섞기 (랜덤하게 선택하기 위해)
-        List<ItemType> shuffledTypes = new List<ItemType>(allTypes);
-        // 셔플 알고리즘 간소화
-        for (int i = 0; i < shuffledTypes.Count; i++)
+        if (AvailableSubmitItems == null || AvailableSubmitItems.Length == 0)
         {
-            ItemType temp = shuffledTypes[i];
-            int randomIndex = Random.Range(i, shuffledTypes.Count);
-            shuffledTypes[i] = shuffledTypes[randomIndex];
-            shuffledTypes[randomIndex] = temp;
+            Debug.LogWarning("[GameManager] AvailableSubmitItems 목록이 비어 있습니다. 납입 요구 생성 불가.");
+            return;
         }
 
-        // 섞인 목록에서 필요한 개수만큼 선택
+        // 1. 목표 점수 및 요구 아이템 개수 결정
+        int currentTargetScore = TargetRequiredScore; 
+        int maxItemsToRequire = Mathf.Min(3, AvailableSubmitItems.Length);
+        int requiredItemCount = Random.Range(1, maxItemsToRequire + 1); 
+        
+        // 2. 가중치 목록 생성 (점수의 역수를 가중치로 사용)
+        List<(Item item, float weight)> weightedPool = new List<(Item, float)>();
+        float totalWeight = 0f;
+
+        foreach (Item item in AvailableSubmitItems)
+        {
+            if (item.itemDataAsset == null) continue; 
+            int score = item.itemDataAsset.getScore; 
+            if (score <= 0) continue; 
+
+            float weight = 100f / (float)score; 
+            weightedPool.Add((item, weight));
+            totalWeight += weight;
+        }
+
+        if (totalWeight <= 0)
+        {
+            Debug.LogWarning("[GameManager] 유효한 점수를 가진 납입 아이템이 없습니다.");
+            return;
+        }
+        
+        // 3. 가중치 기반으로 랜덤 선택
+        List<Item> selectedItems = new List<Item>();
         for (int i = 0; i < requiredItemCount; i++)
         {
-            ItemType type = shuffledTypes[i];
+            float randomValue = Random.Range(0f, totalWeight);
+            float currentWeight = 0f;
+            Item selectedItem = null;
+            int selectedIndex = -1;
+
+            for (int j = 0; j < weightedPool.Count; j++)
+            {
+                currentWeight += weightedPool[j].weight;
+                if (randomValue <= currentWeight)
+                {
+                    selectedItem = weightedPool[j].item;
+                    selectedIndex = j;
+                    break;
+                }
+            }
             
-            // 요구 수량에 약간의 랜덤 변화 주기
-            int finalAmount = baseAmount + Random.Range(-1, 2); // +-1 정도의 변화
-            if (finalAmount < 1) finalAmount = 1; // 최소 1개 이상 요구
-            
-            CurrentRequiredItems.Add(type, finalAmount);
+            if (selectedItem != null)
+            {
+                selectedItems.Add(selectedItem);
+                totalWeight -= weightedPool[selectedIndex].weight;
+                weightedPool.RemoveAt(selectedIndex);
+                if (weightedPool.Count == 0 || totalWeight <= 0.001f) break;
+            }
         }
         
-        // 디버그 출력
-        Debug.Log($"[GameManager] {CurrentDay} 납입 요구 목록 생성:");
-        foreach (var item in CurrentRequiredItems)
+        // 4. 목표 점수(100)를 선택된 아이템들에게 분배하여 '요구 수량' 계산
+        int remainingScore = currentTargetScore;
+        List<int> scoreAllocations = new List<int>();
+        
+        for (int i = 0; i < selectedItems.Count - 1; i++)
         {
-            Debug.Log($" - {item.Key} : {item.Value}개");
+            int minScore = 1;
+            int maxAllocation = remainingScore - (selectedItems.Count - (i + 1)); 
+            if (maxAllocation < minScore) maxAllocation = minScore;
+            
+            int allocatedScore = Random.Range(minScore, maxAllocation + 1);
+            scoreAllocations.Add(allocatedScore);
+            remainingScore -= allocatedScore;
         }
+        scoreAllocations.Add(remainingScore); 
+        
+        int actualTotalRequiredScore = 0;
+
+        for (int i = 0; i < selectedItems.Count; i++)
+        {
+            Item item = selectedItems[i];
+            int itemUnitScore = item.itemDataAsset.getScore;
+            int requiredScorePortion = scoreAllocations[i];
+            
+            int requiredCount = Mathf.CeilToInt((float)requiredScorePortion / itemUnitScore);
+            
+            CurrentRequiredItemsData.Add(item, requiredCount);
+            CurrentSubmittedData.Add(item, 0); 
+
+            actualTotalRequiredScore += requiredCount * itemUnitScore;
+        }
+
+        Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. 목표 점수: {currentTargetScore}, 실제 요구 점수: {actualTotalRequiredScore}");
     }
 
     // MARK: 다음 날로 전환
     void NextDay()
     {
+        GameDays previousDay = CurrentDay; 
+        
+        PreviousDayTargetScore = TargetRequiredScore;
+        
+        PreviousDaySubmittedScore = 0;
+        foreach (var pair in CurrentSubmittedData)
+        {
+            Item item = pair.Key;
+            int submittedCount = pair.Value;
+            
+            if (item != null && item.itemDataAsset != null)
+            {
+                PreviousDaySubmittedScore += submittedCount * item.itemDataAsset.getScore;
+            }
+        }
+        
+        int survivorLoss = CalculateSurvivorLoss();
+        
         switch (CurrentDay)
         {
             case GameDays.FirstDay: 
@@ -338,40 +504,208 @@ public class GameManager : MonoBehaviour
                 CurrentDay = GameDays.FourthDay; 
                 break;
             case GameDays.FourthDay: 
-                CurrentDay++;
+                CurrentDay++; 
                 break;
         }
 
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
 
-        // 다음 날 낮페이즈가 시작되기 전 목록 준비
-        if (CurrentDay <= GameDays.FourthDay)
+        if (CurrentDay != previousDay && CurrentDay <= GameDays.FourthDay)
         {
             GenerateRequiredItems();
+            ShowDayChangeMessage(CurrentDay, survivorLoss); 
         }
     }
 
-    // MARK: 씬 로드 시 실행
+    // MARK: 일차 변경 안내문 표시
+    public void ShowDayChangeMessage(GameDays newDay, int lossCount)
+    {
+        if (DayChangePanel == null || DayChangeText == null)
+        {
+            Debug.LogWarning("[GameManager] DayChange UI 참조 누락!");
+            return;
+        }
+        
+        string message;
+
+        if (lossCount > 0)
+        {
+            message = $"{GetDayString(newDay)} 납입품 리스트는 쉘터로 복귀해서 확인해봐. 어제 납입품을 다 못 채워서 {lossCount}명이 사망했어.";
+        }
+        else
+        {
+            message = $"{GetDayString(newDay)} 납입품 리스트는 쉘터로 복귀해서 확인해봐. 어제는 수고 많았어. 사망한 생존자는 없어!";
+        }
+        
+        DayChangeText.text = message;
+        
+        if (dayChangeCoroutine != null)
+        {
+            StopCoroutine(dayChangeCoroutine); 
+        }
+        
+        dayChangeCoroutine = StartCoroutine(ShowDayChangeCoroutine(lossCount));
+    }
+
+    // MARK: 일차 변경 안내 애니메이션 
+    private IEnumerator ShowDayChangeCoroutine(int lossCount)
+    {
+        // Null 체크 유지
+        if (dayChangeRectTransform == null || DayChangePanel == null || dayChangeCanvasGroup == null)
+        {
+            Debug.LogWarning("[ShowDayChangeCoroutine] UI 컴포넌트 참조가 유효하지 않습니다. 코루틴을 중단합니다.");
+            dayChangeCoroutine = null;
+            yield break;
+        }
+    
+        // --- 🌟 [중요 수정] 위치 설정: 현재 위치를 도착점(midPos)으로 사용 ---
+        
+        // 1. 패널의 현재 위치 (인스펙터에서 설정된 위치)를 '중앙 도착 위치'로 지정합니다.
+        //    이제 이 위치가 패널이 멈춰서 메시지를 보여줄 위치가 됩니다.
+        Vector2 midPos = dayChangeRectTransform.anchoredPosition; 
+        
+        // 2. 애니메이션의 '시작 위치'는 도착 위치(midPos)의 X축에서 오른쪽으로 800.0f 떨어진 곳으로 설정합니다.
+        Vector2 startPos = new Vector2(midPos.x + 800.0f, midPos.y); 
+        
+        // 3. 퇴장 위치는 도착 위치(midPos)의 X축에서 왼쪽으로 -2000.0f 떨어진 곳으로 설정합니다.
+        Vector2 endPos = new Vector2(midPos.x - 2000f, midPos.y); 
+        
+        dayChangeCanvasGroup.alpha = 1f;
+        DayChangePanel.SetActive(true);
+
+        // 1. 화면 중앙으로 진입 (Slide In)
+        float elapsedTime = 0f;
+        
+        // 시작 위치 설정 (midPos + 800.0f)
+        dayChangeRectTransform.anchoredPosition = startPos;
+        
+        // 중앙으로 진입 (midPos)
+        while (elapsedTime < SlideDuration)
+        {
+            if (dayChangeRectTransform == null) yield break;
+
+            float t = elapsedTime / SlideDuration;
+            dayChangeRectTransform.anchoredPosition = Vector2.Lerp(startPos, midPos, t);
+            elapsedTime += Time.deltaTime;
+            yield return null; 
+        }
+        
+        // 최종 위치 보정
+        if (dayChangeRectTransform == null) yield break;
+        dayChangeRectTransform.anchoredPosition = midPos; 
+
+        // 2. 대기 시간
+        yield return new WaitForSeconds(DayChangeDisplayTime);
+        
+        // --- 3. 화면 밖 왼쪽으로 퇴장 (Slide Out and Fade Out) ---
+        float fadeOutDuration = SlideDuration;
+        elapsedTime = 0f;
+
+        while (elapsedTime < fadeOutDuration)
+        {
+            if (dayChangeRectTransform == null || dayChangeCanvasGroup == null) yield break;
+            
+            float t = elapsedTime / fadeOutDuration;
+            
+            // 위치 이동 (midPos에서 endPos로 이동)
+            dayChangeRectTransform.anchoredPosition = Vector2.Lerp(midPos, endPos, t);
+            
+            // 페이드 아웃
+            dayChangeCanvasGroup.alpha = Mathf.Lerp(1f, 0f, t);
+
+            elapsedTime += Time.deltaTime;
+            yield return null; 
+        }
+
+        // 4. 최종 정리
+        if (DayChangePanel != null)
+        {
+            DayChangePanel.SetActive(false);
+            dayChangeCanvasGroup.alpha = 1f;
+            // 애니메이션이 끝난 후 midPos로 위치를 재설정할 필요는 없으나,
+            // 다음 애니메이션 시작 시 startPos 계산을 위해 위치를 유지합니다.
+        }
+        
+        dayChangeCoroutine = null; 
+    }
+    private string GetDayString(GameDays day)
+    {
+        switch (day)
+        {
+            case GameDays.FirstDay: return "1일차";
+            case GameDays.SecondDay: return "2일차";
+            case GameDays.ThirdDay: return "3일차";
+            case GameDays.FourthDay: return "4일차";
+            default: return "";
+        }
+    }
+    
+    // MARK: 씬 로드 시 실행 (UI 참조 복구 로직 유지)
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 쉘터 내부 여부 확인
-        IsInShelter = (scene.name == ShelterSceneName);
+        IsInShelter = (scene.name == ShelterSceneName); 
 
-        // 월드 씬이면 스폰 매니저 연결
         if (scene.name == MainWorldSceneName)
+        {
             spawnManager = Object.FindFirstObjectByType<SpawnManager>();
+            if (spawnManager == null)
+            {
+                Debug.LogWarning("[GameManager] Main 씬이 로드되었으나 SpawnManager를 찾을 수 없습니다.");
+            }
+            
+            // Main 씬 로드 시 UI 컴포넌트 참조 복구
+            if (DayChangePanel == null)
+            {
+                // DayChangePanel GameObject를 씬에서 찾는 로직이 필요합니다.
+                if (DayChangePanel == null)
+                {
+                    Debug.LogWarning("[GameManager] Main 씬 로드 후 DayChangePanel 참조를 복구하지 못했습니다. 인스펙터 할당을 확인하세요.");
+                }
+                else
+                {
+                    // UI 컴포넌트 참조 복구
+                    dayChangeRectTransform = DayChangePanel.GetComponent<RectTransform>(); 
+                    dayChangeCanvasGroup = DayChangePanel.GetComponent<CanvasGroup>();
+                    if (dayChangeCanvasGroup == null)
+                    {
+                        dayChangeCanvasGroup = DayChangePanel.AddComponent<CanvasGroup>();
+                    }
+                    DayChangeText = DayChangePanel.GetComponentInChildren<Text>(); 
+                    DayChangePanel.SetActive(false);
+                    Debug.Log("[GameManager] Main 씬 UI 참조 복구 완료.");
+                }
+            }
+        } 
+        else 
+        {
+            spawnManager = null;
+        }
 
-        ApplyGlobalLight(); // 씬 로드 시 조명 반영
+        ApplyGlobalLight(); 
+    }
+
+    // 대화 시작 시 호출
+    public void StartInteraction()
+    {
+        IsDialogueActive = true;
+        // 다른 모듈 (예: 플레이어)도 이 상태를 확인하여 멈춥니다.
+        Debug.Log("[GameManager] 상호작용 시작: 게임 일시 정지 상태.");
+    }
+
+    // 대화 종료 시 호출
+    public void EndInteraction()
+    {
+        IsDialogueActive = false;
+        Debug.Log("[GameManager] 상호작용 종료: 게임 다시 시작.");
     }
 
     void OnEnable()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded; // 씬 로드 이벤트 구독
+        SceneManager.sceneLoaded += OnSceneLoaded; 
     }
 
     void OnDisable()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded; // 이벤트 구독 해제
+        SceneManager.sceneLoaded -= OnSceneLoaded; 
     }
-
 }
