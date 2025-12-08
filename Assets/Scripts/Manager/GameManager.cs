@@ -496,10 +496,10 @@ void StartNightPhase()
             int submittedCount = pair.Value;
             
             // Item 클래스 및 ItemDataAsset 클래스는 외부에서 정의되어 있다고 가정합니다.
-            // if (item != null && item.itemDataAsset != null)
-            // {
-            //     PreviousDaySubmittedScore += submittedCount * item.itemDataAsset.getScore;
-            // }
+            if (item != null && item.itemDataAsset != null)
+            {
+                PreviousDaySubmittedScore += submittedCount * item.itemDataAsset.getScore;
+            }
         }
         
         int survivorLoss = CalculateSurvivorLoss();
@@ -577,6 +577,66 @@ void StartNightPhase()
         // ⭐ 실행한 코루틴 객체를 반환하여, 호출한 측이 대기할 수 있도록 합니다.
         return dayChangeCoroutine;
     }
+
+    // MARK: - ⭐ 현재 누적 납입 점수 계산 함수
+public int GetCurrentSubmittedTotalScore()
+{
+    int submittedScore = 0;
+    
+    // CurrentSubmittedData 딕셔너리를 순회하며 점수를 합산
+    foreach (var pair in CurrentSubmittedData)
+    {
+        Item item = pair.Key;
+        int submittedCount = pair.Value;
+        
+        // Item 클래스 및 ItemDataAsset 클래스는 외부에서 정의되어 있다고 가정합니다.
+        if (item != null && item.itemDataAsset != null)
+        {
+            submittedScore += submittedCount * item.itemDataAsset.getScore;
+        }
+    }
+    return submittedScore;
+}
+
+// MARK: - ⭐ 현재 누적 납입 점수를 기반으로 예정된 생존자 손실 인원수 예측 함수
+/// <summary>
+/// 현재까지 납입된 점수를 기준으로 다음 날 예상되는 생존자 손실 인원수만 반환합니다. (실제 데이터 변경 없음)
+/// </summary>
+public int PredictSurvivorLoss()
+{
+    // 현재까지 납입된 점수
+    int submittedScore = GetCurrentSubmittedTotalScore();
+    
+    // 목표 점수 (현재 로직에서는 TargetRequiredScore가 100을 가정합니다.)
+    int targetScore = TargetRequiredScore; 
+    
+    // 예측 손실 인원수 계산 로직 (CalculateSurvivorLoss 로직과 동일)
+    int lossCount = 0;
+
+    if (submittedScore >= 100)
+    {
+        lossCount = 0;
+    }
+    else if (submittedScore >= 70)
+    {
+        lossCount = 2;
+    }
+    else if (submittedScore >= 50)
+    {
+        lossCount = 3;
+    }
+    else if (submittedScore >= 40)
+    {
+        lossCount = 4;
+    }
+    else 
+    {
+        lossCount = 5;
+    }
+
+    // ⭐ 실제 생존자 수(SurvivorCount)를 초과할 수 없도록 보정 (UI 표시용이므로 Min 처리 필요)
+    return Mathf.Min(lossCount, SurvivorCount);
+}
 
     // MARK: 일차 변경 안내 애니메이션 
     private IEnumerator ShowDayChangeCoroutine(int lossCount)

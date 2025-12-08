@@ -95332,6 +95332,8 @@ MonoBehaviour:
   - {fileID: -5984088972931491910, guid: 5d9a4a6bb9122432497b32b9a6cdd7e4, type: 3}
   - {fileID: 5121982099103303279, guid: a4efe08a771fb154887b4b28ec2637d6, type: 3}
   - {fileID: 1200249886004421481, guid: 6c989bc03b49ad04a96b771c6c4031d6, type: 3}
+  - {fileID: 8377399505079120524, guid: 4561518ae6c81bb47ad02a786321c602, type: 3}
+  - {fileID: 1511330356446781366, guid: 9c0014343ab8b684aafc23314b0bfa19, type: 3}
   TargetRequiredScore: 100
   MaxRequiredIncrease: 3
   NightSpeedMultiplier: 1.3
