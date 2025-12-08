@@ -1,13 +1,25 @@
 fileFormatVersion: 2
-guid: b180c75234f9fe54f945d241ba190077
+guid: f279c78ab3795df40a6ce383b6d64617
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9042664321243512265
-    second: EnergeBar_0
+      213: -2469651279985726139
+    second: Hero_Roll_N_0
   - first:
-      213: 8181602561332885251
-    second: EnergeBar_1
+      213: 1879552742930815771
+    second: Hero_Roll_N_1
+  - first:
+      213: 2345151846155449453
+    second: Hero_Roll_N_2
+  - first:
+      213: -5927488235597858409
+    second: Hero_Roll_N_3
+  - first:
+      213: 8930858987988994627
+    second: Hero_Roll_N_4
+  - first:
+      213: 4418104078519359542
+    second: Hero_Roll_N_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -54,7 +66,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 40
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -142,45 +154,133 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EnergeBar_0
+      name: Hero_Roll_N_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 32
-        height: 32
+        x: 15
+        y: 8
+        width: 34
+        height: 47
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 6, y: 5, z: 5, w: 3}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9cd71d24a4ffd7d70800000000000000
-      internalID: 9042664321243512265
+      spriteID: 54dac51ee390abdd0800000000000000
+      internalID: -2469651279985726139
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnergeBar_1
+      name: Hero_Roll_N_1
       rect:
         serializedVersion: 2
-        x: 32
-        y: 0
-        width: 32
-        height: 32
+        x: 83
+        y: 26
+        width: 30
+        height: 24
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 7, y: 4, z: 7, w: 5}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3073ca97e24ea8170800000000000000
-      internalID: 8181602561332885251
+      spriteID: b1b900be243851a10800000000000000
+      internalID: 1879552742930815771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hero_Roll_N_2
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 16
+        width: 27
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d64727ecd27ab8020800000000000000
+      internalID: 2345151846155449453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hero_Roll_N_3
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 16
+        width: 27
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 799f1eadad45dbda0800000000000000
+      internalID: -5927488235597858409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hero_Roll_N_4
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 15
+        width: 18
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34a403e8ee8c0fb70800000000000000
+      internalID: 8930858987988994627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hero_Roll_N_5
+      rect:
+        serializedVersion: 2
+        x: 344
+        y: 9
+        width: 17
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 638d9d45042405d30800000000000000
+      internalID: 4418104078519359542
       vertices: []
       indices: 
       edges: []
@@ -189,7 +289,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4d8efc692bb11c64193fc943f2f63b63
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -197,12 +297,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      EnergeBar_0: 9042664321243512265
-      EnergeBar_1: 8181602561332885251
+      Hero_Roll_N_0: -2469651279985726139
+      Hero_Roll_N_1: 1879552742930815771
+      Hero_Roll_N_2: 2345151846155449453
+      Hero_Roll_N_3: -5927488235597858409
+      Hero_Roll_N_4: 8930858987988994627
+      Hero_Roll_N_5: 4418104078519359542
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

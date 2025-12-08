@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: b180c75234f9fe54f945d241ba190077
+guid: 974a7e633773c934f91a00937f083856
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9042664321243512265
-    second: EnergeBar_0
-  - first:
-      213: 8181602561332885251
-    second: EnergeBar_1
+      213: 5195800987660912465
+    second: WoodPanel 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -54,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 40
+  spritePixelsToUnits: 64
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -142,7 +139,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EnergeBar_0
+      name: WoodPanel 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -151,36 +148,14 @@ TextureImporter:
         height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 6, y: 5, z: 5, w: 3}
+      border: {x: 1, y: 4, z: 1, w: 3}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9cd71d24a4ffd7d70800000000000000
-      internalID: 9042664321243512265
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: EnergeBar_1
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 0
-        width: 32
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 7, y: 4, z: 7, w: 5}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3073ca97e24ea8170800000000000000
-      internalID: 8181602561332885251
+      spriteID: 157072148713b1840800000000000000
+      internalID: 5195800987660912465
       vertices: []
       indices: 
       edges: []
@@ -189,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4d8efc692bb11c64193fc943f2f63b63
+    spriteID: 0ba1690ae21b6f444a1b00a7b17cac8f
     internalID: 0
     vertices: []
     indices: 
@@ -201,8 +176,7 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      EnergeBar_0: 9042664321243512265
-      EnergeBar_1: 8181602561332885251
+      WoodPanel 1_0: 5195800987660912465
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
