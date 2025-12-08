@@ -109,7 +109,6 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject); 
         }
         
-        // ⭐ 수정 1: Awake에서 SetActive(false) 제거. 씬 로드 시에 처리합니다.
         // DayChangePanel이 DontDestroyOnLoad 되지 않기 때문에, 첫 씬 로드 시의 참조만 잡아둡니다.
         if (DayChangePanel != null)
         {
@@ -207,7 +206,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // MARK: 전체 게임 루프 코루틴
+    // MARK: 전체 게임 루프 코루틴 (⭐수정: NextDayCoroutine 대기)
     IEnumerator GameLoopCoroutine()
     {
         // 1일차 낮이 시작된 직후부터 루프 시작 (1일차 낮 지속 시간을 기다리는 것부터 시작)
@@ -224,13 +223,13 @@ public class GameManager : MonoBehaviour
             StartNightPhase();
             yield return new WaitForSeconds(nightDuration); 
 
-            // 2. 다음 날로 전환 (점수 계산 및 날짜 업데이트)
-            NextDay(); 
+            // 2. 다음 날로 전환 (점수 계산 및 날짜 업데이트, UI 대기 포함)
+            yield return StartCoroutine(NextDayCoroutine()); 
             
             // 4일차 종료 시 루프 종료
             if (CurrentDay > GameDays.FourthDay) break; 
             
-            // 3. 다음 날의 낮 페이즈 시작
+            // 3. 다음 날의 낮 페이즈 시작 (UI 대기가 끝난 후 실행됨)
             CurrentPhase = Phase.Day;
             Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
             ApplyGlobalLight(); 
@@ -483,8 +482,8 @@ void StartNightPhase()
         Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. 목표 점수: {currentTargetScore}, 실제 요구 점수: {actualTotalRequiredScore}");
     }
 
-    // MARK: 다음 날로 전환
-    void NextDay()
+    // MARK: 다음 날로 전환 (⭐NextDay 대신 NextDayCoroutine 사용)
+    IEnumerator NextDayCoroutine()
     {
         GameDays previousDay = CurrentDay; 
         
@@ -535,18 +534,24 @@ void StartNightPhase()
             }
             
             GenerateRequiredItems(); 
-            ShowDayChangeMessage(CurrentDay, survivorLoss); 
+            
+            // ⭐ UI 표시 코루틴을 실행하고, 완료될 때까지 대기합니다.
+            Coroutine uiWait = ShowDayChangeMessage(CurrentDay, survivorLoss); 
+            if (uiWait != null)
+            {
+                yield return uiWait; // UI가 끝날 때까지 GameLoop을 대기시킵니다.
+            }
         }
     }
 
-    // MARK: 일차 변경 안내문 표시
-    public void ShowDayChangeMessage(GameDays newDay, int lossCount)
+    // MARK: 일차 변경 안내문 표시 (⭐코루틴 객체를 반환하도록 변경)
+    public Coroutine ShowDayChangeMessage(GameDays newDay, int lossCount)
     {
         // 씬 로드 직후 DayChangePanel이 null일 수 있으므로 다시 확인
         if (DayChangePanel == null || DayChangeText == null)
         {
             Debug.LogWarning("[GameManager] DayChange UI 참조 누락! OnSceneLoaded 복구 로직을 확인하세요.");
-            return;
+            return null;
         }
         
         string message;
@@ -568,6 +573,9 @@ void StartNightPhase()
         }
         
         dayChangeCoroutine = StartCoroutine(ShowDayChangeCoroutine(lossCount));
+        
+        // ⭐ 실행한 코루틴 객체를 반환하여, 호출한 측이 대기할 수 있도록 합니다.
+        return dayChangeCoroutine;
     }
 
     // MARK: 일차 변경 안내 애니메이션 
@@ -673,7 +681,7 @@ void StartNightPhase()
                 Debug.LogWarning("[GameManager] Main 씬이 로드되었으나 SpawnManager를 찾을 수 없습니다.");
             }
             
-            // ⭐ 수정 2: DayChangePanel이 null이 되었을 경우 씬에서 다시 찾아서 할당합니다.
+            // DayChangePanel이 null이 되었을 경우 씬에서 다시 찾아서 할당합니다.
             if (DayChangePanel == null)
             {
                 // DayChangePanel은 인스펙터에 할당되지만, 씬 전환 시 파괴되므로 이름으로 다시 찾습니다.
@@ -708,10 +716,14 @@ void StartNightPhase()
                 }
             }
 
-            // 씬 로드 시 DayChangePanel이 비활성화 상태로 시작하도록 설정
+            // ⭐ 씬 로드 시 DayChangePanel이 항상 비활성화 상태로 시작하도록 설정
             if (DayChangePanel != null)
             {
                 DayChangePanel.SetActive(false);
+                if (dayChangeCanvasGroup != null)
+                {
+                    dayChangeCanvasGroup.alpha = 1f; // 알파값도 초기화
+                }
             }
         } 
         else 
