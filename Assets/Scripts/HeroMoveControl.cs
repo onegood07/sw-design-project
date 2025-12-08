@@ -29,6 +29,9 @@ public class HeroMoveControl : MonoBehaviour
     private Animator animator;                       // 애니메이션 제어용 Animator
     private Vector2Int lastMoveDir = Vector2Int.down; // 마지막 이동 방향(정수화된 방향, 애니메이션 선택용)
 
+    // Hero 하위 총 스프라이트(Pistol_S/N/W/E)를 관리하는 컴포넌트
+    private HeroWeaponVisual weaponVisual;
+
     // Idle 상태 애니메이션 해시값
     private readonly int stIdleUp    = Animator.StringToHash("U");
     private readonly int stIdleDown  = Animator.StringToHash("D");
@@ -102,6 +105,7 @@ public class HeroMoveControl : MonoBehaviour
 
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        weaponVisual = GetComponent<HeroWeaponVisual>();
 
         if (rb == null)
             Debug.LogError("[HeroMoveControl] Rigidbody2D가 없습니다.");
@@ -237,7 +241,15 @@ public class HeroMoveControl : MonoBehaviour
         if (inputDir.sqrMagnitude < 0.0001f) return; // 거의 0인 벡터는 무시
         Vector2 n = inputDir.normalized;
         if (currentViewDirection != n)
+        {
             currentViewDirection = n;
+
+            // 무기 방향 스프라이트도 함께 갱신
+            if (weaponVisual != null)
+            {
+                weaponVisual.UpdateDirection(currentViewDirection);
+            }
+        }
     }
 
     // 이동/정지 상태와 마지막 방향에 따라 적절한 애니메이션 상태로 전환
@@ -407,6 +419,12 @@ public class HeroMoveControl : MonoBehaviour
 
         Debug.Log($"[HeroMoveControl] SetAttackEquipState -> {value}");
         animator.SetInteger(paramAttack, value ? 1 : 0);
+
+        // 무기 장착 여부에 따라 Hero 하위 Pistol_* 오브젝트의 표시 상태 갱신
+        if (weaponVisual != null)
+        {
+            weaponVisual.SetWeaponEquipped(value);
+        }
 
         if (!value && attackResetRoutine != null)
         {
