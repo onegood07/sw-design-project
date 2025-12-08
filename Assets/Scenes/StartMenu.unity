@@ -3973,7 +3973,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 1
+  m_Value: 0.2
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -4967,6 +4967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ec41981d720dce45babec4d77031016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
+  defaultVolume: 0.2
   audioMixer: {fileID: 24100000, guid: ffbec99aa2ee391428731c6d086bbdb5, type: 2}
   sfxSource: {fileID: 1775380531}
 --- !u!82 &1775380531

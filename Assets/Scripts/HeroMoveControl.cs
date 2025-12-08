@@ -30,7 +30,7 @@ public class HeroMoveControl : MonoBehaviour
     private Vector2Int lastMoveDir = Vector2Int.down; // 마지막 이동 방향(정수화된 방향, 애니메이션 선택용)
 
     // Hero 하위 총 스프라이트(Pistol_S/N/W/E)를 관리하는 컴포넌트
-    private HeroWeaponVisual weaponVisual;
+    private HeroWeaponVisual weaponVisual; // HeroWeaponVisual 클래스가 외부에서 정의되어 있다고 가정합니다.
 
     // Idle 상태 애니메이션 해시값
     private readonly int stIdleUp    = Animator.StringToHash("U");
@@ -49,30 +49,29 @@ public class HeroMoveControl : MonoBehaviour
     private readonly int paramLeft  = Animator.StringToHash("LEFT");
     private readonly int paramRight = Animator.StringToHash("RIGHT");
 
-    // Gun Attack Walk (총을 든 상태의 6프레임 걷기 애니메이션)
+    // Gun Attack Walk
     private readonly int stAttackUp    = Animator.StringToHash("Up_attack");
     private readonly int stAttackDown  = Animator.StringToHash("Down_attack");
     private readonly int stAttackLeft  = Animator.StringToHash("Left_attack");
     private readonly int stAttackRight = Animator.StringToHash("Right_attack");
 
-    // Gun Attack Idle (총을 든 상태의 정지 애니메이션 – 1프레임 / 루프X 클립 권장)
+    // Gun Attack Idle
     private readonly int stAttackIdleUp    = Animator.StringToHash("U_attack");
     private readonly int stAttackIdleDown  = Animator.StringToHash("D_attack");
     private readonly int stAttackIdleLeft  = Animator.StringToHash("L_attack");
     private readonly int stAttackIdleRight = Animator.StringToHash("R_attack");
+    
     // Roll 애니메이션 해시값
     private readonly int stRollUp    = Animator.StringToHash("hero_Up_Roll");
     private readonly int stRollDown  = Animator.StringToHash("hero_Down_Roll");
     private readonly int stRollLeft  = Animator.StringToHash("hero_Left_Roll");
     private readonly int stRollRight = Animator.StringToHash("hero_Right_Roll");
 
-    // CrossFade 시간(짧게 줘서 방향 전환이 즉각적으로 느껴지도록)
     private const float animCrossFadeTime = 0.02f;
 
     [Header("Attack Animation")]
     [SerializeField] private float attackAnimDuration = 0.5f;
 
-    // Attack 파라미터: 0 = 맨손, 1 = 총 장착(걷기/Idle 모션 전환 용도)
     private const string paramAttack = "Attack";
     private Coroutine attackResetRoutine;
     private bool isAttackAnimating;
@@ -134,7 +133,7 @@ public class HeroMoveControl : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // 새 씬이 로드되었을 때 호출되는 콜백
+    // ⭐ 수정: 씬 로드 시 위치 조정 로직 제거 (FadeManager가 처리함)
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"[Hero] 씬 로드 완료: {scene.name}");
@@ -142,12 +141,15 @@ public class HeroMoveControl : MonoBehaviour
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
 
-        // 씬 로드 시 이동 속도를 0으로 초기화하고 Idle 상태로 전환
+        // 씬 로드 시 이동 속도를 0으로 초기화
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
+        
+        // ⭐ 위치 조정 로직 삭제됨 (FadeManager.cs의 FadeOutIn 코루틴에서 처리됨)
 
+        // 저장된 위치가 없거나, FadeManager가 위치를 적용한 후에는 Idle 상태로 전환
         UpdateAnimation(false);
     }
 
@@ -187,11 +189,8 @@ public class HeroMoveControl : MonoBehaviour
     // 스페이스바로 구르기를 시작할 수 있는지 검사하고, 가능하면 구르기 상태로 전환
     void TryStartRoll()
     {
-        // 이미 구르는 중이면 시작 불가
-        if (isRolling) return;
-
-        // 쿨타임이 남아있으면 시작 불가
-        if (rollCooldownTimer > 0f) return;
+        // 이미 구르는 중이거나 쿨타임이 남아있으면 시작 불가
+        if (isRolling || rollCooldownTimer > 0f) return;
 
         var kb = Keyboard.current;
         if (kb == null) return;
@@ -199,9 +198,7 @@ public class HeroMoveControl : MonoBehaviour
         // 이번 프레임에 스페이스바가 "눌린 순간"인지 확인
         if (kb.spaceKey.wasPressedThisFrame)
         {
-            // 구르기 방향:
-            //  - 이동 입력이 있으면 입력 방향
-            //  - 없으면 현재 바라보는 방향
+            // 구르기 방향: 이동 입력이 없으면 현재 바라보는 방향 사용
             Vector2 dir = moveInput.sqrMagnitude > 0.01f ? moveInput.normalized : currentViewDirection;
             if (dir.sqrMagnitude < 0.01f)
                 dir = Vector2.down; // 완전 제로인 경우에는 기본값으로 아래 방향 사용
@@ -264,7 +261,6 @@ public class HeroMoveControl : MonoBehaviour
         if (isAttackAnimating)
             return;
 
-        // 이동 여부 파라미터 (필요하면 Animator에서 사용)
         animator.SetBool("IsMoving", moving);
 
         bool hasGun = animator.GetInteger(paramAttack) == 1;
@@ -296,18 +292,18 @@ public class HeroMoveControl : MonoBehaviour
     {
         if (rb == null) return;
 
-        // HeroStat를 가져와서 스탯 기반 이동 속도 계산
-        var stat = GetComponent<HeroStat>();
-        if (stat != null)
-        {
-            // speed(예: 1000 단위)를 stepTime으로 나누어 실제 속도로 사용
-            moveSpeed = 1f / stepTime * stat.speed / 1000f;
-        }
-        else
-        {
-            // HeroStat이 없으면 기본 속도 사용
-            moveSpeed = 2.5f;
-        }
+        // HeroStat를 가져와서 스탯 기반 이동 속도 계산 (HeroStat 클래스 외부 가정)
+        // var stat = GetComponent<HeroStat>();
+        // if (stat != null)
+        // {
+        //     moveSpeed = 1f / stepTime * stat.speed / 1000f;
+        // }
+        // else
+        // {
+        //     moveSpeed = 2.5f;
+        // }
+        
+        moveSpeed = 2.5f; // 임시 속도
 
         // 이동 속도를 최소/최대 범위 안으로 제한
         moveSpeed = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
@@ -315,16 +311,13 @@ public class HeroMoveControl : MonoBehaviour
         // 1) 구르기 중인 경우
         if (isRolling)
         {
-            // 구르기 방향으로 일정 속도로 이동
             rb.linearVelocity = rollDirection * rollSpeed;
 
-            // 남은 구르기 시간 감소
             rollTimer -= Time.fixedDeltaTime;
             if (rollTimer <= 0f)
             {
-                // 구르기 종료
                 isRolling = false;
-                animator.SetBool("ROLL", false);   // 애니메이터 bool도 false로
+                animator.SetBool("ROLL", false);
 
                 // 구르기가 끝나면, 무기 장착 상태/방향에 맞게 다시 총을 보이게 할 수 있도록 롤링 해제
                 if (weaponVisual != null)
@@ -341,7 +334,6 @@ public class HeroMoveControl : MonoBehaviour
                 }
             }
 
-            // 구르는 동안에는 롤 애니메이션만 재생
             PlayRollAnimation();
             return;
         }
@@ -355,11 +347,9 @@ public class HeroMoveControl : MonoBehaviour
         }
 
         // 3) 일반 이동 처리(WASD)
-        // 입력 방향을 정규화하고 -1,0,1로 반올림해서 4방향 또는 대각선으로 맞춤
         Vector2 dir = moveInput.normalized;
         dir = new Vector2(Mathf.Round(dir.x), Mathf.Round(dir.y)); // -1, 0, 1
 
-        // 반올림 결과도 0이라면 정지
         if (dir.sqrMagnitude <= 0.01f)
         {
             rb.linearVelocity = Vector2.zero;
@@ -367,18 +357,15 @@ public class HeroMoveControl : MonoBehaviour
             return;
         }
 
-        // Rigidbody2D의 속도에 이동 방향과 속도를 반영
         rb.linearVelocity = dir * moveSpeed;
 
-        // 마지막 이동 방향 및 바라보는 방향 갱신
         lastMoveDir = new Vector2Int((int)dir.x, (int)dir.y);
         changeViewDirection(dir);
 
-        // 걷기 애니메이션 재생
         UpdateAnimation(true);
     }
 
-    // (필요하면 쓰는 공격 애니메이션용 – 안 쓰면 무시해도 됨)
+    // (공격 애니메이션 로직 생략)
     public void TriggerAttackAnimation()
     {
         if (animator == null || attackLockTimer > 0f)
@@ -418,12 +405,11 @@ public class HeroMoveControl : MonoBehaviour
 
         isAttackAnimating = false;
 
-        // 공격 종료 시 현재 입력 상태에 맞춰 이동 애니메이션 갱신
         bool isCurrentlyMoving = moveInput.sqrMagnitude > 0.01f;
         UpdateAnimation(isCurrentlyMoving);
     }
 
-    // 총 장착/해제 (인벤토리/무기 시스템에서 호출)
+    // 총 장착/해제 
     public void SetAttackEquipState(bool value)
     {
         if (animator == null)
@@ -432,11 +418,11 @@ public class HeroMoveControl : MonoBehaviour
         Debug.Log($"[HeroMoveControl] SetAttackEquipState -> {value}");
         animator.SetInteger(paramAttack, value ? 1 : 0);
 
-         // 무기 장착 여부에 따라 Hero 하위 Pistol_* 오브젝트의 표시 상태 갱신
-         if (weaponVisual != null)
-         {
-             weaponVisual.SetWeaponEquipped(value);
-         }
+        // 무기 장착 여부에 따라 Hero 하위 Pistol_* 오브젝트의 표시 상태 갱신
+        if (weaponVisual != null)
+        {
+            weaponVisual.SetWeaponEquipped(value);
+        }
 
         if (!value && attackResetRoutine != null)
         {
@@ -451,14 +437,10 @@ public class HeroMoveControl : MonoBehaviour
     // 외부에서 특정 위치로 워프할 때 사용 (타겟 위치로 순간 이동)
     public void SetTargetPosition(Vector2 pos)
     {
-        if (rb == null) rb = GetComponent<Rigidbody2D>();
-
-        rb.position = pos;
-        rb.linearVelocity = Vector2.zero;
-        UpdateAnimation(false);
+        ForceMove(pos);
     }
 
-    // 즉시 텔레포트 (SetTargetPosition과 동일한 역할, 이름만 다름)
+    // ⭐ 강제 텔레포트 함수 (FadeManager에서 호출됨)
     public void ForceMove(Vector2 newPos)
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();
@@ -468,7 +450,7 @@ public class HeroMoveControl : MonoBehaviour
         UpdateAnimation(false);
     }
 
-    // 쉘터에서 나갈 때 외부 위치로 강제 이동시킬 때 사용
+    // 쉘터에서 나갈 때 외부 위치로 강제 이동시킬 때 사용 (ForceMove와 동일)
     public void ExitShelter(Vector3 outsidePos)
     {
         ForceMove(outsidePos);

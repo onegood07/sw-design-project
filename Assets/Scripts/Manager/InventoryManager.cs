@@ -135,6 +135,8 @@ public class InventoryManager : MonoBehaviour
 
                 UsableItem.Use(heroT, useVec);
                 CoolTimeManager.Instance.AddCooltimeQueue(Item.getItemName,Item.getCoolTime);
+                if(Item.getClip != null)SoundManager.Instance.PlaySFX(Item.getClip,1.0f);
+                else Debug.Log("사운드 없음");
             }
             else
             {

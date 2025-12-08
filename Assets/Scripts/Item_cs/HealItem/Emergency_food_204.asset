@@ -19,6 +19,7 @@ MonoBehaviour:
   MaxStackCount: 99
   isAvailable: 1
   originCoolTime: 30
+  clip: {fileID: 8300000, guid: c48a972d3d024c2408a3331750786a29, type: 3}
   whichStat:
   - hp
   - hunger
