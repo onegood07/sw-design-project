@@ -420,7 +420,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1674353676598910932, guid: fd60deea88bc75742bd8f1788d95557c, type: 3}
+  m_Sprite: {fileID: -6626751691169886241, guid: 38388373d09b84b42b977e61f9077b55, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -604,7 +604,7 @@ MonoBehaviour:
   itemIcon: {fileID: 7146906833007771545}
   itemCountText: {fileID: 6874894384043231934}
   slotIndex: 0
-  recipe: {fileID: 0}
+  requiredItem: {fileID: 0}
   requiredItemName: 
   requiredAmount: 0
   submittedCount: 0
@@ -649,7 +649,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 70, y: -90}
+  m_AnchoredPosition: {x: 48, y: -90}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9183841506200122714
@@ -910,7 +910,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 229.6, y: -100}
+  m_AnchoredPosition: {x: 217.2, y: -100}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &179406892682914291

@@ -100,7 +100,7 @@ public class QuestManager : MonoBehaviour
         {
             Debug.LogWarning("[QuestManager] InventoryUI 인스턴스를 찾을 수 없습니다. 인벤토리를 열 수 없습니다.");
         }
-
+        GameManager.Instance?.StartInteraction();
         Debug.Log("[OpenSubmitUI] UI 열림 완료");
     }
 
@@ -152,6 +152,9 @@ public class QuestManager : MonoBehaviour
             Debug.Log("[CloseSubmitUI] DialogueManager 상태 강제 종료 처리 완료.");
         }
 
+        GameManager.Instance?.EndInteraction();
+        Debug.Log("[CloseSubmitUI] GameManager.EndInteraction() 호출 완료.");
+
         // 4. ✅ 인벤토리 UI 비활성화
         if (InventoryUI.instance != null) 
         {
@@ -202,6 +205,9 @@ public class QuestManager : MonoBehaviour
         {
             DialogueManager.Instance.ContinueDialogueAtNode(nextDialogueNodeIndex);
             Debug.Log($"[HandleQuestCompletion] 다음 노드 진행: {nextDialogueNodeIndex}");
+        } else
+        {
+            
         }
 
         activeQuestData = null;

@@ -42,7 +42,7 @@ public class ZombieNavMove : MonoBehaviour
     float attackTimer = 0f;       // 공격 딜레이 타이머
     float wanderTimer = 0f;       // 배회 목적지 갱신 타이머
     Vector2Int lastMoveDir = Vector2Int.down; // 애니메이션에 사용할 마지막 이동 방향
-    public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
+    // public bool isInDialogue = false; // 플레이어가 NPC와 대화 중인지 확인
 
     void Awake()
     {
@@ -103,7 +103,9 @@ public class ZombieNavMove : MonoBehaviour
 
    void Update()
 {
-   if (isInDialogue)
+    bool dialogueActive = GameManager.Instance != null && GameManager.Instance.IsDialogueActive;
+
+   if (dialogueActive)
     {
         // 이미 멈춰있을 수 있지만, 매 프레임 확실히 확인
         if (agent != null && !agent.isStopped) 

@@ -34,7 +34,7 @@ public class Inventory : MonoBehaviour
     public int slotCnt = 20;
 
     /// <summary>
-    /// 필드 아이템 데이터를 받아 슬롯에 추가하거나 기존 스택을 증가시킵니다. (기존 AddItem 유지)
+    /// 필드 아이템 데이터를 받아 슬롯에 추가하거나 기존 스택을 증가시킵니다.
     /// ExchangeManager에서 보상 지급 시 호출됩니다.
     /// </summary>
     public bool AddItem(Item worldItem, int addCount = 1)
@@ -85,7 +85,8 @@ public class Inventory : MonoBehaviour
     }
 
     /// <summary>
-    /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다. (기존 ConsumeItemAt 유지)
+    /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다.
+    /// 슬롯이 완전히 비워지면, 해당 인덱스를 참조하고 있던 퀵슬롯도 함께 정리합니다. (★ 최신 버전 로직)
     /// </summary>
     public int ConsumeItemAt(int index, int amount = 1)
     {
@@ -98,6 +99,12 @@ public class Inventory : MonoBehaviour
         {
             items[index] = null;
             item.count = 0;
+
+            // 이 인벤토리 슬롯을 참조하던 퀵슬롯이 있으면 함께 비워준다. (최신 버전 추가)
+            if (InventoryManager.Instance != null)
+            {
+                InventoryManager.Instance.OnInventorySlotCleared(index);
+            }
         }
 
         onChangeItem?.Invoke();
@@ -105,7 +112,7 @@ public class Inventory : MonoBehaviour
     }
     
     // ==========================================================
-    // ★★★★★ 교환 시스템을 위한 필수 함수 추가 ★★★★★
+    // ★★★★★ 교환 시스템을 위한 필수 함수 ★★★★★
     // ==========================================================
     
     // 1. 특정 아이템을 요구 수량만큼 가지고 있는지 확인 (ExchangeSlot에서 호출)
@@ -159,5 +166,35 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // 3. 중복되는 AddItem(Item, int) 오버로드는 기존 AddItem이 처리하므로 삭제함.
+    /// <summary>
+    /// 인벤토리 리스트에서 null 슬롯을 제거하고, 남은 아이템들을 앞쪽으로 당겨 재배치합니다.
+    /// (아이템 순서는 유지, 퀵슬롯과의 인덱스 연동도 갱신) (★ 최신 버전 추가 함수)
+    /// </summary>
+    public void CompactItems()
+    {
+        if (items == null || items.Count == 0)
+            return;
+
+        List<InventoryItem> newItems = new List<InventoryItem>(items.Count);
+
+        for (int oldIndex = 0; oldIndex < items.Count; oldIndex++)
+        {
+            var it = items[oldIndex];
+            if (it == null)
+                continue;
+
+            int newIndex = newItems.Count;
+            newItems.Add(it);
+
+            // 퀵슬롯에서 이 인덱스를 참조하고 있다면 새 인덱스로 갱신
+            if (InventoryManager.Instance != null)
+            {
+                InventoryManager.Instance.OnInventorySlotMoved(oldIndex, newIndex);
+            }
+        }
+
+        items = newItems;
+
+        onChangeItem?.Invoke();
+    }
 }

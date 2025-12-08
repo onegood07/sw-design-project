@@ -46,14 +46,14 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
     {
         // 1. 필수 컴포넌트나 데이터가 없으면 조기 리턴 (안정성 확보)
         if (CooltimeImage == null) {
-            Debug.Log("쿨타임 이미지 없음");
+            // Debug.Log("쿨타임 이미지 없음");
             return;
         }
 
         // 아이템이 없으면 쿨타임 이미지를 0으로 만들고 종료
         if (linkedItemData == null)
         {
-            Debug.Log("no linkedItemData");
+            // Debug.Log("no linkedItemData");
             if (CooltimeImage.fillAmount > 0) CooltimeImage.fillAmount = 0f;
             return;
         }

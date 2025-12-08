@@ -155,7 +155,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.0056984574, y: 0.0094973}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -165,7 +165,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.25, y: 0.671875}
+  m_Size: {x: 0.33737484, y: 0.75165236}
   m_EdgeRadius: 0
 --- !u!114 &6757040268250404406
 MonoBehaviour:
@@ -192,8 +192,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3ad2539ad9ba47639d8d65eb1107cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LeaderNPC
-  submitRecipes:
-  - {fileID: 11400000, guid: 0f34f60bf774c496ea2209d25be2f9f3, type: 2}
-  - {fileID: 11400000, guid: 1abe1d09b98f34842b6a5b4b9c685076, type: 2}
-  - {fileID: 11400000, guid: 8c2d895eebc34448ca4c5ccc27bd5c5b, type: 2}
-  - {fileID: 11400000, guid: 732cbd68e2eff4cd081a33d72e8dfcc0, type: 2}
