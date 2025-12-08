@@ -522,11 +522,13 @@ void StartNightPhase()
             GenerateRequiredItems(); 
             
             Coroutine uiWait = ShowDayChangeMessage(CurrentDay, survivorLoss); 
-            if (uiWait != null)
-            {
-                yield return uiWait;
-            }
+            // if (uiWait != null)
+            // {
+            //     yield return uiWait;
+            // }
         }
+
+        yield break;
     }
 
     // MARK: 일차 변경 안내문 표시
