@@ -19,6 +19,7 @@ public class HeroWeaponVisual : MonoBehaviour
     [SerializeField] private GameObject pistol_E;
 
     private bool hasWeapon = false;
+    private bool isRolling = false; // 구르는 중에는 총을 숨기기 위한 플래그
 
     private enum Direction
     {
@@ -42,6 +43,16 @@ public class HeroWeaponVisual : MonoBehaviour
     public void SetWeaponEquipped(bool equipped)
     {
         hasWeapon = equipped;
+        UpdatePistolVisible();
+    }
+
+    /// <summary>
+    /// 구르기 시작/종료 상태를 갱신한다.
+    /// 구르는 동안에는 무기 장착 여부와 상관없이 총을 숨긴다.
+    /// </summary>
+    public void SetRolling(bool rolling)
+    {
+        isRolling = rolling;
         UpdatePistolVisible();
     }
 
@@ -79,8 +90,8 @@ public class HeroWeaponVisual : MonoBehaviour
         if (pistol_W != null) pistol_W.SetActive(false);
         if (pistol_E != null) pistol_E.SetActive(false);
 
-        // 무기 미장착이면 그대로 종료
-        if (!hasWeapon)
+        // 무기 미장착이거나, 구르는 중이면 그대로 종료 (전부 비활성 유지)
+        if (!hasWeapon || isRolling)
             return;
 
         // 무기 장착 상태면 현재 바라보는 방향만 켜기

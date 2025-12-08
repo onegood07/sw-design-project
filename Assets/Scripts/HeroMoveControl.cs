@@ -211,6 +211,12 @@ public class HeroMoveControl : MonoBehaviour
             rollTimer = rollDuration;          // 구르기 타이머 시작
             rollCooldownTimer = rollCooldown;  // 쿨타임 설정
 
+            // 구르기 시작하는 동안에는 총을 숨긴다.
+            if (weaponVisual != null)
+            {
+                weaponVisual.SetRolling(true);
+            }
+
             // 구르기 방향 기준으로 마지막 방향/시선 갱신
             lastMoveDir = new Vector2Int(
                 Mathf.RoundToInt(rollDirection.x),
@@ -320,6 +326,12 @@ public class HeroMoveControl : MonoBehaviour
                 isRolling = false;
                 animator.SetBool("ROLL", false);   // 애니메이터 bool도 false로
 
+                // 구르기가 끝나면, 무기 장착 상태/방향에 맞게 다시 총을 보이게 할 수 있도록 롤링 해제
+                if (weaponVisual != null)
+                {
+                    weaponVisual.SetRolling(false);
+                }
+
                 // 구르기 종료 후 입력이 없으면 즉시 멈추고 Idle 애니메이션
                 if (moveInput.sqrMagnitude <= 0.01f)
                 {
@@ -420,11 +432,11 @@ public class HeroMoveControl : MonoBehaviour
         Debug.Log($"[HeroMoveControl] SetAttackEquipState -> {value}");
         animator.SetInteger(paramAttack, value ? 1 : 0);
 
-        // 무기 장착 여부에 따라 Hero 하위 Pistol_* 오브젝트의 표시 상태 갱신
-        if (weaponVisual != null)
-        {
-            weaponVisual.SetWeaponEquipped(value);
-        }
+         // 무기 장착 여부에 따라 Hero 하위 Pistol_* 오브젝트의 표시 상태 갱신
+         if (weaponVisual != null)
+         {
+             weaponVisual.SetWeaponEquipped(value);
+         }
 
         if (!value && attackResetRoutine != null)
         {
