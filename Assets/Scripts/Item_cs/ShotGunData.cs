@@ -10,7 +10,6 @@ public class ShotGunData : WeaponData,IUsable
     public float[] wides = new float[5];
 
 
-
     /*
     - Use
     - 인자 : hero 위치, 시야 방향

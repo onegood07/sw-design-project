@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: Lantern_300
   m_EditorClassIdentifier: Assembly-CSharp::LanternData
   ItemName: 300
+  Score: 0
   Description: 
   Icon: {fileID: 0}
   MaxStackCount: 1
   isAvailable: 1
-  coolTime: 0
+  originCoolTime: 0
+  clip: {fileID: 8300000, guid: 69b6e5bea98fa32499d06aae80068767, type: 3}
