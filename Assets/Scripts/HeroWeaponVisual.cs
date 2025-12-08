@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -30,6 +31,11 @@ public class HeroWeaponVisual : MonoBehaviour
     }
 
     private Direction facingDir = Direction.South; // 기본은 아래 방향
+
+    // 공격 시 잠깐 다른 방향으로 보여줬다가 되돌리기 위한 저장용 변수들
+    private Direction previousFacingDir;
+    private Quaternion prevRotS, prevRotN, prevRotW, prevRotE;
+    private Coroutine attackOverrideRoutine;
 
     private void Awake()
     {
@@ -110,6 +116,84 @@ public class HeroWeaponVisual : MonoBehaviour
                 if (pistol_E != null) pistol_E.SetActive(true);
                 break;
         }
+    }
+
+    /// <summary>
+    /// 공격/조준 방향 벡터를 받아 총 스프라이트들을 해당 방향으로 회전시킨다.
+    /// (현재 활성화된 Pistol_* 하나만 보이지만, 안전하게 네 개 모두 같은 각도로 맞춰둔다)
+    /// </summary>
+    public void RotateGun(Vector2 dir)
+    {
+        if (dir.sqrMagnitude < 0.0001f)
+            return;
+
+        // Atan2로 2D 방향을 각도(도 단위)로 변환. (오른쪽이 0도 기준)
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+        // 왼쪽(West)으로 쏠 때 스프라이트가 거꾸로 보이면 보정용으로 180도 추가 회전
+        if (facingDir == Direction.West)
+        {
+            angle += 180f;
+        }
+
+        Quaternion rot = Quaternion.AngleAxis(angle, Vector3.forward);
+
+        if (pistol_S != null) pistol_S.transform.rotation = rot;
+        if (pistol_N != null) pistol_N.transform.rotation = rot;
+        if (pistol_W != null) pistol_W.transform.rotation = rot;
+        if (pistol_E != null) pistol_E.transform.rotation = rot;
+    }
+
+    /// <summary>
+    /// 공격할 때 잠깐 다른 방향으로 총을 보여줬다가,
+    /// 일정 시간 후에 원래 방향/회전 상태로 되돌린다.
+    /// (HeroAttackFlash와 짝을 이뤄서 사용)
+    /// </summary>
+    public void ShowAttackOverride(Vector2 dir, float duration = 0.1f)
+    {
+        if (dir.sqrMagnitude < 0.0001f)
+            return;
+
+        // 이전에 돌리던 코루틴이 있으면 먼저 원상복구
+        if (attackOverrideRoutine != null)
+        {
+            StopCoroutine(attackOverrideRoutine);
+            RestorePreviousState();
+            attackOverrideRoutine = null;
+        }
+
+        // 현재 상태 저장
+        previousFacingDir = facingDir;
+        if (pistol_S != null) prevRotS = pistol_S.transform.rotation;
+        if (pistol_N != null) prevRotN = pistol_N.transform.rotation;
+        if (pistol_W != null) prevRotW = pistol_W.transform.rotation;
+        if (pistol_E != null) prevRotE = pistol_E.transform.rotation;
+
+        // 공격 방향을 기준으로 임시 방향 설정 + 총 활성/회전
+        UpdateDirection(dir);   // 이 안에서 facingDir을 dir 기준으로 스냅 + 활성 Pistol_* 변경
+        RotateGun(dir);         // 실제 조준 각도로 회전
+
+        // duration 후에 원상 복구
+        attackOverrideRoutine = StartCoroutine(RestoreAfterDelay(duration));
+    }
+
+    private IEnumerator RestoreAfterDelay(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        RestorePreviousState();
+        attackOverrideRoutine = null;
+    }
+
+    private void RestorePreviousState()
+    {
+        // 구르는 중이면 어차피 안 보이므로, 상태만 되돌려놓고 표시 갱신은 롤 끝날 때 처리돼도 됨
+        facingDir = previousFacingDir;
+        UpdatePistolVisible();
+
+        if (pistol_S != null) pistol_S.transform.rotation = prevRotS;
+        if (pistol_N != null) pistol_N.transform.rotation = prevRotN;
+        if (pistol_W != null) pistol_W.transform.rotation = prevRotW;
+        if (pistol_E != null) pistol_E.transform.rotation = prevRotE;
     }
 }
 

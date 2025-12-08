@@ -113,7 +113,9 @@ public class InventoryManager : MonoBehaviour
         }
         ItemData Item = quickSlotItems[index];
         Debug.Log(Item);
-        if (HeroTransform == null) Debug.Log("HeroTransform 참조 불가");
+
+        if (HeroTransform == null)
+            Debug.LogWarning("[InventoryManager] HeroTransform 참조 불가 (HeroTransform이 인스펙터에서 연결되어 있는지 확인하세요).");
         if (Item == null)
         {
             Debug.Log("빈 슬롯");
@@ -127,16 +129,46 @@ public class InventoryManager : MonoBehaviour
         }
         if (Item is IUsable UsableItem)
         {
-            // 쿨타임 체크
-            if (!(CoolTimeManager.Instance.GetCurrentCooltime(Item.getItemName) > 0))
+            // 쿨타임 매니저가 없으면 경고만 찍고, 쿨타임 없이 아이템은 사용 가능하게 처리
+            bool hasCoolTimeManager = CoolTimeManager.Instance != null;
+            bool isOnCooldown = false;
+
+            if (hasCoolTimeManager)
+            {
+                isOnCooldown = CoolTimeManager.Instance.GetCurrentCooltime(Item.getItemName) > 0;
+            }
+            else
+            {
+                Debug.LogWarning("[InventoryManager] CoolTimeManager.Instance 가 null 입니다. 쿨타임 없이 아이템을 사용합니다.");
+            }
+
+            // 쿨타임이 없거나(매니저 없음 포함), 현재 쿨타임이 0 이하일 때만 사용
+            if (!isOnCooldown)
             {
                 // 임시로 그냥 ConsumeQuickSlotItem 호출
-                if (Item.getItemName / 100 != 1)ConsumeQuickSlotItem(index);
+                if (Item.getItemName / 100 != 1)
+                    ConsumeQuickSlotItem(index);
 
                 UsableItem.Use(heroT, useVec);
-                CoolTimeManager.Instance.AddCooltimeQueue(Item.getItemName,Item.getCoolTime);
-                if(Item.getClip != null)SoundManager.Instance.PlaySFX(Item.getClip,1.0f);
-                else Debug.Log("사운드 없음");
+
+                if (hasCoolTimeManager)
+                {
+                    CoolTimeManager.Instance.AddCooltimeQueue(Item.getItemName, Item.getCoolTime);
+                }
+
+                // 사운드 매니저 및 클립이 둘 다 유효할 때만 재생
+                if (Item.getClip != null && SoundManager.Instance != null)
+                {
+                    SoundManager.Instance.PlaySFX(Item.getClip, 1.0f);
+                }
+                else if (Item.getClip != null && SoundManager.Instance == null)
+                {
+                    Debug.LogWarning("[InventoryManager] SoundManager.Instance 가 null 입니다. 효과음을 재생할 수 없습니다.");
+                }
+                else
+                {
+                    Debug.Log("사운드 없음");
+                }
             }
             else
             {
