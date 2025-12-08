@@ -101733,6 +101733,10 @@ PrefabInstance:
       propertyPath: m_PixelsPerUnitMultiplier
       value: 0.45
       objectReference: {fileID: 0}
+    - target: {fileID: 2380643734962950810, guid: de2ff019ed3694eecbfb8cb0197b0cbd, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 56.93
+      objectReference: {fileID: 0}
     - target: {fileID: 4268264977765860211, guid: de2ff019ed3694eecbfb8cb0197b0cbd, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
