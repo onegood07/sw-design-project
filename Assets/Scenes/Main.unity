@@ -92819,7 +92819,7 @@ GameObject:
   - component: {fileID: 973129208}
   - component: {fileID: 973129207}
   m_Layer: 5
-  m_Name: NoticeItemListPanel
+  m_Name: DayChangePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
