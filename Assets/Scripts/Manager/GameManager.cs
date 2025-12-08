@@ -515,7 +515,7 @@ void StartNightPhase()
         {
             if (spawnManager != null)
             {
-                // spawnManager.ResetPersistentData();
+                spawnManager.ResetPersistentData();
                 Debug.Log("[GameManager] 일차 변경으로 아이템/NPC/좀비 영구 데이터 및 씬 오브젝트 초기화 완료.");
             }
             
