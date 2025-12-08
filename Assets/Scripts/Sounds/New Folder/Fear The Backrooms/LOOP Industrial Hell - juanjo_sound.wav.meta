@@ -1,0 +1,30 @@
+fileFormatVersion: 2
+guid: e7a506dc38f3b444fa8e911f54b93d55
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 8
+  defaultSettings:
+    serializedVersion: 2
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+    preloadAudioData: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 344640
+  packageName: Backrooms Music Pack - Fear The Backrooms
+  packageVersion: 1.0
+  assetPath: Assets/Fear The Backrooms/LOOP Industrial Hell - juanjo_sound.wav
+  uploadId: 818658

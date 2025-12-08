@@ -5,7 +5,8 @@ public class SoundManager : MonoBehaviour
 {
     // 1. 외부에서 접근해야 하므로 public으로 변경!
     public static SoundManager Instance; 
-
+    [Range(0f,1f)]
+    [SerializeField]private float defaultVolume;
     public AudioMixer audioMixer;
     
     [Header("효과음 재생기")]
@@ -23,6 +24,10 @@ public class SoundManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+    }
+    void Start()
+    {
+        SetVolume(defaultVolume);
     }
 
     public void SetVolume(float volume)

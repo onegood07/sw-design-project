@@ -19,6 +19,7 @@ MonoBehaviour:
   MaxStackCount: 0
   isAvailable: 1
   originCoolTime: 0
+  clip: {fileID: 8300000, guid: 69b6e5bea98fa32499d06aae80068767, type: 3}
   whichStat:
   - speed
   healAmount:

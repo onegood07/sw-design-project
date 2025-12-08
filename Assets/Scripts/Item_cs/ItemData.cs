@@ -73,4 +73,13 @@ public abstract class ItemData : ScriptableObject
             return originCoolTime;
         }
     }
+    [Header("아이템 사용시 사운드")]
+    [SerializeField]private AudioClip clip;
+    public AudioClip getClip
+    {
+        get
+        {
+            return clip;
+        }
+    }
 }
