@@ -8,7 +8,7 @@ using System.Linq;
 
 // 게임 상태 관련 Enum 정의
 public enum GameEnding { None, Happy, GameOver, Bad } 
-public enum GameDays { FirstDay, SecondDay, ThirdDay, FourthDay } 
+public enum GameDays { FirstDay, SecondDay, ThirdDay }
 public enum Phase { Day, Night } 
 
 
@@ -227,51 +227,87 @@ public class GameManager : MonoBehaviour
     }
 
     // MARK: 전체 게임 루프 코루틴
-    IEnumerator GameLoopCoroutine()
+  // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
+IEnumerator GameLoopCoroutine()
+{
+    // ⭐ DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
+    (float dayTime, float nightTime) GetDuration(GameDays day)
     {
+        // 💡 모든 일차의 낮/밤 시간을 테스트용으로 30초(0.5분)로 고정합니다.
+        const float TEST_DURATION = 30f; 
+
+        switch (day)
+        {
+           case GameDays.FirstDay: 
+                    return (TEST_DURATION, TEST_DURATION); // 1일차: 낮 30초, 밤 30초
+                case GameDays.SecondDay: 
+                    return (TEST_DURATION, TEST_DURATION); // 2일차: 낮 30초, 밤 30초
+                case GameDays.ThirdDay: 
+                    return (TEST_DURATION, TEST_DURATION); // 3일차: 낮 30초, 밤 30초
+                default:
+                    // 혹시 모를 경우를 대비한 기본값
+                    return (TEST_DURATION, TEST_DURATION);
+        }
+    }
+    
+    // 1일차 낮 시간 설정 (Start()에서 이미 시작된 루프)
+    float firstDayDuration = GetDuration(GameDays.FirstDay).dayTime;
+    DayTimer = 0f;
+    while (DayTimer < firstDayDuration)
+    {
+        DayTimer += Time.deltaTime;
+        yield return null;
+    }
+    
+    // 2일차부터 3일차까지 루프
+    while (CurrentDay <= GameDays.ThirdDay)
+    {
+        (float currentDayDuration, float currentNightDuration) = GetDuration(CurrentDay);
+
+        // 1. 밤 페이즈
+        CurrentPhase = Phase.Night;
+        CurrentZombieSpawnCount += 20; 
+        Debug.Log($"🌙 [{CurrentDay}] 밤 시작! ({currentNightDuration/60f:F1}분 = {currentNightDuration:F0}초)");
+        ApplyGlobalLight();
+        StartNightPhase();
+        
+        NightTimer = 0f;
+        while (NightTimer < currentNightDuration) // ⭐ 동적 밤 시간 적용 (30초)
+        {
+            NightTimer += Time.deltaTime;
+            yield return null;
+        } 
+
+        // 2. 다음 날 전환
+        yield return StartCoroutine(NextDayCoroutine()); 
+        
+       if (CurrentDay > GameDays.ThirdDay)
+        {
+             CurrentEnding = GameEnding.Happy;
+             Debug.Log("[GameManager] 생존 성공! Happy Ending");
+             break; 
+        } 
+        
+        // 3. 낮 페이즈
+        (currentDayDuration, currentNightDuration) = GetDuration(CurrentDay); // 다음 날 시간 다시 가져옴
+        CurrentPhase = Phase.Day;
+        Debug.Log($"☀️ [{CurrentDay}] 낮 시작! ({currentDayDuration/60f:F1}분 = {currentDayDuration:F0}초)");
+        ApplyGlobalLight(); 
+        StartDayPhase();    
+        
         DayTimer = 0f;
-        while (DayTimer < dayDuration)
+        while (DayTimer < currentDayDuration) // ⭐ 동적 낮 시간 적용 (30초)
         {
             DayTimer += Time.deltaTime;
             yield return null;
         }
-        
-        while (CurrentDay <= GameDays.FourthDay)
-        {
-            CurrentPhase = Phase.Night;
-            CurrentZombieSpawnCount += 20; 
-            Debug.Log($"🌙 [{CurrentDay}] 밤 시작!");
-            ApplyGlobalLight();
-            StartNightPhase();
-            
-            NightTimer = 0f;
-            while (NightTimer < nightDuration)
-            {
-                NightTimer += Time.deltaTime;
-                yield return null;
-            } 
-
-            yield return StartCoroutine(NextDayCoroutine()); 
-            
-            if (CurrentDay > GameDays.FourthDay) break; 
-            
-            CurrentPhase = Phase.Day;
-            Debug.Log($"☀️ [{CurrentDay}] 낮 시작!");
-            ApplyGlobalLight(); 
-            StartDayPhase();    
-            
-            DayTimer = 0f;
-            while (DayTimer < dayDuration)
-            {
-                DayTimer += Time.deltaTime;
-                yield return null;
-            }
-        }
-
-        Debug.Log("모든 날이 종료되었습니다!");
     }
-    
-    // MARK: 납입 점수 기준에 따른 생존자 감소 계산
+
+    Debug.Log("모든 날이 종료되었습니다!");
+}
+
+
+ // MARK: 납입 점수 기준에 따른 생존자 감소 계산
     private int CalculateSurvivorLoss()
     {
         if (PreviousDayTargetScore <= 0) return 0; 
@@ -290,11 +326,12 @@ public class GameManager : MonoBehaviour
         
         Debug.Log($"[Survival Check] 납입 점수: {submittedScore} / {PreviousDayTargetScore}. 생존자 {actualLoss}명 감소. 잔여 생존자: {SurvivorCount}");
 
-        if (SurvivorCount <= 0)
-        {
-             if (CurrentEnding == GameEnding.None)
-                PlayerDied(); 
-        }
+        // TODO: 수정해야함
+        // if (SurvivorCount <= 0)
+        // {
+        //      if (CurrentEnding == GameEnding.None)
+        //         PlayerDied(); 
+        // }
 
         return actualLoss;
     }
@@ -503,15 +540,17 @@ void StartNightPhase()
         
         switch (CurrentDay)
         {
-            case GameDays.FirstDay: CurrentDay = GameDays.SecondDay; CurrentZombieSpawnCount += 10; break;
+           case GameDays.FirstDay: CurrentDay = GameDays.SecondDay; CurrentZombieSpawnCount += 10; break;
+            // ⭐ 3일차가 마지막이므로, 2일차 다음은 3일차
             case GameDays.SecondDay: CurrentDay = GameDays.ThirdDay; CurrentZombieSpawnCount += 10; break;
-            case GameDays.ThirdDay: CurrentDay = GameDays.FourthDay; break;
-            case GameDays.FourthDay: CurrentDay++; break;
+            // ⭐ 3일차 다음은 Enum의 다음 값 (종료 처리)
+            case GameDays.ThirdDay: CurrentDay++; break;
+            // case GameDays.FourthDay: 제거
         }
 
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
 
-        if (CurrentDay != previousDay && CurrentDay <= GameDays.FourthDay)
+       if (CurrentDay != previousDay && CurrentDay <= GameDays.ThirdDay)
         {
             if (spawnManager != null)
             {
@@ -638,7 +677,6 @@ public int PredictSurvivorLoss()
             case GameDays.FirstDay: return "1일차";
             case GameDays.SecondDay: return "2일차";
             case GameDays.ThirdDay: return "3일차";
-            case GameDays.FourthDay: return "4일차";
             default: return "";
         }
     }
@@ -690,6 +728,24 @@ public int PredictSurvivorLoss()
         }
 
         ApplyGlobalLight(); 
+    }
+
+    public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
+    {
+        // ⭐ 테스트를 위해 GameLoopCoroutine 내부의 로직과 동일하게 30초로 변경해야 합니다.
+        const float TEST_DURATION = 30f; 
+
+        switch (day)
+        {
+            case GameDays.FirstDay: 
+                    return (TEST_DURATION, TEST_DURATION); // 1일차: 낮 30초, 밤 30초
+                case GameDays.SecondDay: 
+                    return (TEST_DURATION, TEST_DURATION); // 2일차: 낮 30초, 밤 30초
+                case GameDays.ThirdDay: 
+                    return (TEST_DURATION, TEST_DURATION); // 3일차: 낮 30초, 밤 30초
+                default:
+                    return (TEST_DURATION, TEST_DURATION); // 안전 반환값
+        }
     }
 
     public void ResetGameSession()

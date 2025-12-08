@@ -12,36 +12,39 @@ public class ClockHUD : MonoBehaviour
         // prevPhase = GameManager.Instance.CurrentPhase;  // ⭐ 삭제
     }
 
-    void Update()
+    // ClockHUD.cs
+
+void Update()
+{
+    if (GameManager.Instance == null) return;
+    
+    float curTimer;
+    float maxTime;      
+
+    // ⭐ 1. 현재 일차의 동적 최대 시간을 가져옵니다.
+    (float dynamicDayTime, float dynamicNightTime) = 
+        GameManager.Instance.GetDurationForDay(GameManager.Instance.CurrentDay);
+    
+    // 2. 현재 페이즈에 맞는 타이머 값과 최대 시간을 설정합니다.
+    if (GameManager.Instance.CurrentPhase == Phase.Day)
     {
-        // GameManager 인스턴스가 유효한지 확인
-        if (GameManager.Instance == null) return;
-        
-        float curTimer;
-        float maxTime;      
-
-        // 1. 현재 페이즈에 맞는 타이머 값과 최대 시간을 GameManager에서 가져옵니다.
-        if (GameManager.Instance.CurrentPhase == Phase.Day)
-        {
-            curTimer = GameManager.Instance.DayTimer; // ⭐ DayTimer 사용
-            maxTime = GameManager.Instance.dayDuration;
-        }
-        else
-        {
-            curTimer = GameManager.Instance.NightTimer; // ⭐ NightTimer 사용
-            maxTime = GameManager.Instance.nightDuration;
-        }
-        
-        // 2. 비율 계산 및 바늘 회전
-        // Clamp01을 사용하여 타이머가 maxTime을 초과하더라도 1.0f를 넘지 않게 보장
-        float ratio = Mathf.Clamp01(curTimer / maxTime);
-        float angle = ratio * 360f;
-        
-        // 바늘의 회전 중심점 설정 (pivot은 Inspector에서 0.5f, 0.2f로 설정하는 것이 일반적)
-        // ClockHand.pivot = new Vector2(0.5f, 0.2f); // 여기서 강제 설정 대신 Inspector 설정 권장
-
-        // 각도 적용 (시계 방향 회전이 보통 음수)
-        ClockHand.localRotation = Quaternion.Euler(0, 0, -angle);
-        // 최대 시간 비율에 따라 바늘이 돌아가도록 설정
+        curTimer = GameManager.Instance.DayTimer;
+        maxTime = dynamicDayTime; // ⭐ 동적으로 가져온 낮 시간을 사용
     }
+    else
+    {
+        curTimer = GameManager.Instance.NightTimer;
+        maxTime = dynamicNightTime; // ⭐ 동적으로 가져온 밤 시간을 사용
+    }
+    
+    // 최대 시간이 0이면 오류 방지
+    if (maxTime <= 0f) return; 
+    
+    // 3. 비율 계산 및 바늘 회전
+    float ratio = Mathf.Clamp01(curTimer / maxTime);
+    float angle = ratio * 360f;
+    
+    // 각도 적용 (시계 방향 회전이 보통 음수)
+    ClockHand.localRotation = Quaternion.Euler(0, 0, -angle);
+}
 }
