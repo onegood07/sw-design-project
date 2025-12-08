@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using System.Linq; // List.Sum, List.FindIndex 등을 사용하기 위해 추가
-
+using System.Linq; 
+using UnityEngine.SceneManagement; // using 추가
 
 // 아이템 스폰 정보 구조체 (기존 구조체)
 [System.Serializable]
@@ -100,8 +100,6 @@ public class SpawnManager : MonoBehaviour
     // 🌟 씬이 로드될 때 호출되는 이벤트 등록
     void OnEnable()
     {
-        // SceneManager를 사용하기 위해 UnityEngine.SceneManagement이 필요합니다.
-        // 현재 코드 상단에 using UnityEngine.SceneManagement;이 없으므로 명시적으로 지정합니다.
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -127,6 +125,10 @@ public class SpawnManager : MonoBehaviour
                 RestorePersistentObjects();
             }
             // 기존 데이터가 없다면 (첫 스폰이 필요하다면) GameManager에서 StartSpawnProcess를 호출해야 합니다.
+            
+            // ⭐ 보충: 씬 전환 후 기존 좀비가 파괴되었을 수 있으므로 spawnedZombies 리스트를 비웁니다.
+            // 좀비는 영구 데이터가 없으므로 씬 전환 시 파괴됩니다.
+            spawnedZombies.Clear();
         }
         // 🌟 쉘터 씬으로 이동 시, 현재 씬의 모든 스폰된 오브젝트를 클리어합니다.
         else if (scene.name == GameManager.Instance.ShelterSceneName)
@@ -213,78 +215,64 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    // MARK: 오브젝트 스폰 공용 함수 (🌟 [수정] 지속 데이터 기록 로직 추가)
-  // SpawnManager.cs
-
-private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> availablePositions, List<GameObject> outputList, ItemType? type = null)
-{
-    List<Vector3> usedPositions = new List<Vector3>();
-    List<Vector3> copy = new List<Vector3>(availablePositions);
-    
-    // ❌ isDialogueActive 변수를 사용하여 좀비를 수동으로 잠글 필요가 없어졌습니다.
-    // bool isDialogueActive = DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive; 
-    
-    // Item/NPC 프리팹 이름 가져오기
-    string prefabName = prefab.name;
-
-    for (int i = 0; i < count; i++)
+    // MARK: 오브젝트 스폰 공용 함수 (🌟 지속 데이터 기록 로직 포함)
+    private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> availablePositions, List<GameObject> outputList, ItemType? type = null)
     {
-        if (copy.Count == 0) break; 
-
-        int index = Random.Range(0, copy.Count); 
-        Vector3 spawnPos = copy[index];
-        GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity); 
-
-        outputList.Add(obj); 
-
-        // 아이템일 경우 ItemManager에 등록 및 Persistent Item Data 기록
-        if (type.HasValue && itemManager != null)
-        {
-            itemManager.RegisterSpawnedItem(obj, type.Value);
-            
-            // 🌟 Persistent Item Data 기록
-            persistentItems.Add(new PersistentItemData
-            {
-                position = spawnPos,
-                prefabName = prefabName,
-                type = type.Value
-            });
-        }
-        // NPC일 경우 Persistent NPC Data 기록 (type이 null이면서 NPC 프리팹인 경우)
-        else if (type == null && outputList == spawnedNPCs)
-        {
-            // 🌟 Persistent NPC Data 기록
-            persistentNPCs.Add(new PersistentNPCData
-            {
-                position = spawnPos,
-                prefabName = prefabName
-            });
-        }
+        List<Vector3> usedPositions = new List<Vector3>();
+        List<Vector3> copy = new List<Vector3>(availablePositions);
         
-        // ❌ 좀비 정지 로직 제거 (이제 GameManager 상태에 따라 좀비 스스로 정지합니다.)
-        /*
-        if (isDialogueActive)
+        string prefabName = prefab.name;
+
+        for (int i = 0; i < count; i++)
         {
-            var zombieMove = obj.GetComponent<ZombieMove>(); 
-            if (zombieMove != null) { zombieMove.isInDialogue = true; }
+            if (copy.Count == 0) break; 
+
+            int index = Random.Range(0, copy.Count); 
+            Vector3 spawnPos = copy[index];
+            GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity); 
+
+            outputList.Add(obj); 
+
+            // 아이템일 경우 ItemManager에 등록 및 Persistent Item Data 기록
+            if (type.HasValue && itemManager != null)
+            {
+                itemManager.RegisterSpawnedItem(obj, type.Value);
+                
+                // 🌟 Persistent Item Data 기록
+                persistentItems.Add(new PersistentItemData
+                {
+                    position = spawnPos,
+                    prefabName = prefabName,
+                    type = type.Value
+                });
+            }
+            // NPC일 경우 Persistent NPC Data 기록 (type이 null이면서 NPC 프리팹인 경우)
+            else if (type == null && outputList == spawnedNPCs)
+            {
+                // 🌟 Persistent NPC Data 기록
+                persistentNPCs.Add(new PersistentNPCData
+                {
+                    position = spawnPos,
+                    prefabName = prefabName
+                });
+            }
             
-            var zombieNavMove = obj.GetComponent<ZombieNavMove>(); 
-            if (zombieNavMove != null) { zombieNavMove.isInDialogue = true; }
+            // 좀비는 영구 데이터를 기록하지 않습니다. (씬 전환 시 파괴됨)
+
+            usedPositions.Add(spawnPos);
+            copy.RemoveAt(index); 
         }
-        */
 
-        usedPositions.Add(spawnPos);
-        copy.RemoveAt(index); 
+        return usedPositions; 
     }
-
-    return usedPositions; 
-}
+    
     // MARK: - 🌟 [추가] 지속 오브젝트 복원 함수
     public void RestorePersistentObjects()
     {
         // 씬에서 이미 스폰된 오브젝트 목록 초기화
         ClearItems();
         ClearNPCs();
+        // 좀비는 ClearZombies()를 호출하지 않습니다. (씬 전환 시 이미 파괴되었거나, 새로운 낮이라 좀비가 없다고 가정)
         
         // 1. 아이템 복원
         foreach (var itemData in persistentItems)
@@ -341,7 +329,7 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
     }
 
 
-    // MARK: 아이템, NPC, 좀비 스폰 함수 (🌟 [수정] 영구 데이터가 없을 때만 실행)
+    // MARK: 아이템, NPC, 좀비 스폰 함수 (🌟 영구 데이터가 없을 때만 실행)
     public void StartSpawnProcess(int totalItemCount, int npcCount, int zombieCount)
     {
         // 이미 영구 데이터가 있다면 초기 스폰을 건너뜁니다.
@@ -350,10 +338,14 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
             Debug.LogWarning("[SpawnManager] 영구 데이터가 존재하여 초기 스폰을 건너뛰었습니다. 복원 로직을 사용해야 합니다.");
             return;
         }
-
-        if (spawnedItems.Count > 0 || spawnedNPCs.Count > 0 || spawnedZombies.Count > 0)
-            return;
         
+        // (좀비는 씬 전환 시 파괴되므로 spawnedZombies.Count는 0일 것입니다.)
+        if (spawnedItems.Count > 0 || spawnedNPCs.Count > 0)
+        {
+             Debug.LogWarning("[SpawnManager] 아이템/NPC가 씬에 이미 스폰되어 있어 초기 스폰을 건너뜁니다.");
+             return;
+        }
+
         if (allSpawnPositions.Count == 0)
         {
             Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없습니다.");
@@ -362,7 +354,7 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
 
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
         
-        // 1. 아이템 스폰 및 Persistent Item Data 기록
+        // 1. 아이템 스폰 및 Persistent Item Data 기록 (기존 로직 유지)
         float totalWeight = itemInfos.Sum(info => info.ratio);
 
         for (int i = 0; i < totalItemCount; i++)
@@ -407,7 +399,7 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
             }
         }
 
-        // 2. NPC 스폰 및 Persistent NPC Data 기록
+        // 2. NPC 스폰 및 Persistent NPC Data 기록 (기존 로직 유지)
         int actualNpcCount = Mathf.Min(npcCount, npcPrefabs.Length); 
 
         if (npcPrefabs.Length == 0) 
@@ -438,16 +430,17 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
             }
         }
 
-        // 3. 좀비 스폰 (Persistent Data 기록 없음)
+        // 3. 좀비 스폰 (일반 좀비만 스폰하며, 밤에는 특수 좀비가 추가됩니다.)
         List<Vector3> usedZombiePositions = SpawnObjects(normalZombiePrefab, zombieCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
     }
 
 
-    // MARK: 좀비만 스폰 (밤 페이즈용)
-    public void SpawnZombiesOnly(int zombieCount)
+    // MARK: 좀비만 스폰 (밤 페이즈용 - 기존 좀비를 유지하고 추가 스폰)
+    public void SpawnZombiesOnly(int totalTargetZombieCount)
     {
-        ClearZombies();
+        // ⭐⭐⭐ 핵심 수정: ClearZombies() 호출 제거 (기존 좀비 유지) ⭐⭐⭐
+        // ClearZombies(); 
 
         if (allSpawnPositions.Count == 0)
         {
@@ -458,20 +451,31 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
                 return;
             }
         }
+        
+        // 1. 이미 존재하는 좀비 수를 확인하고, 새로 스폰할 좀비 수를 계산합니다.
+        // spawnedZombies 리스트에는 씬에 존재하는 모든 좀비(이전 밤에 스폰된 좀비 포함)가 들어있어야 합니다.
+        int existingZombieCount = spawnedZombies.Count;
+        int newZombiesToSpawn = totalTargetZombieCount - existingZombieCount;
+        
+        if (newZombiesToSpawn <= 0)
+        {
+            Debug.Log($"[SpawnManager] 목표 좀비 수({totalTargetZombieCount})가 이미 존재하는 좀비 수({existingZombieCount})보다 적거나 같아서 새로운 좀비를 스폰하지 않습니다.");
+            return;
+        }
 
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
 
-        // 아이템/NPC 위치를 피하기 위해 남은 위치를 계산
-        // 🌟 복원될 아이템/NPC의 위치를 참조하여 피합니다.
+        // 2. 아이템/NPC 위치를 피하기 위해 남은 위치를 계산
         remainingPositions.RemoveAll(pos =>
             persistentItems.Exists(item => Vector3.Distance(item.position, pos) < 0.1f) ||
             persistentNPCs.Exists(npc => Vector3.Distance(npc.position, pos) < 0.1f)
         );
 
-        // 밤에는 특수 좀비 (HighHp, HighSpeed, HighPower)를 1/3씩 균등하게 분배
-        int highHpCount = zombieCount / 3;
-        int highSpeedCount = zombieCount / 3;
-        int highPowerCount = zombieCount - highHpCount - highSpeedCount; 
+        // 3. 새로운 좀비를 특수 좀비 (HighHp, HighSpeed, HighPower)로 스폰합니다.
+        // 새로운 좀비(newZombiesToSpawn)를 특수 좀비로 1/3씩 균등하게 분배
+        int highHpCount = newZombiesToSpawn / 3;
+        int highSpeedCount = newZombiesToSpawn / 3;
+        int highPowerCount = newZombiesToSpawn - highHpCount - highSpeedCount; // 남은 좀비는 HighPower에 할당
 
         int totalSpawned = 0;
 
@@ -487,7 +491,7 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
         remainingPositions.RemoveAll(pos => usedPowerPositions.Contains(pos));
         totalSpawned += usedPowerPositions.Count;
 
-        Debug.Log($"[SpawnManager] 밤 스폰 완료 - 좀비 총 {totalSpawned}마리 스폰 (HP: {usedHpPositions.Count}, Speed: {usedSpeedPositions.Count}, Power: {usedPowerPositions.Count})");
+        Debug.Log($"[SpawnManager] 밤 스폰 완료 - 새로운 좀비 총 {totalSpawned}마리 추가 스폰. 현재 씬 총 좀비 수: {spawnedZombies.Count}");
     }
 
     // MARK: 모든 스폰 오브젝트 제거 (씬 전환 시 호출)
@@ -508,15 +512,10 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
         itemManager?.ClearItems(); 
     }
     
-    // 🌟 [추가] 외부에서 아이템이 주워졌을 때 영구 데이터에서 제거하는 함수
-    /// <summary>
-    /// 아이템이 주워졌을 때 영구적으로 제거합니다.
-    /// </summary>
-    /// <param name="itemObject">씬에서 파괴될 아이템 GameObject</param>
+    // 🌟 외부에서 아이템이 주워졌을 때 영구 데이터에서 제거하는 함수
     public void RemovePersistentItem(GameObject itemObject)
     {
         // 씬에서 아이템이 파괴되기 전에, 해당 아이템의 위치를 기준으로 Persistent List에서 제거합니다.
-        // float 비교는 오차를 감안하여 Vector3.Distance를 사용합니다.
         int index = persistentItems.FindIndex(data => Vector3.Distance(data.position, itemObject.transform.position) < 0.1f);
 
         if (index != -1)
@@ -531,7 +530,6 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
         
         // spawnedItems 리스트에서도 제거
         spawnedItems.Remove(itemObject);
-        // 실제 GameObject 파괴는 이 함수를 호출한 쪽(예: Hero가 아이템을 주웠을 때)에서 수행해야 합니다.
     }
 
     // MARK: 좀비만 제거
@@ -552,14 +550,14 @@ private List<Vector3> SpawnObjects(GameObject prefab, int count, List<Vector3> a
 
     // MARK: - 영구 데이터 초기화 함수
     public void ResetPersistentData()
-{
-    // 영구 데이터 리스트를 비웁니다.
-    persistentItems.Clear();
-    persistentNPCs.Clear();
-    
-    // 현재 씬에 스폰된 모든 오브젝트를 클리어합니다.
-    ClearAll(); 
-    
-    Debug.Log("[SpawnManager] 모든 영구 스폰 데이터(아이템, NPC)가 초기화되었습니다.");
-}
+    {
+        // 영구 데이터 리스트를 비웁니다.
+        persistentItems.Clear();
+        persistentNPCs.Clear();
+        
+        // 현재 씬에 스폰된 모든 오브젝트를 클리어합니다.
+        ClearAll(); 
+        
+        Debug.Log("[SpawnManager] 모든 영구 스폰 데이터(아이템, NPC)가 초기화되었습니다.");
+    }
 }
