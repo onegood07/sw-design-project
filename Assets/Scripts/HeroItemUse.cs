@@ -9,6 +9,8 @@ public class HeroItemUse : MonoBehaviour
 {
 
     private HeroMoveControl HeroMoveControl;
+    private HeroAttackFlash heroAttackFlash;
+    private HeroWeaponVisual heroWeaponVisual;
     private ItemData selectedItem;
     private int selectedItemIndex;
     private Vector2 mouseDirection;
@@ -21,6 +23,17 @@ public class HeroItemUse : MonoBehaviour
             Debug.Log("heroMoveControl 참조 불가");
         }
 
+        heroAttackFlash = GetComponent<HeroAttackFlash>();
+        if (heroAttackFlash == null)
+        {
+            Debug.Log("HeroAttackFlash 참조 불가 (Hero 하위 Hero_S/N/W/E 이미지를 사용한 공격 플래시를 쓰지 않음)");
+        }
+
+        heroWeaponVisual = GetComponent<HeroWeaponVisual>();
+        if (heroWeaponVisual == null)
+        {
+            Debug.Log("HeroWeaponVisual 참조 불가 (총 스프라이트 회전/표시 관리 안 함)");
+        }
     }
     public void OnItemUse(InputAction.CallbackContext context)
     {
@@ -39,6 +52,24 @@ public class HeroItemUse : MonoBehaviour
             mouseDirection = mouseWorldPosition - (Vector2)transform.position;
             // 정규화
             mouseDirection.Normalize();
+
+            // 현재 선택된 퀵슬롯 아이템이 무기일 경우에만 HeroAttackFlash / 총 임시 방향 전환 실행
+            var currentData = GetSelectedQuickSlotItem();
+            bool isWeapon = currentData != null && IsWeaponData(currentData);
+            if (isWeapon)
+            {
+                if (heroAttackFlash != null)
+                {
+                    heroAttackFlash.ShowAttack(mouseDirection);
+                }
+
+                if (heroWeaponVisual != null)
+                {
+                    // 공격 방향(마우스 방향)을 기준으로 잠깐 다른 방향/각도로 총을 보여줬다가
+                    // duration 이후에 원래 상태로 자동 복귀
+                    heroWeaponVisual.ShowAttackOverride(mouseDirection, 0.1f);
+                }
+            }
 
             UseQuickSlot(selectedItemIndex,transform,mouseDirection);
             // // 사용 가능한 아이템일 경우(IUsable 규칙을 상속받은 데이터의 경우) Use 메서드가 존재함

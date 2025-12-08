@@ -11,7 +11,7 @@ public class HeroMoveControl : MonoBehaviour
     private Vector2 currentViewDirection = new Vector2(0f, -1f);
     public Vector2 CurrentViewDirection => currentViewDirection;
 
-    [SerializeField] private float stepTime = 0.4f; // HeroStat.speed를 이용해 실제 속도를 계산할 때 쓰는 기준 시간
+    // private float stepTime = 0.4f; // HeroStat.speed를 이용해 실제 속도를 계산할 때 쓰는 기준 시간 (현재 사용하지 않음)
 
     private float moveSpeed;                         // 최종 이동 속도
     private const float minMoveSpeed = 0.5f;         // 이동 속도의 최소값
