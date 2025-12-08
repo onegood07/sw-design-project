@@ -86,33 +86,32 @@ public class InventoryUI : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 인벤토리 활성화 상태를 토글합니다. (탭 키 입력 처리)
-    /// </summary>
-    public void ToggleInventory()
+  // 외부(ExchangeUI 등)에서 인벤토리 패널을 열 때 호출됩니다.
+/// </summary>
+public void OpenInventory()
+{
+    if (inventoryPanel != null && !activeInventory)
     {
-        activeInventory = !activeInventory;
-        // 과거 버전의 안전성 로직 반영
-        if (inventoryPanel != null)
-            inventoryPanel.SetActive(activeInventory);
+        activeInventory = true;
+        inventoryPanel.SetActive(true);
         
-        // 인벤토리가 열릴 때, 슬롯 UI를 갱신합니다.
-        if(activeInventory) RedrawSlotUI();
+        // ⭐⭐ 수정: 패널을 열 때 RedrawSlotUI를 호출하여 데이터를 강제로 반영합니다.
+        RedrawSlotUI(); 
+        
+        Debug.Log("[InventoryUI] 외부 요청으로 인벤토리 열림.");
     }
+}
 
-    /// <summary>
-    /// 외부(ExchangeUI 등)에서 인벤토리 패널을 열 때 호출됩니다.
-    /// </summary>
-    public void OpenInventory()
-    {
-        if (inventoryPanel != null && !activeInventory)
-        {
-            activeInventory = true;
-            inventoryPanel.SetActive(true);
-            RedrawSlotUI();
-            Debug.Log("[InventoryUI] 외부 요청으로 인벤토리 열림.");
-        }
-    }
+// ToggleInventory() 함수에도 RedrawSlotUI() 호출 로직이 이미 잘 되어 있습니다.
+public void ToggleInventory()
+{
+    activeInventory = !activeInventory;
+    if (inventoryPanel != null)
+        inventoryPanel.SetActive(activeInventory);
+    
+    // 이 부분은 이미 잘 되어 있습니다.
+    if(activeInventory) RedrawSlotUI(); 
+}
     
     /// <summary>
     /// 외부(ExchangeUI 등)에서 인벤토리 패널을 닫을 때 호출됩니다.

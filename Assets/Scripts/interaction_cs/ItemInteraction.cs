@@ -25,14 +25,16 @@ public class ItemInteraction : MonoBehaviour, IInteractable
         {
             for (int i = 0; i < itemCnt; i++)
             {
-                // Inventory 클래스는 외부에서 정의되어 있다고 가정합니다.
-                // Inventory.instance.AddItem(itemData); 
+                // ⭐⭐ 핵심 수정: 주석을 제거하고 아이템 추가 코드를 실행합니다. ⭐⭐
+                Inventory.instance.AddItem(itemData); 
+                
+                // Debug.Log는 그대로 두어 확인용으로 사용합니다.
                 Debug.Log($"[ItemInteraction] 인벤토리에 {itemData.name} {itemCnt}개 추가 시도.");
             }
         }
         
         // 2. FieldItems에게 파괴를 요청합니다. 
-        // DestroyItem() 내부에서 SpawnManager 제거 로직이 실행됩니다.
+        // (이 함수 내부에서 SpawnManager에게 영구 데이터 삭제 요청이 처리됩니다.)
         fieldItems.DestroyItem();
     }
 }
