@@ -18,5 +18,5 @@ MonoBehaviour:
   requiredItemName: Pistol
   requiredItemIcon: {fileID: 4319395737909131107, guid: 6890018106e5f7447b4235e6666564e1, type: 3}
   requiredAmount: 1
-  rewardItem: {fileID: 8377399505079120524, guid: 4561518ae6c81bb47ad02a786321c602, type: 3}
-  rewardCount: 3
+  rewardItem: {fileID: 1511330356446781366, guid: 9c0014343ab8b684aafc23314b0bfa19, type: 3}
+  rewardCount: 2
