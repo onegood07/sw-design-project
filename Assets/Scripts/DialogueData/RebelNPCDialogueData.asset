@@ -33,7 +33,7 @@ MonoBehaviour:
     choices: []
     nextNodeIndex: 3
   - text: "...\uBD84\uBA85 \uD6C4\uD68C\uD560\uAC70\uC57C."
-    typingSpeed: 0.1
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 1
@@ -43,7 +43,7 @@ MonoBehaviour:
     nextNodeIndex: -1
   - text: "\uB10C \uADF8\uB798\uB3C4 \uB9D0\uC774 \uD1B5\uD558\uB124. \uC790, \uBC1B\uC544.
       \uC5EC\uAE30\uC11C \uC0B4\uC544\uB0A8\uC73C\uB824\uBA74 \uD544\uC694\uD560\uAC70\uC57C."
-    typingSpeed: 0.08
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0

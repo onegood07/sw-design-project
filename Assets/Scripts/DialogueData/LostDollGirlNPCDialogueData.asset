@@ -36,7 +36,7 @@ MonoBehaviour:
     nextNodeIndex: 3
   - text: "\uC544\uB2C8\uC5D0\uC694\u2026 \uACF0\uC778\uD615\uC744 \uBABB \uCC3E\uC73C\uBA74
       \uC804 \uBABB \uAC00\uC694\u2026"
-    typingSpeed: 0.08
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   - text: "\uC815\uB9D0 \uACE0\uB9C8\uC6CC\uC694! \uC544\uBE60\uAC00 \uC120\uBB3C\uD574\uC900
       \uAC70\uC5D0\uC694. \uC774\uAC74 \uC120\uBB3C\uC774\uC5D0\uC694!! \uAE38\uC5D0\uC11C
       \uC8FC\uC6E0\uC5B4\uC694."
-    typingSpeed: 0.1
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0
