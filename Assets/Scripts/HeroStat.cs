@@ -61,7 +61,7 @@ public class HeroStat : MonoBehaviour
         StartCoroutine(HungerDecreaseCoroutine());
     }
 
-    public void SpeedControl()
+    void SpeedControl()
     {
         // 허기가 많이 떨어지면 이동 속도 패널티 적용
         if (hunger <= 100)
