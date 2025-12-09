@@ -50,7 +50,7 @@ public class MedicineData : ItemData, IUsable
             heroStat.hp += healAmount[0];
             Debug.Log("hp회복");
         }
-        // hp 회복 아이템 사용 시.
+        // 허기 회복 아이템 사용 시.
         if (whichStat.Contains("hunger"))
         {
             currentStat = heroStat.hunger;
@@ -64,10 +64,14 @@ public class MedicineData : ItemData, IUsable
             else if (currentStat + healAmount[1] >= maxAmount)
             {
                 heroStat.hunger = maxAmount;
+                // 허기가 다시 충분히 찼으므로 이동 속도도 즉시 재계산
+                heroStat.SpeedControl();
                 return;
             }
             // 현재 스탯에 회복량을 더했을 때 최고치를 넘는 경우 최대치로 스탯을 조정
             heroStat.hunger += healAmount[1];
+            // 허기 회복에 따라 이동 속도 즉시 재계산
+            heroStat.SpeedControl();
             Debug.Log("포만감 회복");
         }
         if (whichStat.Contains("speed"))
