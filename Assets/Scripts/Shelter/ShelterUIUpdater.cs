@@ -9,9 +9,7 @@ public class ShelterUIUpdater : MonoBehaviour
     public Image scoreImage;             // 납입 점수 게이지 (Fill Amount로 채워질 Image)
     public Text scoreText;               // 점수 표시 텍스트 (예: 50 / 100)
 
-    [Header("생존자 정보 UI")]
-    public Text lossCountText;           // 예상 사망자 수 표시 텍스트 (스크린샷의 "-5" 부분)
-    public Text survivorCountText;       // 현재 생존자 수 표시 텍스트 (스크린샷의 "4" 부분)
+    // [Header("생존자 정보 UI")] // 생존자 정보 UI 관련 헤더 및 변수 제거
 
     private GameManager gm;
 
@@ -58,22 +56,6 @@ public class ShelterUIUpdater : MonoBehaviour
         // 텍스트 표시
         scoreText.text = $"{currentScore} / {targetScore}";
 
-        // 2. 생존자 정보 업데이트
-        int predictedLoss = gm.PredictSurvivorLoss();
-        
-        // 실제 생존자 수 표시
-        survivorCountText.text = $"{gm.SurvivorCount}"; 
-
-        // 예상 손실 인원수 표시
-        if (predictedLoss > 0)
-        {
-            lossCountText.text = $"-{predictedLoss}";
-            // lossCountText.color = Color.red; // (선택 사항)
-        }
-        else
-        {
-            lossCountText.text = "0";
-            // lossCountText.color = Color.green; // (선택 사항)
-        }
+        // 2. 생존자 정보 업데이트 (관련 로직 전체 제거)
     }
 }

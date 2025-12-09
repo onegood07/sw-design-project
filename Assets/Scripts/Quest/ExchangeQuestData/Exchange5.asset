@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9d23b7e2d3f7488f9436d3da4f1d5ec, type: 3}
+  m_Name: Exchange5
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questName: Exchange3
+  questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
+    \uC124\uC815\uB429\uB2C8\uB2E4."
+  requiredItemName: FirstAidKit
+  requiredItemIcon: {fileID: 1142586732419344882, guid: 7e4b87674c09cec4e8f5306a0fa018a7, type: 3}
+  requiredAmount: 2
+  rewardItem: {fileID: 7779567416236938931, guid: beb082c413c1f104f8119f9ed4d323e1, type: 3}
+  rewardCount: 1

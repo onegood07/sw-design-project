@@ -148,9 +148,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExchangeNPC
   availableRecipes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 979c872aba4da4600ac08f2e78b30ff0, type: 2}
+  - {fileID: 11400000, guid: 6bd5ee4e6c6c3482dad20f69c361d95e, type: 2}
+  - {fileID: 11400000, guid: 24fbe0be4effa40d48a667ffdff4f402, type: 2}
+  - {fileID: 11400000, guid: d75ccc15eedea40768293dcba9dac954, type: 2}
+  - {fileID: 11400000, guid: 32e8645e824384dff9e953838c336480, type: 2}
 --- !u!114 &6535446528324470306
 MonoBehaviour:
   m_ObjectHideFlags: 0
