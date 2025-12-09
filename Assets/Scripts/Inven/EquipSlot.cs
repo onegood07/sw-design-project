@@ -21,6 +21,10 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
     [HideInInspector]
     public InventoryItem equippedItem;  // 현재 장착된 아이템 데이터
 
+    // 이 장비가 처음 장착될 때 가져온 인벤토리 슬롯 인덱스
+    // 해제 시 가능하면 이 인덱스로 되돌려 준다.
+    private int equippedFromIndex = -1;
+
     private static readonly System.Collections.Generic.List<EquipSlot> allSlots
         = new System.Collections.Generic.List<EquipSlot>();
 
@@ -161,6 +165,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
 
         // 일단은 "복사해서 장착" 개념으로, 인벤토리 쪽 수량 변화는 아직 건드리지 않음.
         equippedItem = fromItem;
+        equippedFromIndex = fromSlot.slotIndex;
 
         if (itemIcon != null)
         {
@@ -170,6 +175,24 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         else
         {
             Debug.LogWarning("[EquipSlot] itemIcon 이 null 입니다. 인스펙터에서 Item Icon 을 연결했는지 확인하세요.", this);
+        }
+
+        //  - 신발(Shoes): Heal 타입 아이템을 신발 슬롯(acceptedType == ItemView.Heal)에 장착하면
+        //    이동 속도 버프를 주는 MedicineData.Use를 자동으로 한 번 호출한다.
+        if (acceptedType == ItemView.Heal && fromItem.itemData is IUsable equipUsable)
+        {
+            Transform heroTransform = HeroStat.Instance != null ? HeroStat.Instance.transform : null;
+            Vector2 viewDir = Vector2.down;
+
+            if (HeroMoveControl.Instance != null)
+            {
+                viewDir = HeroMoveControl.Instance.CurrentViewDirection;
+            }
+
+            if (heroTransform != null)
+            {
+                equipUsable.Use(heroTransform, viewDir);
+            }
         }
 
         // 인벤토리 슬롯에서 아이템 제거 (이동 느낌 나게)
@@ -185,7 +208,13 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
                     autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
                 }
 
+                // 인벤토리 데이터에서 해당 슬롯 비우기
                 inven.items[idx] = null;
+
+                // 슬롯 자체도 즉시 비워서 UI 상으로도 "빈 칸" 이 되도록 처리
+                fromSlot.RemoveSlot();
+
+                // 인벤토리 변경 이벤트 브로드캐스트 (다른 UI들이 함께 갱신되도록)
                 inven.onChangeItem?.Invoke();
             }
         }
@@ -207,7 +236,58 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         Inventory inven = Inventory.instance;
         if (inven != null)
         {
-            inven.AddInventoryItemInstance(equippedItem);
+            // 가능하면 처음 장착해 온 인덱스로 되돌려 준다.
+            if (equippedFromIndex >= 0)
+            {
+                // 인벤토리 리스트 길이 보정
+                while (inven.items.Count <= equippedFromIndex)
+                {
+                    inven.items.Add(null);
+                }
+
+                if (inven.items[equippedFromIndex] == null)
+                {
+                    inven.items[equippedFromIndex] = equippedItem;
+                }
+                else
+                {
+                    // 원래 자리가 이미 다른 아이템으로 채워져 있으면,
+                    // 0 ~ slotCnt-1 범위에서 "가장 앞의 빈 칸" 을 찾아 넣는다.
+                    bool placed = false;
+                    int maxSlot = Mathf.Max(0, inven.slotCnt);
+
+                    for (int i = 0; i < maxSlot; i++)
+                    {
+                        // 리스트가 짧으면 null 로 채워 길이 보정
+                        while (inven.items.Count <= i)
+                        {
+                            inven.items.Add(null);
+                        }
+
+                        if (inven.items[i] == null)
+                        {
+                            inven.items[i] = equippedItem;
+                            placed = true;
+                            break;
+                        }
+                    }
+
+                    // 0~slotCnt-1 안에 빈 칸이 전혀 없다면,
+                    // 최후 수단으로 기존 로직(첫 번째 빈 칸/리스트 끝)에 넣는다.
+                    if (!placed)
+                    {
+                        inven.AddInventoryItemInstance(equippedItem);
+                    }
+                }
+            }
+            else
+            {
+                // 처음 위치 정보를 모르는 경우에는 기존 로직 사용
+                inven.AddInventoryItemInstance(equippedItem);
+            }
+
+            // 인벤토리 변경 사항을 UI에 반영
+            inven.onChangeItem?.Invoke();
         }
 
         if ((acceptedType == ItemView.Lantern || equippedItem.itemData.getItemName == 301)  && equippedItem.itemData is IUsable autoUsable)
@@ -216,6 +296,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         }
 
         equippedItem = null;
+        equippedFromIndex = -1;
 
         if (itemIcon != null)
             itemIcon.gameObject.SetActive(false);

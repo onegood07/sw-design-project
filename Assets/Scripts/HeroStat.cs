@@ -18,6 +18,8 @@ public class HeroStat : MonoBehaviour
     // 이동속도
     public float speed = 1000f;
     public float baseSpeed = 1000f;
+    // 신발/버프 등으로 인한 일시적 이동속도 증가 여부
+    private bool isSpeedBoosted = false;
     public bool isSurvival;
 
     // 부스트 코루틴 활성 여부
@@ -61,7 +63,21 @@ public class HeroStat : MonoBehaviour
 
     void SpeedControl()
     {
-        if (hunger <= 100) speed = 100;
+        // 허기가 많이 떨어지면 이동 속도 패널티 적용
+        if (hunger <= 100)
+        {
+            // 허기 패널티는 버프보다 우선시: 너무 빠르면 100으로 강제
+            if (speed > 100f)
+                speed = 100f;
+        }
+        else
+        {
+            // 허기가 충분할 때는, "버프가 없을 때만" 기본 속도로 복구
+            if (!isSpeedBoosted && speed != baseSpeed)
+            {
+                speed = baseSpeed;
+            }
+        }
     }
 
     // 🌟 [추가] HP 회복 로직 (Heal 메서드)
@@ -116,6 +132,7 @@ public class HeroStat : MonoBehaviour
         {
             yield break;
         }
+        isSpeedBoosted = true;
         speed += mul;
         Debug.Log("이동속도 증가");
 
@@ -124,6 +141,7 @@ public class HeroStat : MonoBehaviour
 
         speed -= mul;
         Debug.Log("돌아옴");
+        isSpeedBoosted = false;
     }
     /*
     - ActiveHeroSpeedBoost

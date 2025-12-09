@@ -292,18 +292,19 @@ public class HeroMoveControl : MonoBehaviour
     {
         if (rb == null) return;
 
-        // HeroStat를 가져와서 스탯 기반 이동 속도 계산 (HeroStat 클래스 외부 가정)
-        // var stat = GetComponent<HeroStat>();
-        // if (stat != null)
-        // {
-        //     moveSpeed = 1f / stepTime * stat.speed / 1000f;
-        // }
-        // else
-        // {
-        //     moveSpeed = 2.5f;
-        // }
-        
-        moveSpeed = 2.5f; // 임시 속도
+        // HeroStat를 가져와서 스탯 기반 이동 속도 계산
+        // baseSpeed(기본 1000)일 때 2.5f가 되도록 비율로 환산해서 사용
+        var stat = HeroStat.Instance;
+        if (stat != null)
+        {
+            float ratio = stat.baseSpeed > 0f ? stat.speed / stat.baseSpeed : 1f;
+            moveSpeed = 2.5f * Mathf.Max(ratio, 0.1f);
+        }
+        else
+        {
+            // HeroStat을 찾지 못한 경우에는 안전하게 기본값 사용
+            moveSpeed = 2.5f;
+        }
 
         // 이동 속도를 최소/최대 범위 안으로 제한
         moveSpeed = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
