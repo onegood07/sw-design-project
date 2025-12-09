@@ -210,7 +210,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             inven.AddInventoryItemInstance(equippedItem);
         }
 
-        if (acceptedType == ItemView.Lantern && equippedItem.itemData is IUsable autoUsable)
+        if ((acceptedType == ItemView.Lantern || equippedItem.itemData.getItemName == 301)  && equippedItem.itemData is IUsable autoUsable)
         {
             autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
         }
