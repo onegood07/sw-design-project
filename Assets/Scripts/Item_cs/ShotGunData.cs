@@ -34,6 +34,11 @@ public class ShotGunData : WeaponData,IUsable
             // 각도를 조정하여 속도 세팅. quarternion 값이 먼저 와야 Vector3와 곱 연산이 가능함
             bullet.bulletSetting((Vector2)(rotation * (Vector3)currentViewDirection),bulletSpeed,power);
             bullet.shoot();
+
+        // 이펙트 생성
+        float angle = Mathf.Atan2(currentViewDirection.y, currentViewDirection.x) * Mathf.Rad2Deg;
+        rotation = Quaternion.Euler(0, 0, angle + 90);
+        Instantiate(effect, HeroTransform.position + (Vector3)currentViewDirection*0.8f, rotation);
         }
 
     }
