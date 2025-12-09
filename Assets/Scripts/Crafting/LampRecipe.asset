@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2b3009d233234a4595e8a4bb09e52fd, type: 3}
-  m_Name: test
+  m_Name: LampRecipe
   m_EditorClassIdentifier: Assembly-CSharp::RecipeData
   recipeName: "\uC0C8\uB85C\uC6B4 \uB808\uC2DC\uD53C"
   recipeDescription: "\uC870\uD569\uC5D0 \uD544\uC694\uD55C \uC7AC\uB8CC\uC640 \uACB0\uACFC
     \uC544\uC774\uD15C\uC744 \uC815\uC758\uD569\uB2C8\uB2E4."
   requiredMaterials:
-  - item: {fileID: 2756453138368464761, guid: dcc1a5d7d89b47d44bcd85fad30494f7, type: 3}
+  - item: {fileID: -967469265316974195, guid: 636bd03e8d9f75c48a70e92071664bc9, type: 3}
     amount: 1
   - item: {fileID: 8110723627053447128, guid: 5f3a59114b93870448531afcf21a3975, type: 3}
     amount: 1
