@@ -156,19 +156,8 @@ public class InventoryManager : MonoBehaviour
                     CoolTimeManager.Instance.AddCooltimeQueue(Item.getItemName, Item.getCoolTime);
                 }
 
-                // 사운드 매니저 및 클립이 둘 다 유효할 때만 재생
-                if (Item.getClip != null && SoundManager.Instance != null)
-                {
-                    SoundManager.Instance.PlaySFX(Item.getClip, 1.0f);
-                }
-                else if (Item.getClip != null && SoundManager.Instance == null)
-                {
-                    Debug.LogWarning("[InventoryManager] SoundManager.Instance 가 null 입니다. 효과음을 재생할 수 없습니다.");
-                }
-                else
-                {
-                    Debug.Log("사운드 없음");
-                }
+                SoundManager.Instance.PlaySFX(Item.getClip, 1.0f);
+
             }
             else
             {
