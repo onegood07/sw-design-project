@@ -1012,7 +1012,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CraftingManager
   craftingUI: {fileID: 1648723948}
-  currentInteractingNPC: {fileID: 686346972262565880}
+  currentInteractingNPC: {fileID: 0}
   currentRecipes:
   - {fileID: 11400000, guid: c16cf74a4730b4477a9cf22a391d2aa7, type: 2}
   - {fileID: 11400000, guid: 1bd59b151a31247748e305555ccbcdb6, type: 2}
@@ -78806,10 +78806,6 @@ MonoBehaviour:
     type: 0
     baseRatio: 0.125
     ratio: 0.125
-  - prefab: {fileID: 4174347128712009735, guid: 0a964f875a8e24d87ae5ea4b26ad8646, type: 3}
-    type: 2
-    baseRatio: 1
-    ratio: 1
   - prefab: {fileID: 4665207699815735179, guid: 0feb895004e5a448b98cd5dbcae4ee9b, type: 3}
     type: 1
     baseRatio: 1
@@ -78840,7 +78836,7 @@ MonoBehaviour:
     ratio: 0.125
   - prefab: {fileID: 193026521968951197, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
     type: 5
-    baseRatio: 1
+    baseRatio: 0.213
     ratio: 1
   - prefab: {fileID: 4395095357716272013, guid: 425a1d701a7b0fe43b0e979d3247ac22, type: 3}
     type: 4
@@ -78852,15 +78848,15 @@ MonoBehaviour:
     ratio: 1
   - prefab: {fileID: 8175758609734515897, guid: fd3b8b600e994fc44abd4eefaf5b1b07, type: 3}
     type: 5
-    baseRatio: 0.065
+    baseRatio: 0.04
     ratio: 1
   - prefab: {fileID: 1209361645699686677, guid: 5f3a59114b93870448531afcf21a3975, type: 3}
     type: 4
-    baseRatio: 0.065
+    baseRatio: 0.023
     ratio: 1
-  - prefab: {fileID: 5811343206376570177, guid: dcc1a5d7d89b47d44bcd85fad30494f7, type: 3}
+  - prefab: {fileID: 9042649337361522645, guid: 636bd03e8d9f75c48a70e92071664bc9, type: 3}
     type: 4
-    baseRatio: 0.065
+    baseRatio: 0.023
     ratio: 1
   npcPrefabs:
   - {fileID: 4375253768732716613, guid: a9fc57bc648024cb58cf67018e5c9eb7, type: 3}
@@ -78871,6 +78867,8 @@ MonoBehaviour:
   - {fileID: 4375253768732716613, guid: aa20e50f6c59b4136bf088f639756fab, type: 3}
   - {fileID: 4375253768732716613, guid: ba039183f56464929ae9b5ca2c50d04a, type: 3}
   - {fileID: 4375253768732716613, guid: ba8cd01867df74558b6918746ab6ca4b, type: 3}
+  - {fileID: 7820732215765547225, guid: ee7c374959315482480a927de829417b, type: 3}
+  - {fileID: 4375253768732716613, guid: 373950669bec64dc3885cb3428e01eee, type: 3}
   normalZombiePrefab: {fileID: 6989195092527803693, guid: 714bdc41231db45f1aa00d96ac6e3a4e, type: 3}
   highHpZombiePrefab: {fileID: 6989195092527803693, guid: 0e99156093f6446c595a44e844104c56, type: 3}
   highSpeedZombiePrefab: {fileID: 6989195092527803693, guid: 85084d05ee5a04b73b6829d7671b536a, type: 3}
@@ -102451,86 +102449,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!1001 &686346972262565879
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.93
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.38
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2176102489546224161, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5659399393966624650, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: availableRecipes.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5659399393966624650, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: 'availableRecipes.Array.data[0]'
-      value: 
-      objectReference: {fileID: 11400000, guid: c16cf74a4730b4477a9cf22a391d2aa7, type: 2}
-    - target: {fileID: 5659399393966624650, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: 'availableRecipes.Array.data[1]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 1bd59b151a31247748e305555ccbcdb6, type: 2}
-    - target: {fileID: 7820732215765547225, guid: ee7c374959315482480a927de829417b, type: 3}
-      propertyPath: m_Name
-      value: RecipeNPC
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ee7c374959315482480a927de829417b, type: 3}
---- !u!114 &686346972262565880 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5659399393966624650, guid: ee7c374959315482480a927de829417b, type: 3}
-  m_PrefabInstance: {fileID: 686346972262565879}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 507773805f72441b680e72be9d5882de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RecipeNPC
 --- !u!223 &834279272557266321
 Canvas:
   m_ObjectHideFlags: 0
@@ -103320,4 +103238,3 @@ SceneRoots:
   - {fileID: 13734523}
   - {fileID: 206263455}
   - {fileID: 165715827}
-  - {fileID: 686346972262565879}
