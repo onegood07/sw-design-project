@@ -183,7 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Item
   itemType: 3
   itemName: Rope
-  itemImage: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  itemImage: {fileID: 3852229755048302361, guid: 7c428d5153975ed48a68e36e354f282d, type: 3}
   itemDataAsset: {fileID: 11400000, guid: b64149a0e28a0a64cbfe4085b18c7994, type: 2}
 --- !u!114 &2049585430843716781
 MonoBehaviour:
