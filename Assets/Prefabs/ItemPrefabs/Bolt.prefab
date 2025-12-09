@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1817029106135135968}
   - component: {fileID: 6421172891509811189}
   - component: {fileID: 8487291844143816537}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Bolt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,7 +134,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.265625, y: 0.25}
+    oldSize: {x: 0.53125, y: 0.5}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
