@@ -35,40 +35,36 @@ public class MedicineData : ItemData, IUsable
         {
             currentStat = heroStat.hp;
             maxAmount = heroStat.maxHp;
-            // 현재 스탯이 maxAmount 인 경우 사용을 막는다
-            if (currentStat == maxAmount)
+            // HP가 이미 최대치면 HP만 건너뛰고, 다른 스탯(허기 등)은 계속 처리한다.
+            if (currentStat >= maxAmount)
             {
-                Debug.Log("한계치 초과");
-                return;
+                Debug.Log("HP 한계치 초과 - HP 회복은 생략, 다른 스탯은 계속 처리");
             }
-            // 현재 스탯에 회복량을 더했을 때 최고치를 넘는 경우 최대치로 스탯을 조정
-            else if (currentStat + healAmount[0] >= maxAmount)
+            else
             {
-                heroStat.hp = maxAmount;
-                return;
+                // 현재 스탯에 회복량을 더했을 때 최고치를 넘는 경우 최대치로 스탯을 조정
+                float newHp = currentStat + healAmount[0];
+                heroStat.hp = Mathf.Min(newHp, maxAmount);
+                Debug.Log("hp 회복");
             }
-            heroStat.hp += healAmount[0];
-            Debug.Log("hp회복");
         }
-        // hp 회복 아이템 사용 시.
+        // 허기 회복 아이템 사용 시.
         if (whichStat.Contains("hunger"))
         {
             currentStat = heroStat.hunger;
             maxAmount = heroStat.maxHunger;
-            // 현재 스탯이 maxAmount 인 경우 사용을 막는다
+            // 허기가 이미 최대치면 허기 회복만 생략하고, 다른 스탯은 계속 처리
             if (currentStat>=maxAmount)
             {
-                Debug.Log("한계치 초과");
-                return;
+                Debug.Log("허기 한계치 초과 - 허기 회복은 생략");
             }
-            else if (currentStat + healAmount[1] >= maxAmount)
+            else
             {
-                heroStat.hunger = maxAmount;
-                return;
+                // 현재 스탯에 회복량을 더했을 때 최고치를 넘는 경우 최대치로 스탯을 조정
+                float newHunger = currentStat + healAmount[1];
+                heroStat.hunger = Mathf.Min(newHunger, maxAmount);
+                Debug.Log("포만감 회복");
             }
-            // 현재 스탯에 회복량을 더했을 때 최고치를 넘는 경우 최대치로 스탯을 조정
-            heroStat.hunger += healAmount[1];
-            Debug.Log("포만감 회복");
         }
         if (whichStat.Contains("speed"))
         {
