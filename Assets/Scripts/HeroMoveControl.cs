@@ -132,8 +132,8 @@ public class HeroMoveControl : MonoBehaviour
         // 씬 로드 콜백 해제 (중복 등록 방지)
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
-
-    // ⭐ 수정: 씬 로드 시 위치 조정 로직 제거 (FadeManager가 처리함)
+    
+    // 씬 로드 시 위치 조정은 FadeManager에서 처리한다.
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"[Hero] 씬 로드 완료: {scene.name}");
@@ -146,10 +146,8 @@ public class HeroMoveControl : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero;
         }
-        
-        // ⭐ 위치 조정 로직 삭제됨 (FadeManager.cs의 FadeOutIn 코루틴에서 처리됨)
 
-        // 저장된 위치가 없거나, FadeManager가 위치를 적용한 후에는 Idle 상태로 전환
+        // 위치 조정은 FadeManager에서 처리하며, 여기서는 Idle 상태로만 전환
         UpdateAnimation(false);
     }
 
@@ -279,7 +277,7 @@ public class HeroMoveControl : MonoBehaviour
             return;
         }
 
-        // --- 기본 애니메이션 (총 안 든 상태) ---
+        // 기본 애니메이션 (총을 들지 않은 상태)
         if (lastMoveDir.y > 0)       hashToPlay = moving ? stWalkUp    : stIdleUp;
         else if (lastMoveDir.y < 0)  hashToPlay = moving ? stWalkDown  : stIdleDown;
         else if (lastMoveDir.x < 0)  hashToPlay = moving ? stWalkLeft  : stIdleLeft;
@@ -302,7 +300,7 @@ public class HeroMoveControl : MonoBehaviour
         }
         else
         {
-            // HeroStat을 찾지 못한 경우에는 안전하게 기본값 사용
+            // HeroStat을 찾지 못한 경우에는 기본값 사용
             moveSpeed = 2.5f;
         }
 
@@ -441,7 +439,7 @@ public class HeroMoveControl : MonoBehaviour
         ForceMove(pos);
     }
 
-    // ⭐ 강제 텔레포트 함수 (FadeManager에서 호출됨)
+    // 강제 텔레포트 함수 (FadeManager에서 호출)
     public void ForceMove(Vector2 newPos)
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();

@@ -92,7 +92,7 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             }
         }
 
-        if (slot.item == null) // ★ InventoryItem 기준
+        if (slot.item == null) // InventoryItem 기준
         {
             Debug.LogWarning("OnBeginDrag: slot.item이 null이어서 드래그를 시작할 수 없습니다. (슬롯이 비어있음) 객체: " + gameObject.name);
             return;

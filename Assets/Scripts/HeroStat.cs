@@ -66,19 +66,13 @@ public class HeroStat : MonoBehaviour
         // 허기가 많이 떨어지면 이동 속도 패널티 적용
         if (hunger <= 100f)
         {
-            // 너무 빠르면 100으로 강제
+            // 너무 빠르면 100으로 제한
             if (speed > 100f)
                 speed = 100f;
         }
         else
         {
-            // ⚠ 허기가 충분한데도 아이템 사용 이후 속도가 패널티 구간(<= 100)에
-            // 묶여버리는 경우가 있어서,
-            //  - 현재 속도가 기본 속도보다 느리면,
-            //  - 버프 여부와 상관없이 "최소한" 기본 속도까지는 복원시킨다.
-            //
-            //   speed < baseSpeed   →  baseSpeed 로 맞춰줌
-            //   speed >= baseSpeed  →  (버프 등으로 더 빠른 상태) 그대로 유지
+            // 허기가 충분할 때는 현재 속도가 기본 속도보다 느리면 기본 속도로 복원
             if (speed < baseSpeed)
             {
                 speed = baseSpeed;
@@ -86,7 +80,7 @@ public class HeroStat : MonoBehaviour
         }
     }
 
-    // 🌟 [추가] HP 회복 로직 (Heal 메서드)
+    // HP 회복 로직
     public void Heal(float amount)
     {
         if (!isSurvival) return;
