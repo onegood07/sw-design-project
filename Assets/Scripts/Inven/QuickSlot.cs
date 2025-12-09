@@ -223,8 +223,7 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
 
         InventoryItem fromItem = fromSlot.item;
 
-        // 필요하면 타입 제한도 가능 (예: 힐 아이템만 올리기)
-        // if (fromItem.itemType != ItemView.Heal) return;
+        // 필요하다면 특정 타입의 아이템만 올리도록 타입 제한을 둘 수 있다.
 
         linkedItem = fromItem;
         linkedItemData = fromItem.itemData;
