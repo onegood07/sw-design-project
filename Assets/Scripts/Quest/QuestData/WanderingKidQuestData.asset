@@ -18,5 +18,5 @@ MonoBehaviour:
   requiredItemName: EnergyBar
   requiredItemIcon: {fileID: 9042664321243512265, guid: b180c75234f9fe54f945d241ba190077, type: 3}
   requiredAmount: 1
-  rewardItem: {fileID: -5984088972931491910, guid: 5d9a4a6bb9122432497b32b9a6cdd7e4, type: 3}
-  rewardCount: 1
+  rewardItem: {fileID: 8377399505079120524, guid: 4561518ae6c81bb47ad02a786321c602, type: 3}
+  rewardCount: 2

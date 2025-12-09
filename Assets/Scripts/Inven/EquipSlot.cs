@@ -159,7 +159,8 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        // 일단은 "복사해서 장착" 개념으로, 인벤토리 쪽 수량 변화는 아직 건드리지 않음.
+        // 인벤토리에서 꺼낸 아이템을 이 장비 슬롯에 장착
+        // (인벤토리 쪽 수량은 바로 0으로 만들어서 해당 칸을 비워둔다)
         equippedItem = fromItem;
 
         if (itemIcon != null)
@@ -170,6 +171,24 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         else
         {
             Debug.LogWarning("[EquipSlot] itemIcon 이 null 입니다. 인스펙터에서 Item Icon 을 연결했는지 확인하세요.", this);
+        }
+
+        //  - 신발(Shoes): Heal 타입 아이템을 신발 슬롯(acceptedType == ItemView.Heal)에 장착하면
+        //    이동 속도 버프를 주는 MedicineData.Use를 자동으로 한 번 호출한다.
+        if (acceptedType == ItemView.Heal && fromItem.itemData is IUsable equipUsable)
+        {
+            Transform heroTransform = HeroStat.Instance != null ? HeroStat.Instance.transform : null;
+            Vector2 viewDir = Vector2.down;
+
+            if (HeroMoveControl.Instance != null)
+            {
+                viewDir = HeroMoveControl.Instance.CurrentViewDirection;
+            }
+
+            if (heroTransform != null)
+            {
+                equipUsable.Use(heroTransform, viewDir);
+            }
         }
 
         // 인벤토리 슬롯에서 아이템 제거 (이동 느낌 나게)
@@ -185,7 +204,13 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
                     autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
                 }
 
+                // 인벤토리 데이터에서 해당 슬롯 비우기
                 inven.items[idx] = null;
+
+                // 슬롯 자체도 즉시 비워서 UI 상으로도 "빈 칸" 이 되도록 처리
+                fromSlot.RemoveSlot();
+
+                // 인벤토리 변경 이벤트 브로드캐스트 (다른 UI들이 함께 갱신되도록)
                 inven.onChangeItem?.Invoke();
             }
         }
@@ -207,12 +232,47 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         Inventory inven = Inventory.instance;
         if (inven != null)
         {
-            inven.AddInventoryItemInstance(equippedItem);
+            // 0 ~ slotCnt-1 범위에서 "가장 앞의 빈 칸" 을 찾아 넣는다.
+            bool placed = false;
+            int maxSlot = Mathf.Max(0, inven.slotCnt);
+
+            for (int i = 0; i < maxSlot; i++)
+            {
+                // 리스트가 짧으면 null 로 채워 길이 보정
+                while (inven.items.Count <= i)
+                {
+                    inven.items.Add(null);
+                }
+
+                if (inven.items[i] == null)
+                {
+                    inven.items[i] = equippedItem;
+                    placed = true;
+                    break;
+                }
+            }
+
+            // 0~slotCnt-1 안에 빈 칸이 전혀 없다면,
+            // 최후 수단으로 기존 로직(첫 번째 빈 칸/리스트 끝)에 넣는다.
+            if (!placed)
+            {
+                inven.AddInventoryItemInstance(equippedItem);
+            }
+
+            // 인벤토리 변경 사항을 UI에 반영
+            inven.onChangeItem?.Invoke();
         }
 
-        if (acceptedType == ItemView.Lantern && equippedItem.itemData is IUsable autoUsable)
+        // 장비 해제 시 효과 제거
+        // - 랜턴: 토글 함수이므로 한 번 더 Use 호출해서 끈다.
+        if (acceptedType == ItemView.Lantern && equippedItem.itemData is IUsable lanternUsable)
         {
-            autoUsable.Use(HeroStat.Instance.transform, Vector2.zero);
+            lanternUsable.Use(HeroStat.Instance.transform, Vector2.zero);
+        }
+        // - 신발(아이템 ID 301): 남아 있는 이동속도 버프를 즉시 제거
+        else if (equippedItem.itemData.getItemName == 301 && HeroStat.Instance != null)
+        {
+            HeroStat.Instance.CancelEquipSpeedBoost();
         }
 
         equippedItem = null;

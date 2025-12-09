@@ -25,5 +25,5 @@ MonoBehaviour:
   healAmount:
   - 0
   - 0
-  - 20
+  - 100
   buffDuration: 9999
