@@ -183,7 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Item
   itemType: 3
   itemName: Leather
-  itemImage: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  itemImage: {fileID: -6306190053144719101, guid: 4b7a49045c3b11b4fb06940bbdd00ef3, type: 3}
   itemDataAsset: {fileID: 11400000, guid: 1138c96a8ef905c4eb9a6f1a7ecdc98b, type: 2}
 --- !u!114 &3084259730227657833
 MonoBehaviour:
