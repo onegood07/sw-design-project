@@ -35,15 +35,15 @@ MonoBehaviour:
     choices: []
     nextNodeIndex: 3
   - text: " \uC800\uB97C... \uC8FD\uAC8C... \uB0B4\uBC84\uB824\uB450\uC2DC\uACA0\uAD70\uC694..."
-    typingSpeed: 0.09
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  - text: "\uC815\uB9D0 \uAC10\uC0AC\uD574\uC694..! \uC774 \uBB34\uC804\uAE30\uAC00
-      \uB3C4\uC6C0\uC774 \uB418\uAE38 \uBC14\uB78D\uB2C8\uB2E4..."
-    typingSpeed: 0.09
+  - text: "\uC815\uB9D0 \uAC10\uC0AC\uD574\uC694..! \uC774\uAC8C \uB3C4\uC6C0\uC774
+      \uB418\uAE38 \uBC14\uB78D\uB2C8\uB2E4..."
+    typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0
