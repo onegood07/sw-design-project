@@ -181,7 +181,7 @@ MonoBehaviour:
   BaseHp: 1000
   BaseSpeedFactor: 1.1
   BasePower: 40
-  baseNavSpeed: 1.5
+  baseNavSpeed: 1.8
 --- !u!114 &4550260570852612450
 MonoBehaviour:
   m_ObjectHideFlags: 0

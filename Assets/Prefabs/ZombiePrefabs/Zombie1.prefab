@@ -134,7 +134,7 @@ MonoBehaviour:
   dropRate: 0.2
   BaseHp: 1000
   BaseSpeedFactor: 1.1
-  BasePower: 40
+  BasePower: 60
   baseNavSpeed: 1.5
 --- !u!114 &2993823278250113020
 MonoBehaviour:
