@@ -160,6 +160,30 @@ public class HeroStat : MonoBehaviour
         activeBoostCoroutine = StartCoroutine(HeroSpeedBoostCoroutine(duration,percentage));
     }
 
+    /// <summary>
+    /// 장비(신발 등) 해제 시, 남아 있는 이동속도 버프를 즉시 제거한다.
+    /// </summary>
+    public void CancelEquipSpeedBoost()
+    {
+        if (activeBoostCoroutine != null)
+        {
+            StopCoroutine(activeBoostCoroutine);
+            activeBoostCoroutine = null;
+        }
+
+        isSpeedBoosted = false;
+
+        // 허기 상태에 따라 적절한 기본 속도로 복구
+        if (hunger <= 100f)
+        {
+            speed = 100f;
+        }
+        else
+        {
+            speed = baseSpeed;
+        }
+    }
+
     void PlayHitEffect()
     {
         if (spriteRenderer == null)
