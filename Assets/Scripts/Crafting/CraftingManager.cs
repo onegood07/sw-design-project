@@ -46,6 +46,19 @@ public class CraftingManager : MonoBehaviour
             currentRecipes = recipes;
 
             craftingUI.Show(currentRecipes); 
+            
+            // ⭐ 추가된 로직: 인벤토리 UI 열기
+            if (InventoryUI.instance != null)
+            {
+                InventoryUI.instance.OpenInventory(); 
+                Debug.Log("[CraftingManager] 조합 UI와 함께 인벤토리 UI를 열었습니다.");
+            }
+
+            // ⭐ 추가된 로직: GameManager에 상호작용 시작을 알립니다.
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.StartInteraction();
+            }
         }
     }
 
@@ -62,9 +75,21 @@ public class CraftingManager : MonoBehaviour
             }
 
             currentRecipes = null;
+            
+            // ⭐ 추가된 로직: 인벤토리 UI 닫기
+            if (InventoryUI.instance != null)
+            {
+                InventoryUI.instance.CloseInventory(); 
+                Debug.Log("[CraftingManager] 조합 UI와 함께 인벤토리 UI를 닫았습니다.");
+            }
+
+            // ⭐ 추가된 로직: GameManager에 상호작용 종료를 알립니다.
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.EndInteraction();
+            }
         }
     }
-
     // ───────────────────────────────
     
     /// <summary>
