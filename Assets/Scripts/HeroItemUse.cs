@@ -53,10 +53,24 @@ public class HeroItemUse : MonoBehaviour
             // 정규화
             mouseDirection.Normalize();
 
-            // 현재 선택된 퀵슬롯 아이템이 무기일 경우에만 HeroAttackFlash / 총 임시 방향 전환 실행
+            // 현재 선택된 퀵슬롯 아이템이 무기일 경우에만
+            // 1) 쿨타임이 아닐 때만 HeroAttackFlash / 총 임시 방향 전환 실행
+            // 2) 실제 아이템 사용(InventoryManager.useQuickSlotItem)도 진행
             var currentData = GetSelectedQuickSlotItem();
             bool isWeapon = currentData != null && IsWeaponData(currentData);
-            if (isWeapon)
+
+            bool canUseNow = true;
+
+            // 쿨타임 매니저가 존재하고, 현재 아이템이 무기라면
+            // CoolTimeManager 기준으로 "실제로 사용 가능한 상태"인지 확인한다.
+            if (isWeapon && CoolTimeManager.Instance != null)
+            {
+                int itemId = currentData.getItemName;
+                canUseNow = CoolTimeManager.Instance.GetCurrentCooltime(itemId) <= 0f;
+            }
+
+            // 무기이면서 쿨타임이 아닐 때만 스프라이트 전환/플래시를 보여준다.
+            if (isWeapon && canUseNow)
             {
                 if (heroAttackFlash != null)
                 {
