@@ -110,7 +110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Item
   itemType: 3
   itemName: CanBundle
-  itemImage: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  itemImage: {fileID: 6070672825478603292, guid: 19b1382790b4a6640a3b91df5cebf7ef, type: 3}
   itemDataAsset: {fileID: 11400000, guid: 401c7a9b95f6c56469c2a316906cd742, type: 2}
 --- !u!114 &-3252740436256949635
 MonoBehaviour:

@@ -420,7 +420,7 @@ void StartNightPhase()
         return requiredScore;
     }
 
-    // MARK: 일차별 랜덤 납입품 목록 생성 로직 (주석 처리된 임시 로직 유지)
+// MARK: 일차별 랜덤 납입품 목록 생성 로직 (수정됨: 종류 최소 3종 ~ 최대 6종, 수량 최대 5개 제한)
     void GenerateRequiredItems()
     {
         CurrentRequiredItemsData.Clear(); 
@@ -433,34 +433,58 @@ void StartNightPhase()
         }
 
         int currentTargetScore = TargetRequiredScore; 
-        int maxItemsToRequire = Mathf.Min(3, AvailableSubmitItems.Length);
-        int requiredItemCount = Random.Range(1, maxItemsToRequire + 1); 
         
-        List<(Item item, float weight)> weightedPool = new List<(Item, float)>();
+        // 1. 요구 아이템 종류 최소/최대 설정 (최소 3종, 최대 6종)
+        const int MIN_REQUIRED_ITEMS = 3; 
+        const int MAX_REQUIRED_ITEMS = 6;
+        
+        // 2. 가중치 풀 생성 (실제 아이템 점수 사용)
+        List<(Item item, int score, float weight)> weightedPool = new List<(Item, int, float)>();
         float totalWeight = 0f;
 
         foreach (Item item in AvailableSubmitItems)
         {
-            int score = 10; // 테스트를 위해 임시 점수 부여
+            // ItemDataAsset에서 실제 점수(getScore)를 가져옵니다.
+            int score = (item != null && item.itemDataAsset != null) ? item.itemDataAsset.getScore : 0;
+            
             if (score <= 0) continue; 
 
+            // 점수가 높을수록 가중치를 낮춥니다.
             float weight = 100f / (float)score; 
-            weightedPool.Add((item, weight));
+            weightedPool.Add((item, score, weight));
             totalWeight += weight;
         }
+        
+        int availableUniqueItems = weightedPool.Count;
 
-        if (totalWeight <= 0)
+        // 유효 아이템 개수가 최소 요구치(3개)보다 적으면 경고
+        if (availableUniqueItems < MIN_REQUIRED_ITEMS)
         {
-            Debug.LogWarning("[GameManager] 유효한 점수를 가진 납입 아이템이 없습니다.");
-            return;
+            Debug.LogWarning($"[GameManager] 유효한 납입 아이템이 {availableUniqueItems}개 밖에 없어 {MIN_REQUIRED_ITEMS}개 이상 요구할 수 없습니다. 가능한 모든 ({availableUniqueItems}개) 아이템을 요구합니다.");
         }
         
-        List<Item> selectedItems = new List<Item>();
+        // 실제로 요구할 아이템 종류 개수 결정 (풀 개수와 MAX/MIN 요구 개수를 모두 고려)
+        int maxItemsToRequire = Mathf.Min(MAX_REQUIRED_ITEMS, availableUniqueItems);
+        int requiredItemCount = Random.Range(Mathf.Min(MIN_REQUIRED_ITEMS, maxItemsToRequire), maxItemsToRequire + 1);
+
+        if (requiredItemCount == 0 && availableUniqueItems > 0) 
+        {
+             // 혹시 3개 미만인 풀에서 Range가 0을 반환하지 않도록 최소 1개는 요구하도록 보장
+            requiredItemCount = 1; 
+        }
+
+        if (requiredItemCount == 0) return; // 요구할 아이템이 없으면 종료
+
+        // 3. 가중치 기반 아이템 무작위 선택
+        List<(Item item, int score)> selectedItemsWithScore = new List<(Item, int)>();
+        
+        // requiredItemCount 횟수만큼 반복하여 아이템을 선택
         for (int i = 0; i < requiredItemCount; i++)
         {
             float randomValue = Random.Range(0f, totalWeight);
             float currentWeight = 0f;
             Item selectedItem = null;
+            int selectedScore = 0;
             int selectedIndex = -1;
 
             for (int j = 0; j < weightedPool.Count; j++)
@@ -469,27 +493,41 @@ void StartNightPhase()
                 if (randomValue <= currentWeight)
                 {
                     selectedItem = weightedPool[j].item;
+                    selectedScore = weightedPool[j].score;
                     selectedIndex = j;
                     break;
                 }
             }
             
-            if (selectedItem != null)
-            {
-                selectedItems.Add(selectedItem);
-                totalWeight -= weightedPool[selectedIndex].weight;
-                weightedPool.RemoveAt(selectedIndex);
-                if (weightedPool.Count == 0 || totalWeight <= 0.001f) break;
-            }
+            // 만약 선택 가능한 아이템이 없거나 (totalWeight=0) 루프가 끝났다면 종료
+            if (selectedItem == null) break;
+            
+            selectedItemsWithScore.Add((selectedItem, selectedScore));
+            
+            // 선택된 아이템은 풀에서 제거하고 가중치도 갱신합니다.
+            totalWeight -= weightedPool[selectedIndex].weight;
+            weightedPool.RemoveAt(selectedIndex);
+        }
+        
+        // 4. 점수 할당 및 수량 계산 (수량 최대 5개 이하로 제한)
+        int actualSelectedCount = selectedItemsWithScore.Count;
+        
+        if (actualSelectedCount == 0)
+        {
+            Debug.LogError("[GameManager] 아이템 풀은 있었으나 무작위 선택 과정에서 실패했습니다. 로직 오류 또는 데이터 문제.");
+            return;
         }
         
         int remainingScore = currentTargetScore;
         List<int> scoreAllocations = new List<int>();
         
-        for (int i = 0; i < selectedItems.Count - 1; i++)
+        int minTotalScoreNeeded = actualSelectedCount; 
+        if (remainingScore < minTotalScoreNeeded) remainingScore = minTotalScoreNeeded;
+
+        for (int i = 0; i < actualSelectedCount - 1; i++)
         {
             int minScore = 1;
-            int maxAllocation = remainingScore - (selectedItems.Count - (i + 1)); 
+            int maxAllocation = remainingScore - (actualSelectedCount - (i + 1)); 
             if (maxAllocation < minScore) maxAllocation = minScore;
             
             int allocatedScore = Random.Range(minScore, maxAllocation + 1);
@@ -499,14 +537,31 @@ void StartNightPhase()
         scoreAllocations.Add(remainingScore); 
         
         int actualTotalRequiredScore = 0;
-
-        for (int i = 0; i < selectedItems.Count; i++)
+        
+        // 최종 수량 계산
+        for (int i = 0; i < selectedItemsWithScore.Count; i++)
         {
-            Item item = selectedItems[i];
-            int itemUnitScore = 10; // 테스트를 위해 임시 점수 사용
+            var (item, itemUnitScore) = selectedItemsWithScore[i];
             int requiredScorePortion = scoreAllocations[i];
             
+            // 요구 수량 계산
             int requiredCount = Mathf.CeilToInt((float)requiredScorePortion / itemUnitScore);
+            
+            int preClampCount = requiredCount; 
+            
+            // ⭐ 요구 수량을 1개 이상, 5개 이하로 제한합니다. (최대 5개 제한)
+            requiredCount = Mathf.Clamp(requiredCount, 1, 5); 
+            
+          if (preClampCount > 5)
+{
+    // ⭐ ItemData 에셋 대신, Item MonoBehaviour 자체의 itemName 필드를 사용합니다.
+    string itemName = (item != null) ? item.itemName : "Unknown Item";
+    
+    // 이전에 ItemDataAsset에서 가져오던 로직을 item.itemName으로 변경
+    
+    Debug.LogWarning($"[GameManager] 아이템: {itemName}, 단위 점수: {itemUnitScore}. 할당 점수: {requiredScorePortion}. " +
+                     $"계산된 수량: {preClampCount} -> ⭐ 5개로 강제 제한됨!");
+}
             
             CurrentRequiredItemsData.Add(item, requiredCount);
             CurrentSubmittedData.Add(item, 0); 
@@ -514,7 +569,7 @@ void StartNightPhase()
             actualTotalRequiredScore += requiredCount * itemUnitScore;
         }
 
-        Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. 목표 점수: {currentTargetScore}, 실제 요구 점수: {actualTotalRequiredScore}");
+        Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. 목표 점수: {currentTargetScore}, 실제 요구 점수 합산: {actualTotalRequiredScore}. (총 {CurrentRequiredItemsData.Count}종)");
     }
 
     // MARK: 다음 날로 전환

@@ -62,7 +62,6 @@ public class SpawnManager : MonoBehaviour
     // MARK: - 좀비 프리팹을 타입별로 분리하여 관리
     [Header("Zombie Prefabs")]
     public GameObject normalZombiePrefab;   // Normal 좀비
-    public GameObject highHpZombiePrefab;   // HighHp 좀비 
     public GameObject highSpeedZombiePrefab; // HighSpeed 좀비 
     public GameObject highPowerZombiePrefab; // HighPower 좀비 
 
@@ -436,11 +435,10 @@ public class SpawnManager : MonoBehaviour
     }
 
 
-    // MARK: 좀비만 스폰 (밤 페이즈용 - 기존 좀비를 유지하고 추가 스폰)
+ // MARK: 좀비만 스폰 (밤 페이즈용 - 기존 좀비를 유지하고 추가 스폰)
     public void SpawnZombiesOnly(int totalTargetZombieCount)
     {
-        // ⭐⭐⭐ 핵심 수정: ClearZombies() 호출 제거 (기존 좀비 유지) ⭐⭐⭐
-        // ClearZombies(); 
+        // ClearZombies() 호출 제거 (기존 좀비 유지) 
 
         if (allSpawnPositions.Count == 0)
         {
@@ -453,7 +451,6 @@ public class SpawnManager : MonoBehaviour
         }
         
         // 1. 이미 존재하는 좀비 수를 확인하고, 새로 스폰할 좀비 수를 계산합니다.
-        // spawnedZombies 리스트에는 씬에 존재하는 모든 좀비(이전 밤에 스폰된 좀비 포함)가 들어있어야 합니다.
         int existingZombieCount = spawnedZombies.Count;
         int newZombiesToSpawn = totalTargetZombieCount - existingZombieCount;
         
@@ -471,17 +468,18 @@ public class SpawnManager : MonoBehaviour
             persistentNPCs.Exists(npc => Vector3.Distance(npc.position, pos) < 0.1f)
         );
 
-        // 3. 새로운 좀비를 특수 좀비 (HighHp, HighSpeed, HighPower)로 스폰합니다.
-        // 새로운 좀비(newZombiesToSpawn)를 특수 좀비로 1/3씩 균등하게 분배
-        int highHpCount = newZombiesToSpawn / 3;
-        int highSpeedCount = newZombiesToSpawn / 3;
-        int highPowerCount = newZombiesToSpawn - highHpCount - highSpeedCount; // 남은 좀비는 HighPower에 할당
+        // 3. 새로운 좀비를 특수 좀비 (HighSpeed, HighPower)로 스폰합니다.
+        // HighHp 좀비는 제거하고, 남은 두 종류에 균등하게 분배합니다.
+        
+        // ⭐⭐⭐ HighHp 좀비 제거 및 할당 수량 조정 ⭐⭐⭐
+        
+        // 전체 수량을 남은 두 종류 (HighSpeed, HighPower)에 나누어 할당
+        int highSpeedCount = newZombiesToSpawn / 2;
+        int highPowerCount = newZombiesToSpawn - highSpeedCount; // 나머지 좀비는 HighPower에 할당 (홀수일 경우 1마리 더)
 
         int totalSpawned = 0;
 
-        List<Vector3> usedHpPositions = SpawnObjects(highHpZombiePrefab, highHpCount, remainingPositions, spawnedZombies);
-        remainingPositions.RemoveAll(pos => usedHpPositions.Contains(pos));
-        totalSpawned += usedHpPositions.Count;
+        // HighHp 좀비 스폰 로직 제거됨
 
         List<Vector3> usedSpeedPositions = SpawnObjects(highSpeedZombiePrefab, highSpeedCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedSpeedPositions.Contains(pos));
@@ -490,10 +488,13 @@ public class SpawnManager : MonoBehaviour
         List<Vector3> usedPowerPositions = SpawnObjects(highPowerZombiePrefab, highPowerCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedPowerPositions.Contains(pos));
         totalSpawned += usedPowerPositions.Count;
+        // ⭐⭐⭐ 수정 끝 ⭐⭐⭐
 
         Debug.Log($"[SpawnManager] 밤 스폰 완료 - 새로운 좀비 총 {totalSpawned}마리 추가 스폰. 현재 씬 총 좀비 수: {spawnedZombies.Count}");
+        Debug.Log($"  - High Speed 좀비: {usedSpeedPositions.Count}마리");
+        Debug.Log($"  - High Power 좀비: {usedPowerPositions.Count}마리");
     }
-
+    
     // MARK: 모든 스폰 오브젝트 제거 (씬 전환 시 호출)
     public void ClearAll()
     {
