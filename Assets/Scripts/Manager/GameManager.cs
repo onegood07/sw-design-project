@@ -876,6 +876,21 @@ void StartNightPhase()
         Debug.Log("=========================================");
     }
 
+    public void AddSurvivors(int amount)
+    {
+        if (amount > 0)
+        {
+            SurvivorCount += amount; 
+            Debug.Log($"[GameManager] 퀘스트 보상으로 생존자 {amount}명이 추가되었습니다. 현재 생존자 수: {SurvivorCount}");
+        }
+        else
+        {
+             Debug.LogWarning("[GameManager] AddSurvivors 함수에 0 또는 음수 값이 전달되었습니다. 생존자 수 변경 없음.");
+        }
+        
+        // 💡 필요한 경우 UI 업데이트 로직 호출 (예: HUD 또는 쉘터 UI)
+        // if (ShelterUI.Instance != null) ShelterUI.Instance.UpdateSurvivorDisplay(SurvivorCount); 
+    }
     // 대화 시작 시 호출
     public void StartInteraction()
     {

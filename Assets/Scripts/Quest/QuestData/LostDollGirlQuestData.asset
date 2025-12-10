@@ -18,5 +18,8 @@ MonoBehaviour:
   requiredItemName: TeddyBear
   requiredItemIcon: {fileID: 1762600211799945471, guid: cf3266b0ff4237243a26f699d5a73bf4, type: 3}
   requiredAmount: 1
+  giveItemReward: 1
   rewardItem: {fileID: 8018865339420979663, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
   rewardCount: 4
+  increaseSurvivors: 0
+  survivorIncreaseAmount: 1

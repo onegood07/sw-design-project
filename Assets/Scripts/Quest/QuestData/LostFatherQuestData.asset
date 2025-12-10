@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: LostFatherQuestData
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questName: LostFatherQuest
-  questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
-    \uC124\uC815\uB429\uB2C8\uB2E4."
+  questDescription: "\uB538\uC744 \uC783\uC5B4\uBC84\uB9B0 \uC544\uBC84\uC9C0"
   requiredItemName: Shoes
   requiredItemIcon: {fileID: -8461923687830504554, guid: 4f738b24494921d4191ce96659afd0bf, type: 3}
   requiredAmount: 1
+  giveItemReward: 0
   rewardItem: {fileID: 1511330356446781366, guid: 9c0014343ab8b684aafc23314b0bfa19, type: 3}
-  rewardCount: 5
+  rewardCount: 1
+  increaseSurvivors: 1
+  survivorIncreaseAmount: 1

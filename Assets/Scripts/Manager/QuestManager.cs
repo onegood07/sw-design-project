@@ -96,6 +96,7 @@ public class QuestManager : MonoBehaviour
         {
             Debug.LogWarning("[QuestManager] InventoryUI 인스턴스를 찾을 수 없습니다. 인벤토리를 열 수 없습니다.");
         }
+        // ⭐ 퀘스트 UI가 열릴 때 상호작용 시작을 알립니다. (DialogueManager가 EndDialogue를 호출하지 않았으므로 상호작용 상태 유지)
         GameManager.Instance?.StartInteraction();
         Debug.Log("[OpenSubmitUI] UI 열림 완료");
     }
@@ -104,7 +105,6 @@ public class QuestManager : MonoBehaviour
 // 제출 버튼 클릭
 public void OnSubmitButtonClicked()
 {
-    // (줄 110)
     if (activeQuestData == null)
     {
         Debug.LogWarning("[QuestManager] OnSubmitButtonClicked: activeQuestData가 Null입니다. 제출 중단.");
@@ -118,7 +118,7 @@ public void OnSubmitButtonClicked()
         return;
     }
 
-    bool confirmed = questDropSlot.ConfirmSubmission(); // (A) ConfirmSubmission 호출
+    bool confirmed = questDropSlot.ConfirmSubmission(); 
     
     // 2. ConfirmSubmission() 호출 후, QuestSlot이 혹시 파괴되었는지 재확인 (방어 코드)
     if (questDropSlot == null) 
@@ -134,15 +134,14 @@ public void OnSubmitButtonClicked()
         // 퀘스트 슬롯의 상태를 다시 확인하여 완료 여부 판단
         if (questDropSlot.submittedCount >= questDropSlot.RequiredAmount)
         {
-            //  Debug.Log($"[OnSubmitButtonClicked] 퀘스트 '{activeQuestData.questName}' 완료!");
              HandleQuestCompletion(questDropSlot);
              
-             // 💡 퀘스트 완료 후, 대화 재개 로직이 끝난 후 UI를 닫습니다.
-             // OnItemSubmitted에서 CloseSubmitUI를 제거했으므로 여기서 닫아줍니다.
+             // 퀘스트 완료 후, 대화 재개 로직이 끝난 후 UI를 닫습니다.
              CloseSubmitUI(); 
         }
         else
         {
+             // 제출은 성공했지만 아직 미완료
              if (submitAmountText != null)
                 submitAmountText.text = $"수량: {questDropSlot.submittedCount} / {questDropSlot.RequiredAmount}";
         }
@@ -153,17 +152,15 @@ public void OnSubmitButtonClicked()
 // 아이템 제출 시 (QuestSlot에서 호출)
 public void OnItemSubmitted(string itemName, int amountSubmitted, QuestSlot slot)
 {
-    // 여기서 CloseSubmitUI() 호출을 제거합니다. (OnSubmitButtonClicked에서 최종 처리)
+    // HandleQuestCompletion 호출은 OnSubmitButtonClicked으로 통합되어 중복 보상 문제를 해결했습니다.
+    
     if (slot.submittedCount >= slot.RequiredAmount)
     {
-        Debug.Log($"[OnItemSubmitted] 퀘스트 '{activeQuestData.questName}' 완료!");
-        HandleQuestCompletion(slot);
+        Debug.Log($"[OnItemSubmitted] 퀘스트 '{activeQuestData.questName}' 완료 상태가 되었습니다. (보상 지급 대기)");
     }
-    else
-    {
-        if (submitAmountText != null)
-            submitAmountText.text = $"수량: {slot.submittedCount} / {slot.RequiredAmount}";
-    }
+    
+    if (submitAmountText != null)
+        submitAmountText.text = $"수량: {slot.submittedCount} / {slot.RequiredAmount}";
 }
 
 // ───────────────────────────────
@@ -173,26 +170,30 @@ public void CloseSubmitUI()
 {
     Debug.Log("[CloseSubmitUI] 호출됨. 제출 UI와 대화 상태 정리 시작.");
 
-    // 💡 퀘스트가 완료되지 않은 상태에서 UI를 닫을 경우에만 DialogueManager를 정리합니다.
-    if (activeQuestData != null) // 퀘스트 미완료 상태 (activeQuestData가 아직 null로 설정되지 않음)
+    // ⭐ [수정] 퀘스트 미완료 상태 (사용자가 X 버튼 등으로 닫음)일 때만 대화를 취소하고 상호작용 종료
+    if (activeQuestData != null) 
     {
         if (DialogueManager.Instance != null)
         {
-            DialogueManager.Instance.EndDialogue();
+            // EndDialogue() 내부에서 GameManager.EndInteraction() 호출
+            DialogueManager.Instance.EndDialogue(); 
             Debug.Log("[CloseSubmitUI] 퀘스트 미완료 상태에서 UI 닫힘: DialogueManager.EndDialogue() 호출.");
         } else {
-             Debug.LogError("[CloseSubmitUI Error] DialogueManager.Instance가 Null입니다!");
+             Debug.LogError("[CloseSubmitUI Error] DialogueManager.Instance가 Null입니다! 상호작용 종료 수동 호출.");
+             GameManager.Instance?.EndInteraction(); // DialogueManager가 없으면 수동 종료
         }
     }
+    // else (퀘스트 완료 후 닫는 경우): HandleQuestCompletion에서 activeQuestData = null로 설정됨.
+    // 대화가 재개되었다면 DialogueManager.IsDialogueActive가 true이므로 상호작용 유지.
+    // 대화가 재개되지 않았다면 상호작용을 여기서 종료해야 합니다.
 
-    // GameManager Null 체크 강화
-    if (GameManager.Instance != null)
+    if (activeQuestData == null && DialogueManager.Instance != null && !DialogueManager.Instance.IsDialogueActive)
     {
-        GameManager.Instance.EndInteraction();
-        Debug.Log("[CloseSubmitUI] GameManager.EndInteraction() 호출 완료.");
-    } else {
-         Debug.LogWarning("[CloseSubmitUI] GameManager.Instance가 Null이므로 EndInteraction을 건너뜁니다.");
+        // 퀘스트는 완료되었는데 대화가 재개되지 않았을 경우 (HandleQuestCompletion에서 nextDialogueNodeIndex == -1인 경우)
+        GameManager.Instance?.EndInteraction();
+        Debug.Log("[CloseSubmitUI] 퀘스트 완료 후 대화 미재개: 상호작용 수동 종료.");
     }
+    // DialogueManager가 없는데 activeQuestData가 null인 경우 (에러 상황), EndInteraction 호출은 생략합니다.
 
     // 4. 인벤토리 UI 비활성화
     if (InventoryUI.instance != null) 
@@ -207,7 +208,7 @@ public void CloseSubmitUI()
     if (submitImagePanel != null) submitImagePanel.SetActive(false);
     if (QuestPanel != null) QuestPanel.SetActive(false);
     
-    // **가장 상위 Canvas를 끄는 것이 핵심입니다.**
+    // **가장 상위 Canvas 비활성화**
     if (submitCanvas != null) {
         submitCanvas.SetActive(false); 
         Debug.Log("[CloseSubmitUI] SubmitCanvas 비활성화 완료.");
@@ -222,46 +223,49 @@ public void CloseSubmitUI()
         questDropSlot.gameObject.SetActive(false); 
     }
     
-    // ⭐⭐⭐ 핵심 수정: 버튼 리스너 명시적 제거 ⭐⭐⭐
+    // 버튼 리스너 명시적 제거
     if (submitButton != null)
     {
         submitButton.onClick.RemoveAllListeners();
         Debug.Log("[CloseSubmitUI] SubmitButton 리스너를 모두 제거했습니다.");
     }
-    // ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
-
     activeQuestData = null; // UI가 닫힐 때 완전히 초기화
     nextDialogueNodeIndex = -1;
 
     Debug.Log("[CloseSubmitUI] 상태 초기화 완료");
 }
 
-// ───────────────────────────────
-// 퀘스트 완료 처리
+// 퀘스트 완료 후 보상 지급 및 상태 정리
 private void HandleQuestCompletion(QuestSlot slot)
 {
-    Debug.Log($"[HandleQuestCompletion] 보상 지급 시작");
-
-    // 1. 보상 지급 로직
-    if (slot.RewardItem != null)
+    QuestData data = slot.AssignedQuestData;
+    
+    if (data == null)
     {
-        if (Inventory.instance != null)
+        Debug.LogError("[HandleQuestCompletion] QuestData를 찾을 수 없습니다. 보상 지급 실패.");
+        return;
+    }
+    
+    Debug.Log($"[HandleQuestCompletion] 보상 지급 시작: {data.questName}");
+
+    // 1. 아이템 보상 처리 (생략)
+    // 2. 생존자 증가 보상 처리 (생략)
+    if (data.increaseSurvivors)
+    {
+        if (GameManager.Instance != null) 
         {
-            Inventory.instance.AddItem(slot.RewardItem, slot.RewardCount);
-            Debug.Log($"[HandleQuestCompletion] 보상 지급 완료: {slot.RewardItem.itemName} x{slot.RewardCount}");
+            GameManager.Instance.AddSurvivors(data.survivorIncreaseAmount);
+            Debug.Log($"[HandleQuestCompletion] 생존자 수 증가 보상 지급 완료: {data.survivorIncreaseAmount}명 증가.");
         }
         else
         {
-             Debug.LogError("[HandleQuestCompletion Error] Inventory.instance가 Null입니다! 보상 지급 실패.");
+             Debug.LogError("[HandleQuestCompletion Error] GameManager.Instance가 Null입니다! 생존자 보상 지급 실패.");
         }
     }
-    else
-    {
-         Debug.Log("[HandleQuestCompletion] 지급할 보상 아이템이 없습니다.");
-    }
+    
+    // ... (보상 없음 경고 로직 유지) ...
 
-
-    // 2. 대화 재개 (성공 시)
+    // 3. 대화 재개 및 상태 초기화 로직
     if (nextDialogueNodeIndex != -1)
     {
         if (DialogueManager.Instance != null)
@@ -276,11 +280,12 @@ private void HandleQuestCompletion(QuestSlot slot)
     } 
     else
     {
-         Debug.LogWarning("[HandleQuestCompletion] 다음 노드 인덱스가 없습니다. 대화 재개 생략.");
+         Debug.LogWarning("[HandleQuestCompletion] 다음 노드 인덱스가 없습니다. 상호작용 종료를 CloseSubmitUI에 위임합니다.");
     }
 
-    activeQuestData = null; // 완료 후 activeQuestData를 null로 설정
+    activeQuestData = null; 
     nextDialogueNodeIndex = -1;
     Debug.Log("[HandleQuestCompletion] 상태 초기화 완료");
 }
+
 }

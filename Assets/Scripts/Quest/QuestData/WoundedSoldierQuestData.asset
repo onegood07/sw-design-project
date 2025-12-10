@@ -18,5 +18,8 @@ MonoBehaviour:
   requiredItemName: Band
   requiredItemIcon: {fileID: 1462799768519014029, guid: 9c77f37515354464aae966cdb8782afa, type: 3}
   requiredAmount: 1
+  giveItemReward: 1
   rewardItem: {fileID: 1200249886004421481, guid: 6c989bc03b49ad04a96b771c6c4031d6, type: 3}
   rewardCount: 3
+  increaseSurvivors: 0
+  survivorIncreaseAmount: 1

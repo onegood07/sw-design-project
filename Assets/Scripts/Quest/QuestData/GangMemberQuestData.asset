@@ -18,5 +18,8 @@ MonoBehaviour:
   requiredItemName: Can
   requiredItemIcon: {fileID: 7032184553362833509, guid: 38c3d8231c4eb73478464217531b4925, type: 3}
   requiredAmount: 1
+  giveItemReward: 1
   rewardItem: {fileID: 1117397670487763955, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
   rewardCount: 4
+  increaseSurvivors: 0
+  survivorIncreaseAmount: 1
