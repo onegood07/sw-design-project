@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
   - text: "\uD639\uC2DC\u2026 \uC791\uC740 \uC2E0\uBC1C \uD55C \uC9DD\uC774\uB77C\uB3C4
-      \uBD24\uB098\u2026? \uC544\uC774 \uD754\uC801\uC744 \uCC3E\uACE0 \uC2F6\uB2E4."
+      \uBD24\uB098\u2026? \uC6B0\uB9AC \uB538 \uD754\uC801\uC744 \uCC3E\uACE0 \uC2F6\uC5B4..."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
@@ -45,6 +45,25 @@ MonoBehaviour:
   - text: "\uC815\uB9D0 \uACE0\uB9D9\uB2E4... \uC815\uB9D0 \uACE0\uB9C8\uC6CC...
       \uC544\uC9C1... \uC0B4\uC544\uC788\uC744\uAC70\uB77C\uACE0 \uBBFF\uB124. \uC774\uAC74
       \uBCF4\uB2F5\uC77C\uC138."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 1
+    choices:
+    - choiceText: "\uC800\uB791 \uAC19\uC774 \uC258\uD130\uB85C \uAC00\uC2DC\uC8E0."
+      nextNodeIndex: 4
+    - choiceText: "...\uAE08\uBC29 \uCC3E\uC744 \uC218 \uC788\uC744 \uAC81\uB2C8\uB2E4."
+      nextNodeIndex: 5
+    nextNodeIndex: -1
+  - text: "\uADF8\uB798... \uADF8\uB7EC\uC790.. \uACE0\uB9D9\uB124."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  - text: "\uADF8\uB807\uACA0\uC9C0.. \uADF8\uB7F4\uAC70\uC57C.. \uACE0\uB9D9\uB124.
+      \uC790\uB124\uB97C \uB530\uB77C\uAC00\uB9C8.."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0

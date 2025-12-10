@@ -29,6 +29,7 @@ public class DialogueManager : MonoBehaviour
 
         IsDialogueActive = true; 
 
+        // 1. ⭐ [GameManager 상호작용 시작] 대화 시작 시 상호작용 시작.
         GameManager.Instance?.StartInteraction();
 
         if (DialogueUI.Instance == null)
@@ -42,6 +43,8 @@ public class DialogueManager : MonoBehaviour
             {
                 Debug.LogError("[DialogueManager] DialogueUI 오브젝트를 씬에서 찾을 수 없습니다.");
                 IsDialogueActive = false;
+                // 상호작용 시작 실패 시 종료 상태로 되돌립니다.
+                GameManager.Instance?.EndInteraction();
                 return;
             }
         }
@@ -60,6 +63,7 @@ public class DialogueManager : MonoBehaviour
         if (currentData == null || currentData.nodes == null)
         {
             Debug.LogWarning("[DialogueManager] currentData가 Null이거나 노드 배열이 Null입니다. 기본 인덱스 0으로 SubmitUI 시도");
+            // 퀘스트 UI가 열릴 때 QuestManager가 StartInteraction을 호출합니다.
             QuestManager.instance?.OpenSubmitUI(questData, 0);
             IsDialogueActive = false;
             return;
@@ -102,6 +106,8 @@ public class DialogueManager : MonoBehaviour
         if (currentData == null) 
         {
             Debug.LogError("[DialogueManager] 현재 DialogueData가 없어 대화를 재개할 수 없습니다.");
+            // 퀘스트 완료 후 대화 재개 실패 시 상호작용 종료 (방어 코드)
+            GameManager.Instance?.EndInteraction();
             return;
         }
 
@@ -112,7 +118,8 @@ public class DialogueManager : MonoBehaviour
         ShowNode(currentNodeIndex);
 
         IsDialogueActive = true;
-        GameManager.Instance?.StartInteraction();
+        // ⭐ [수정 완료]: StartDialogue에서 이미 StartInteraction을 호출했으므로 제거합니다.
+        // GameManager.Instance?.StartInteraction(); 
         Debug.Log($"[DialogueManager] 퀘스트 완료 후 노드 {nodeIndex}에서 대화를 재개합니다.");
     }
     
@@ -156,12 +163,12 @@ public class DialogueManager : MonoBehaviour
         currentNodeIndex = -1;
 
         if (currentNPC != null)
-        {
             currentNPC.OnDialogueEnd(); // NPC에게 종료 알림
-            currentNPC = null;
-        }
 
+        currentNPC = null;
         IsDialogueActive = false;
+        
+        // 2. ⭐ [GameManager 상호작용 종료] 대화가 완전히 끝났을 때 상호작용 종료를 알립니다.
         GameManager.Instance?.EndInteraction();
         Debug.Log("[DialogueManager] 대화 상태 완전 초기화 완료.");
     }
