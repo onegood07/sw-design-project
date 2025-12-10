@@ -42,8 +42,8 @@ MonoBehaviour:
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  - text: "\uBC1B\uC544. \uBB50.. \uC801\uC5B4\uB3C4... \uD558\uB8E8\uB294 \uBC84\uD2F8
-      \uC218 \uC788\uC744\uC9C0\uB3C4."
+  - text: "\uBC1B\uC544. \uBB50.. \uB2E4\uC2DC\uB294 \uBCFC\uC77C\uC774 \uC5C6\uAE38
+      \uBC14\uB77C\uC9C0."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
