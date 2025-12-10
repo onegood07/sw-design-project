@@ -12,7 +12,11 @@ public class DialogueManager : MonoBehaviour
 
     void Awake() 
     { 
-        Instance = this; 
+        // 싱글톤 패턴 보강 (선택적)
+        if (Instance == null)
+            Instance = this;
+        else if (Instance != this)
+            Destroy(gameObject);
     }
 
     public void StartDialogue(DialogueData data, DialogueNPC npc)
@@ -47,7 +51,7 @@ public class DialogueManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 퀘스트 제출 UI를 띄우고 대화를 종료하는 함수
+    /// 퀘스트 제출 UI를 띄우고 대화를 일시 중단하는 함수 (EndDialogue 호출 안 함!)
     /// </summary>
     public void StartQuestSubmission(QuestData questData)
     {
@@ -61,6 +65,13 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
+        // 1. 대화 UI만 숨김 (대화 데이터는 유지)
+        if (DialogueUI.Instance != null)
+            DialogueUI.Instance.Hide(); 
+
+        // 2. 대화 상태를 '비활성'으로 전환 (UI가 보이지 않으므로)
+        IsDialogueActive = false;
+
         // 디버깅용: 현재 노드 정보 출력
         if (currentNodeIndex >= 0 && currentNodeIndex < currentData.nodes.Length)
         {
@@ -72,8 +83,7 @@ public class DialogueManager : MonoBehaviour
             Debug.LogWarning($"[DialogueManager] currentNodeIndex가 유효하지 않습니다: {currentNodeIndex}");
         }
 
-        EndDialogue();
-
+        // 3. 퀘스트 제출 UI를 띄울 때 돌아올 인덱스를 계산하여 전달
         int nextIndexAfterSubmission = 0;
         if (currentNodeIndex >= 0 && currentNodeIndex < currentData.nodes.Length)
             nextIndexAfterSubmission = currentData.nodes[currentNodeIndex].nextNodeIndex;
@@ -141,15 +151,18 @@ public class DialogueManager : MonoBehaviour
         if (DialogueUI.Instance != null)
             DialogueUI.Instance.Hide();
 
-        // currentData는 대화 재개를 위해 유지
+        // 대화가 완전히 끝났으므로 모든 상태 초기화
+        currentData = null; // 대화 데이터 초기화
+        currentNodeIndex = -1;
 
         if (currentNPC != null)
         {
-            currentNPC.OnDialogueEnd();
+            currentNPC.OnDialogueEnd(); // NPC에게 종료 알림
             currentNPC = null;
         }
 
         IsDialogueActive = false;
         GameManager.Instance?.EndInteraction();
+        Debug.Log("[DialogueManager] 대화 상태 완전 초기화 완료.");
     }
 }

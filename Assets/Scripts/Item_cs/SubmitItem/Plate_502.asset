@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Plate_502
   m_EditorClassIdentifier: Assembly-CSharp::SubmitData
   ItemName: 502
-  Score: 1
+  Score: 3
   Description: "\uD2BC\uD2BC\uD55C \uD569\uD310"
   Icon: {fileID: 0}
   MaxStackCount: 0
   isAvailable: 0
   originCoolTime: 0
+  clip: {fileID: 0}
