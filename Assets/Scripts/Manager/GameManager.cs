@@ -286,12 +286,6 @@ public void PlayerDied()
         DayTimer = 0f;
         while (DayTimer < firstDayDuration)
         {
-            // 대화 중에는 타이머가 멈춥니다.
-            if (IsDialogueActive)
-            {
-                yield return null;
-                continue;
-            }
             DayTimer += Time.deltaTime;
             yield return null;
         }
@@ -314,11 +308,6 @@ public void PlayerDied()
             NightTimer = 0f;
             while (NightTimer < currentNightDuration) // ⭐ 동적 밤 시간 적용
             {
-                if (IsDialogueActive)
-                {
-                    yield return null;
-                    continue;
-                }
                 NightTimer += Time.deltaTime;
                 yield return null;
             } 
@@ -345,11 +334,6 @@ public void PlayerDied()
             DayTimer = 0f;
             while (DayTimer < currentDayDuration) // ⭐ 동적 낮 시간 적용
             {
-                if (IsDialogueActive)
-                {
-                    yield return null;
-                    continue;
-                }
                 DayTimer += Time.deltaTime;
                 yield return null;
             }
