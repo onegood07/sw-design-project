@@ -127,64 +127,72 @@ public class QuestSlot : Slot
     }
     
     /// <summary>
-    /// 버튼이 눌렸을 때 임시 배치된 아이템을 확정 제출하는 함수 (QuestManager에서 호출됨)
-    /// </summary>
-    public bool ConfirmSubmission()
+/// 버튼이 눌렸을 때 임시 배치된 아이템을 확정 제출하는 함수 (QuestManager에서 호출됨)
+/// </summary>
+public bool ConfirmSubmission()
+{
+    if (temporaryItem == null || temporaryItemIndex == -1)
     {
-        if (temporaryItem == null || temporaryItemIndex == -1)
-        {
-            Debug.LogWarning("[Quest] 슬롯에 납입할 아이템이 없습니다.");
-            return false;
-        }
-        
-        Inventory inven = Inventory.instance;
-        if (inven == null) 
-        {
-            Debug.LogError("[QuestSlot] Inventory.instance가 null입니다.");
-            ClearTemporarySlot();
-            return false;
-        }
-        
-        // 인벤토리에서 실제 아이템 확인 (드래그 후 인벤토리 변경이 발생했을 수 있으므로 재확인)
-        InventoryItem actualItem = inven.items[temporaryItemIndex];
-        if (actualItem == null || actualItem.itemName != requiredItemName)
-        {
-            Debug.LogError("[Quest] 인벤토리에서 아이템을 찾을 수 없거나 아이템이 변경되었습니다.");
-            ClearTemporarySlot(); 
-            return false;
-        }
-        
-        int needed = requiredAmount - submittedCount; 
-        if (needed <= 0)
-        {
-            Debug.Log($"[Quest] {requiredItemName}은 이미 충분히 제출되었습니다.");
-            ClearTemporarySlot(); 
-            return true; // 이미 완료된 것으로 간주
-        }
-        
-        // 필요한 수량과 인벤토리의 실제 수량 중 작은 값만큼 제출
-        int submitAmount = Mathf.Min(needed, actualItem.count);
-        
-        // 인벤토리에서 아이템 소모
-        inven.ConsumeItemAt(temporaryItemIndex, submitAmount);
-        submittedCount += submitAmount;
-        
-        // UI 업데이트
-        UpdateQuestSlotUI(temporaryItem); 
-        
-        // ⭐ QuestManager에게 제출 완료 알림 (보상 지급 트리거)
-        // QuestManager.instance는 외부에서 참조 가능하다고 가정합니다.
-        if (QuestManager.instance != null)
-        {
-            QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this);
-        }
-        
-        ClearTemporarySlot(); // 임시 배치 상태 해제
-        
-        Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
-        return true;
+        Debug.LogWarning("[Quest] 슬롯에 납입할 아이템이 없습니다.");
+        return false;
     }
+    
+    Inventory inven = Inventory.instance;
+    if (inven == null) 
+    {
+        Debug.LogError("[QuestSlot] Inventory.instance가 null입니다.");
+        ClearTemporarySlot();
+        return false;
+    }
+    
+    // 인벤토리에서 실제 아이템 확인 (드래그 후 인벤토리 변경이 발생했을 수 있으므로 재확인)
+    InventoryItem actualItem = inven.items[temporaryItemIndex];
+    if (actualItem == null || actualItem.itemName != requiredItemName)
+    {
+        Debug.LogError("[Quest] 인벤토리에서 아이템을 찾을 수 없거나 아이템이 변경되었습니다.");
+        ClearTemporarySlot(); 
+        return false;
+    }
+    
+    int needed = requiredAmount - submittedCount; 
+    if (needed <= 0)
+    {
+        Debug.Log($"[Quest] {requiredItemName}은 이미 충분히 제출되었습니다.");
+        ClearTemporarySlot(); 
+        return true; // 이미 완료된 것으로 간주
+    }
+    
+    // 필요한 수량과 인벤토리의 실제 수량 중 작은 값만큼 제출
+    int submitAmount = Mathf.Min(needed, actualItem.count);
+    
+    // 인벤토리에서 아이템 소모
+    inven.ConsumeItemAt(temporaryItemIndex, submitAmount);
+    submittedCount += submitAmount;
+    
+    // UI 업데이트
+    UpdateQuestSlotUI(temporaryItem); 
+    
+    // ⭐ QuestManager에게 제출 완료 알림 (보상 지급 트리거)
+    if (QuestManager.instance != null)
+    {
+        // 이 함수 호출 후 QuestSlot 오브젝트가 파괴되는지 확인이 필요합니다.
+        QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this); 
+    }
+    
+    ClearTemporarySlot(); // 임시 배치 상태 해제
+    
+    Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
 
+    // 👇👇👇 중요: 여기서 파괴 여부 확인 👇👇👇
+    if (this.gameObject == null)
+    {
+        // 이 로그가 출력되면 QuestManager.OnItemSubmitted 또는 그 외부에 의해 객체가 파괴된 것입니다.
+        Debug.LogError("[QuestSlot] FATAL: ConfirmSubmission이 반환되기 직전에 오브젝트가 파괴되었습니다!"); 
+    }
+    // 👆👆👆 중요: 여기서 파괴 여부 확인 👆👆👆
+    
+    return true;
+}
 
     // 임시 배치된 아이템의 정보(개수)를 보여주는 UI 업데이트
     private void UpdateTemporarySlotUI(InventoryItem itemData)

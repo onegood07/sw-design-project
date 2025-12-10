@@ -501,7 +501,7 @@ void StartNightPhase()
         
         // 1. 요구 아이템 종류 최소/최대 설정 (최소 5종, 최대 8종)
         const int MIN_REQUIRED_ITEMS = 5; 
-        const int MAX_REQUIRED_ITEMS = 8;
+        const int MAX_REQUIRED_ITEMS = 9;
         
         // 2. 가중치 풀 생성 (실제 아이템 점수 사용)
         List<(Item item, int score, float weight)> weightedPool = new List<(Item, int, float)>();
@@ -614,7 +614,7 @@ void StartNightPhase()
             
             int preClampCount = requiredCount; 
             // ⭐ [수정] 요구 수량 제한을 1개 이상, 5개 이하로 변경합니다.
-            requiredCount = Mathf.Clamp(requiredCount, 7, 10); 
+            requiredCount = Mathf.Clamp(requiredCount, 7, 12); 
             
             if (preClampCount > requiredCount) // 5개를 초과한 경우 경고
             {
