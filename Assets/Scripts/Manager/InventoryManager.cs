@@ -10,6 +10,10 @@ public class InventoryManager : MonoBehaviour
     public ItemData[] quickSlotItems = new ItemData[6];
     public int[] quickSlotCounts = new int[6];
     public int[] quickSlotInventoryIndices = new int[6];
+
+    // 장비 슬롯 상태 저장용 (씬 전환 후 복원을 위해 ItemView 기반으로 저장)
+    // 인덱스: (int)ItemView
+    public InventoryItem[] equippedItemsByType = new InventoryItem[4];
     // itemUse를 위해 플레이어 정보, viewDirection 을 사용해야 하므로 인벤토리 매니저에서 관리함
     // viewDirection은 최신 값 반영을 위해 다이렉트로 인수로 넣음
     public Transform HeroTransform;
@@ -156,8 +160,8 @@ public class InventoryManager : MonoBehaviour
                     CoolTimeManager.Instance.AddCooltimeQueue(Item.getItemName, Item.getCoolTime);
                 }
 
-                // 사운드 매니저 및 클립이 둘 다 유효할 때만 재생
-                if (Item.getClip != null && SoundManager.Instance != null)
+                // 사운드 매니저와 클립이 유효할 때만 재생
+                if (SoundManager.Instance != null && Item.getClip != null)
                 {
                     SoundManager.Instance.PlaySFX(Item.getClip, 1.0f);
                 }

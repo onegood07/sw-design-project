@@ -21,5 +21,10 @@ public class PistolData : WeaponData,IUsable
         BulletMove bullet = bulletObject.GetComponent<BulletMove>();
         bullet.bulletSetting(currentViewDirection,bulletSpeed,power);
         bullet.shoot();
+
+        // 이펙트 생성
+        float angle = Mathf.Atan2(currentViewDirection.y, currentViewDirection.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.Euler(0, 0, angle + 90);
+        Instantiate(effect, HeroTransform.position + (Vector3)currentViewDirection*0.8f, rotation);
     }
 }

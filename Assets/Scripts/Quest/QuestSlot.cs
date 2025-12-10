@@ -5,8 +5,10 @@ using UnityEngine.UI;
 // Slot 클래스를 상속받는다고 가정하며, itemIcon과 itemCountText는 Slot에 정의되어 있다고 가정합니다.
 public class QuestSlot : Slot
 {
-    // ⭐ QuestManager가 읽을 수 있도록 public get 속성 추가
-    // 이 속성들은 QuestManager에서 UI 표시 및 퀘스트 완료 체크 시 사용됩니다.
+    // ⭐ [추가]: QuestManager가 보상 타입(아이템/생존자)을 확인하고 처리할 수 있도록 QuestData 객체 자체를 저장합니다.
+    [HideInInspector] public QuestData AssignedQuestData; 
+
+    // QuestManager가 읽을 수 있도록 public get 속성
     public int RequiredAmount => requiredAmount;
     public string RequiredItemName => requiredItemName;
     public Item RewardItem => rewardItem; 
@@ -60,6 +62,9 @@ public class QuestSlot : Slot
             Debug.LogError("[QuestSlot] QuestData가 null입니다. 초기화 실패.");
             return;
         }
+
+        // ⭐ [수정]: QuestData 객체 자체를 저장합니다.
+        AssignedQuestData = data; 
 
         // 1. 요구 사항 데이터 저장
         this.requiredItemName = data.requiredItemName;
@@ -173,18 +178,26 @@ public class QuestSlot : Slot
         UpdateQuestSlotUI(temporaryItem); 
         
         // ⭐ QuestManager에게 제출 완료 알림 (보상 지급 트리거)
-        // QuestManager.instance는 외부에서 참조 가능하다고 가정합니다.
         if (QuestManager.instance != null)
         {
-            QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this);
+            // 이 함수 호출 후 QuestSlot 오브젝트가 파괴되는지 확인이 필요합니다.
+            QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this); 
         }
         
         ClearTemporarySlot(); // 임시 배치 상태 해제
         
         Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
+
+        // 👇👇👇 중요: 여기서 파괴 여부 확인 👇👇👇
+        if (this.gameObject == null)
+        {
+            // 이 로그가 출력되면 QuestManager.OnItemSubmitted 또는 그 외부에 의해 객체가 파괴된 것입니다.
+            Debug.LogError("[QuestSlot] FATAL: ConfirmSubmission이 반환되기 직전에 오브젝트가 파괴되었습니다!"); 
+        }
+        // 👆👆👆 중요: 여기서 파괴 여부 확인 👆👆👆
+        
         return true;
     }
-
 
     // 임시 배치된 아이템의 정보(개수)를 보여주는 UI 업데이트
     private void UpdateTemporarySlotUI(InventoryItem itemData)
@@ -251,6 +264,7 @@ public class QuestSlot : Slot
     public void ResetSlot()
     {
         // 모든 퀘스트 정보를 초기화합니다.
+        this.AssignedQuestData = null; // ⭐ [추가]: QuestData도 초기화
         this.requiredItemName = null;
         this.requiredAmount = 0;
         this.rewardItem = null;

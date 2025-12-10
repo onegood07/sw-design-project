@@ -81,7 +81,7 @@ public class HeroMoveControl : MonoBehaviour
     [Header("Roll (Dodge) Settings")]
     [SerializeField] private float rollSpeed = 8f;       // 구르기 속도
     [SerializeField] private float rollDuration = 0.25f; // 구르기가 유지되는 시간(초)
-    [SerializeField] private float rollCooldown = 0.5f;  // 구르기 후 다시 사용할 수 있을 때까지의 쿨타임(초)
+    [SerializeField] private float rollCooldown = 2f;    // 구르기 후 다시 사용할 수 있을 때까지의 쿨타임(초)
 
     private bool isRolling = false;          // 현재 구르기 중인지 여부
     private float rollTimer = 0f;            // 남은 구르기 시간
@@ -132,8 +132,8 @@ public class HeroMoveControl : MonoBehaviour
         // 씬 로드 콜백 해제 (중복 등록 방지)
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
-
-    // ⭐ 수정: 씬 로드 시 위치 조정 로직 제거 (FadeManager가 처리함)
+    
+    // 씬 로드 시 위치 조정은 FadeManager에서 처리한다.
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"[Hero] 씬 로드 완료: {scene.name}");
@@ -146,10 +146,8 @@ public class HeroMoveControl : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero;
         }
-        
-        // ⭐ 위치 조정 로직 삭제됨 (FadeManager.cs의 FadeOutIn 코루틴에서 처리됨)
 
-        // 저장된 위치가 없거나, FadeManager가 위치를 적용한 후에는 Idle 상태로 전환
+        // 위치 조정은 FadeManager에서 처리하며, 여기서는 Idle 상태로만 전환
         UpdateAnimation(false);
     }
 
@@ -205,8 +203,8 @@ public class HeroMoveControl : MonoBehaviour
 
             rollDirection = dir;
             isRolling = true;
-            rollTimer = rollDuration;          // 구르기 타이머 시작
-            rollCooldownTimer = rollCooldown;  // 쿨타임 설정
+            rollTimer = rollDuration;                    // 구르기 지속 시간
+            rollCooldownTimer = Mathf.Max(rollCooldown, 2f);  // 최소 2초 쿨타임
 
             // 구르기 시작하는 동안에는 총을 숨긴다.
             if (weaponVisual != null)
@@ -226,7 +224,7 @@ public class HeroMoveControl : MonoBehaviour
     void Update()
     {
         attackLockTimer -= Time.deltaTime;
-
+        
         // 매 프레임 키보드 입력을 읽어 moveInput 갱신
         ReadKeyboardInput();
 
@@ -279,7 +277,7 @@ public class HeroMoveControl : MonoBehaviour
             return;
         }
 
-        // --- 기본 애니메이션 (총 안 든 상태) ---
+        // 기본 애니메이션 (총을 들지 않은 상태)
         if (lastMoveDir.y > 0)       hashToPlay = moving ? stWalkUp    : stIdleUp;
         else if (lastMoveDir.y < 0)  hashToPlay = moving ? stWalkDown  : stIdleDown;
         else if (lastMoveDir.x < 0)  hashToPlay = moving ? stWalkLeft  : stIdleLeft;
@@ -302,7 +300,7 @@ public class HeroMoveControl : MonoBehaviour
         }
         else
         {
-            // HeroStat을 찾지 못한 경우에는 안전하게 기본값 사용
+            // HeroStat을 찾지 못한 경우에는 기본값 사용
             moveSpeed = 2.5f;
         }
 
@@ -441,7 +439,7 @@ public class HeroMoveControl : MonoBehaviour
         ForceMove(pos);
     }
 
-    // ⭐ 강제 텔레포트 함수 (FadeManager에서 호출됨)
+    // 강제 텔레포트 함수 (FadeManager에서 호출)
     public void ForceMove(Vector2 newPos)
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();

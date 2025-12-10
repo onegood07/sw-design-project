@@ -10,8 +10,8 @@ public class PlayerLightControl : MonoBehaviour
     public Light2D playerLight; 
 
     [Header("반경 설정")]
-    public float baseRadius = 4f;        // 랜턴 미사용 시 기본 반경
-    public float lanternRadius = 7f;     // 랜턴 사용 시 확장된 반경
+    public float baseRadius = 2.0f;        // 랜턴 미사용 시 기본 반경
+    public float lanternRadius = 4.0f;     // 랜턴 사용 시 확장된 반경
     public float transitionSpeed = 100f;   // 반경 전환 속도
 
     private void Awake()

@@ -11,4 +11,6 @@ public abstract class WeaponData : ItemData
     // 탄속
     [Header("탄속")]
     public float bulletSpeed;
+    [Header("이펙트")]
+    public GameObject effect;
 }

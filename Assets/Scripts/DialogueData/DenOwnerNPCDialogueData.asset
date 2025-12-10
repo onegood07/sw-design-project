@@ -13,8 +13,15 @@ MonoBehaviour:
   m_Name: DenOwnerNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
-  - text: "\uB0A9\uC785\uD488? \uADF8\uAC70 \uCC59\uACA8\uC11C \uBE68\uB9AC \uAEBC\uC838.
-      \uB0B4 \uBB3C\uAC74 \uAC74\uB4DC\uB9AC\uC9C0 \uB9C8."
+  - text: "\uBB50, \uC544\uC9C1\uB3C4 \uBCFC\uC77C\uC774 \uB0A8\uC558\uB098? \uB9D0
+      \uAC78\uC9C0\uB9C8."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  - text: "\uBB58\uBD10? \uB0B4 \uAD6C\uC5ED\uC774\uB791 \uACB9\uCE58\uC9C0 \uB9D0\uB77C\uACE0."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
@@ -22,10 +29,10 @@ MonoBehaviour:
     choices:
     - choiceText: "\uC800\uB3C4 \uC81C \uAD6C\uC5ED\uC744 \uC9C0\uD0A4\uACE0 \uC2F6\uC744
         \uBFD0\uC774\uC5D0\uC694. "
-      nextNodeIndex: 1
-    - choiceText: "\uB2F9\uC2E0 \uC740\uC2E0\uCC98\uB294 \uB2E4 \uBB34\uB108\uC9C0\uAC8C
-        \uC0DD\uACBC\uB294\uB370. \uC81C\uAC00 \uC65C \uD0D0\uB0B4\uACA0\uC5B4\uC694?"
       nextNodeIndex: 2
+    - choiceText: "\uD589\uC0C9\uC744 \uBCF4\uC544\uD558\uB2C8 \uADF8\uCABD\uB3C4
+        \uC800\uB791 \uBE44\uC2B7\uD55C \uAC83 \uAC83 \uAC19\uC740\uB370."
+      nextNodeIndex: 3
     nextNodeIndex: 0
   - text: "\uADF8\uB7FC \uC131\uC758 \uD45C\uC2DC\uB77C\uB3C4 \uD558\uB358\uAC00.
       \uD639\uC2DC \uC54C\uC544? \uB0B4\uAC00 \uC88B\uC740 \uAC78 \uC904\uC9C0."
@@ -34,20 +41,21 @@ MonoBehaviour:
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
-  - text: "\uBB50? \uB2F9\uC7A5 \uC369 \uB098\uAC00. \uAEBC\uC838! "
-    typingSpeed: 0.03
-    questToStart: {fileID: 0}
-    shouldStartSubmission: 0
-    hasChoices: 0
-    choices: []
-    nextNodeIndex: -1
-  - text: "\uBC1B\uC544. \uBB50.. \uC801\uC5B4\uB3C4... \uD558\uB8E8\uB294 \uBC84\uD2F8
-      \uC218 \uC788\uC744\uC9C0\uB3C4."
+    nextNodeIndex: 4
+  - text: "\uBB50? \uADF8\uAC78 \uC9C0\uAE08 \uB9D0\uC774\uB77C\uACE0 \uD558\uB098?
+      \uB2F9\uC7A5 \uBE44\uCF1C."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  startNodeIndex: 0
+  - text: "\uBC1B\uC544. \uBB50.. \uB2E4\uC2DC\uB294 \uBCFC\uC77C\uC774 \uC5C6\uAE38
+      \uBC14\uB77C\uC9C0."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  startNodeIndex: 1

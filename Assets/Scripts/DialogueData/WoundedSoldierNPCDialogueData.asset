@@ -13,8 +13,16 @@ MonoBehaviour:
   m_Name: WoundedSoldierNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
-  - text: "\uAC10\uC5FC\uB41C \uAC8C \uC544\uB2C8\uC5D0\uC694! \uC81C\uBC1C... \uBD95\uB300
-      \uD558\uB098\uB9CC \uC8FC\uC138\uC694..."
+  - text: "\uB2F9\uC2E0 \uAC19\uC740 \uC0AC\uB78C\uC774 \uC788\uC5B4\uC11C \uB2E4\uD589\uC785\uB2C8\uB2E4,
+      \uC815\uB9D0\uB85C..."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  - text: "\uAC10\uC5FC\uB41C \uAC8C \uC544\uB2C8\uC5D0\uC694! \uC81C\uBC1C... \uBD95\uB300\uB97C
+      \uC8FC\uC138\uC694..."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
@@ -22,18 +30,18 @@ MonoBehaviour:
     choices:
     - choiceText: "...\uC54C\uACA0\uC5B4\uC694. \uAC10\uC5FC\uC774 \uC544\uB2C8\uB77C\uACE0
         \uBBFF\uC744\uAC8C\uC694."
-      nextNodeIndex: 1
-    - choiceText: "\uC258\uD130 \uB0A9\uC785\uD488\uC774\uB77C \uC904 \uC218 \uC5C6\uC5B4\uC694."
       nextNodeIndex: 2
+    - choiceText: "\uC258\uD130 \uB0A9\uC785\uD488\uC774\uB77C \uC904 \uC218 \uC5C6\uC5B4\uC694."
+      nextNodeIndex: 3
     nextNodeIndex: 0
-  - text: "\uAC10\uC0AC\uD569\uB2C8\uB2E4. \uBD95\uB300 \uD558\uB098\uBA74 \uB3FC\uC694.
+  - text: "\uAC10\uC0AC\uD569\uB2C8\uB2E4. \uC804 \uAC10\uC5FC\uC790\uAC00 \uC544\uB2C8\uC5D0\uC694..
       \uC815\uB9D0\uC774\uC5D0\uC694!"
     typingSpeed: 0.05
     questToStart: {fileID: 11400000, guid: 24e18528c2bf54cfb9d4ef46c44ebcff, type: 2}
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
+    nextNodeIndex: 4
   - text: " \uC800\uB97C... \uC8FD\uAC8C... \uB0B4\uBC84\uB824\uB450\uC2DC\uACA0\uAD70\uC694..."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
@@ -46,7 +54,28 @@ MonoBehaviour:
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
+    hasChoices: 1
+    choices:
+    - choiceText: "\uBD80\uC0C1\uC774 \uC2EC\uD574\uBCF4\uC774\uB294\uB370, \uC800\uB791
+        \uAC19\uC774 \uAC00\uC2DC\uC8E0."
+      nextNodeIndex: 5
+    - choiceText: "\uC258\uD130\uB85C \uAC19\uC774 \uAC00\uC694. \uAC70\uAE34 \uC5EC\uAE30\uBCF4\uB2E4
+        \uC548\uC804\uD569\uB2C8\uB2E4."
+      nextNodeIndex: 6
+    nextNodeIndex: -1
+  - text: "...\uC774\uB7F0 \uC0C1\uD0DC\uC778\uB370\uB3C4.. \uAC10\uC0AC\uD569\uB2C8\uB2E4.
+      \uB530\uB77C\uAC08\uAC8C\uC694."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  startNodeIndex: 0
+  - text: "\uAC00.. \uAC10\uC0AC\uD569\uB2C8\uB2E4.. \uB2F9\uC2E0\uC740 \uC81C \uC740\uC778\uC785\uB2C8\uB2E4."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  startNodeIndex: 1

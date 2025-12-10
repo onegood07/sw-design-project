@@ -114,6 +114,7 @@ MonoBehaviour:
   BaseSpeedFactor: 1.1
   BasePower: 40
   baseNavSpeed: 1.5
+  hitClip: {fileID: 8300000, guid: 168c9a5ac7025814ea9c89e5098a3cad, type: 3}
 --- !u!61 &-2052348383094473455
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -227,5 +228,5 @@ MonoBehaviour:
   hitStopDuration: 0.3
   zombieAttackOffset: {x: 0, y: 0.5}
   heroAttackOffset: {x: 0, y: 0.5}
+  attackClip: {fileID: 8300000, guid: b771cd0787c16e64e8e8ba11c3c83734, type: 3}
   attackClipDuration: 0.417
-  isInDialogue: 0

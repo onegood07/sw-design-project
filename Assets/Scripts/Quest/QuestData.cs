@@ -22,12 +22,24 @@ public class QuestData : ScriptableObject
     // 요구 수량
     public int requiredAmount;      
     
-    [Header("3. 보상 (돌아오는 품목)")]
-    // 보상 아이템 (Item ScriptableObject를 여기에 연결). 
-    // 물물교환, 퀘스트 보상 등에 사용됩니다.
+    [Header("3. 보상 설정")]
+    [Tooltip("이 퀘스트를 완료했을 때 지급되는 모든 보상을 설정합니다.")]
+
+    // --- 3-A. 아이템 보상 설정 ---
+    [Header("3-A. 아이템 보상")]
+    public bool giveItemReward = false; // 아이템 보상 지급 여부
+    [Tooltip("giveItemReward가 true일 때 사용됩니다.")]
     public Item rewardItem; 
-    // 보상 수량
     public int rewardCount = 1;
     
-
+    // --- 3-B. 생존자 보상 설정 ---
+    [Header("3-B. 생존자 보상")]
+    public bool increaseSurvivors = false; // 생존자 증가 보상 지급 여부
+    [Tooltip("increaseSurvivors가 true일 때 사용됩니다.")]
+    public int survivorIncreaseAmount = 1; // 증가시킬 생존자 수
+    
+    // 이 필드는 이전 코드에서 사용되었으므로 구조 유지를 위해 남겨둡니다.
+    // 실제 사용 시에는 위에 새로 추가된 필드를 사용해야 합니다.
+    // public Item rewardItem; 
+    // public int rewardCount = 1;
 }

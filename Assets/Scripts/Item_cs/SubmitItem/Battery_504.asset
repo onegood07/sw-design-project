@@ -19,3 +19,4 @@ MonoBehaviour:
   MaxStackCount: 0
   isAvailable: 0
   originCoolTime: 0
+  clip: {fileID: 0}

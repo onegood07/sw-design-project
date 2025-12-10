@@ -161,7 +161,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RecipeNPC
   availableRecipes:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: c16cf74a4730b4477a9cf22a391d2aa7, type: 2}
+  - {fileID: 11400000, guid: 1bd59b151a31247748e305555ccbcdb6, type: 2}
 --- !u!61 &426741267429980310
 BoxCollider2D:
   m_ObjectHideFlags: 0

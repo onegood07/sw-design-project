@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections; // Coroutine은 제거되지만, 혹시 다른 곳에서 사용될까봐 일단 유지
 using System.Collections.Generic;
 using System.Linq; 
 
@@ -15,6 +16,9 @@ public class CraftingManager : MonoBehaviour
 
     public RecipeNPC currentInteractingNPC; 
     public RecipeData[] currentRecipes; 
+
+    // ⭐ 코루틴 관련 변수 및 메서드는 제거되었습니다.
+    // private Coroutine delayCoroutine; 
 
     private void Awake()
     {
@@ -33,6 +37,7 @@ public class CraftingManager : MonoBehaviour
             Debug.LogError("[CraftingManager] CraftingUI 참조가 누락되었습니다. 인스펙터에 연결해주세요!");
             return;
         }
+        // 초기에는 UI를 숨깁니다.
         craftingUI.Hide();
     }
 
@@ -42,30 +47,41 @@ public class CraftingManager : MonoBehaviour
     {
         if (craftingUI != null)
         {
-            currentInteractingNPC = npc;
-            currentRecipes = recipes;
-
-            craftingUI.Show(currentRecipes); 
-            
-            // ⭐ 추가된 로직: 인벤토리 UI 열기
-            if (InventoryUI.instance != null)
-            {
-                InventoryUI.instance.OpenInventory(); 
-                Debug.Log("[CraftingManager] 조합 UI와 함께 인벤토리 UI를 열었습니다.");
-            }
-
-            // ⭐ 추가된 로직: GameManager에 상호작용 시작을 알립니다.
+            // ⭐ 1. [핵심 수정] GameManager 상태를 즉시 잠급니다. (ExchangeManager와 동일하게)
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.StartInteraction();
+                Debug.Log("[CraftingManager] GameManager 상태 즉시 잠금 완료.");
             }
+            
+            currentInteractingNPC = npc;
+            currentRecipes = recipes;
+
+            // 2. 조합 UI를 열고 레시피 데이터를 로드합니다. (여기서 CraftingUI는 InventoryUI도 열어야 함)
+            craftingUI.Show(currentRecipes); 
+            
+            // ⭐ 3. InventoryUI.OpenInventory() 호출 로직 제거됨!
         }
     }
+
+    // ⭐ DelayStartInteraction 코루틴 제거됨!
+    /*
+    private IEnumerator DelayStartInteraction()
+    {
+        yield return new WaitForSeconds(0.1f); 
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.StartInteraction();
+            Debug.Log("[CraftingManager] 상호작용 상태가 0.1초 지연 후 잠겼습니다.");
+        }
+    }
+    */
 
     public void CloseCraftingUI()
     {
         if (craftingUI != null)
         {
+            // 1. 조합 UI 닫기 (여기서 CraftingUI는 InventoryUI도 닫아야 함)
             craftingUI.Hide();
 
             if (currentInteractingNPC != null)
@@ -76,14 +92,9 @@ public class CraftingManager : MonoBehaviour
 
             currentRecipes = null;
             
-            // ⭐ 추가된 로직: 인벤토리 UI 닫기
-            if (InventoryUI.instance != null)
-            {
-                InventoryUI.instance.CloseInventory(); 
-                Debug.Log("[CraftingManager] 조합 UI와 함께 인벤토리 UI를 닫았습니다.");
-            }
-
-            // ⭐ 추가된 로직: GameManager에 상호작용 종료를 알립니다.
+            // ⭐ 2. InventoryUI.CloseInventory() 호출 로직 제거됨!
+            
+            // 3. GameManager에 상호작용 종료를 알립니다.
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.EndInteraction();
@@ -118,8 +129,8 @@ public class CraftingManager : MonoBehaviour
         {
             if (req.item == null) continue;
 
-            // Inventory 클래스가 Items를 List<InventoryItem>으로 가지고 있다고 가정
             // 아이템 이름으로 인벤토리 내 현재 수량을 합산
+            // [주의] InventoryItem 클래스가 item, count, itemName 필드를 가지고 있다고 가정
             int currentCount = inven.items.Where(i => i != null && i.itemName == req.item.itemName)
                                           .Sum(i => i.count);
 

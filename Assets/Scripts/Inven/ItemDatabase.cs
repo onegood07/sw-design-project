@@ -16,7 +16,7 @@ public class ItemDatabase : MonoBehaviour
             return;
         }
         instance = this;                   // 싱글톤 인스턴스 설정
-        // ⭐ 중요: 씬이 바뀌어도 파괴되지 않도록 설정
+        // 씬이 바뀌어도 파괴되지 않도록 설정
         DontDestroyOnLoad(gameObject);
     }
 

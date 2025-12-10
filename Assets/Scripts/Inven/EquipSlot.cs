@@ -26,7 +26,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
 
     private void TryAutoAssignItemIcon()
     {
-        // 1) 인스펙터에서 비워둔 경우, 같은 오브젝트의 Slot 컴포넌트에서 시도
+        // 인스펙터에서 비워둔 경우, 같은 오브젝트의 Slot 컴포넌트에서 가져온다.
         if (itemIcon == null)
         {
             Slot slot = GetComponent<Slot>();
@@ -36,7 +36,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             }
         }
 
-        // 2) 그래도 null이면, 자식 중 첫 번째 Image 를 자동으로 사용 (주로 ItemImage)
+        // 그래도 null이면, 자식 중 첫 번째 Image 를 사용한다.
         if (itemIcon == null)
         {
             Image[] images = GetComponentsInChildren<Image>(true);
@@ -65,6 +65,12 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             itemIcon.gameObject.SetActive(false);
             itemIcon.raycastTarget = true;
         }
+    }
+
+    private void Start()
+    {
+        // InventoryManager 에 저장된 장비 정보를 이용해 상태를 복원
+        RestoreFromInventoryManager();
     }
 
     private void OnDestroy()
@@ -159,9 +165,14 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        // 인벤토리에서 꺼낸 아이템을 이 장비 슬롯에 장착
-        // (인벤토리 쪽 수량은 바로 0으로 만들어서 해당 칸을 비워둔다)
+        // 인벤토리 아이템을 이 장비 슬롯에 장착
         equippedItem = fromItem;
+
+        // 장비 상태를 InventoryManager 에도 저장
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.equippedItemsByType[(int)acceptedType] = equippedItem;
+        }
 
         if (itemIcon != null)
         {
@@ -232,7 +243,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
         Inventory inven = Inventory.instance;
         if (inven != null)
         {
-            // 0 ~ slotCnt-1 범위에서 "가장 앞의 빈 칸" 을 찾아 넣는다.
+            // 0 ~ slotCnt-1 범위에서 가장 앞의 빈 칸을 찾는다.
             bool placed = false;
             int maxSlot = Mathf.Max(0, inven.slotCnt);
 
@@ -252,8 +263,7 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
                 }
             }
 
-            // 0~slotCnt-1 안에 빈 칸이 전혀 없다면,
-            // 최후 수단으로 기존 로직(첫 번째 빈 칸/리스트 끝)에 넣는다.
+            // 0~slotCnt-1 안에 빈 칸이 없으면 리스트 끝에 추가한다.
             if (!placed)
             {
                 inven.AddInventoryItemInstance(equippedItem);
@@ -263,8 +273,13 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
             inven.onChangeItem?.Invoke();
         }
 
+        // 장비 해제 시 InventoryManager 정보도 제거
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.equippedItemsByType[(int)acceptedType] = null;
+        }
+
         // 장비 해제 시 효과 제거
-        // - 랜턴: 토글 함수이므로 한 번 더 Use 호출해서 끈다.
         if (acceptedType == ItemView.Lantern && equippedItem.itemData is IUsable lanternUsable)
         {
             lanternUsable.Use(HeroStat.Instance.transform, Vector2.zero);
@@ -279,6 +294,36 @@ public class EquipSlot : MonoBehaviour, IPointerClickHandler
 
         if (itemIcon != null)
             itemIcon.gameObject.SetActive(false);
+    }
+
+    // InventoryManager 에 저장된 장비 정보를 이용해 EquipSlot UI를 복원
+    private void RestoreFromInventoryManager()
+    {
+        if (InventoryManager.Instance == null)
+            return;
+
+        var mgr = InventoryManager.Instance;
+        int typeIndex = (int)acceptedType;
+
+        if (typeIndex < 0 || typeIndex >= mgr.equippedItemsByType.Length)
+            return;
+
+        InventoryItem savedItem = mgr.equippedItemsByType[typeIndex];
+        if (savedItem == null)
+        {
+            // 저장된 장비가 없으면 아이콘만 숨긴 상태로 둔다.
+            if (itemIcon != null)
+                itemIcon.gameObject.SetActive(false);
+            return;
+        }
+
+        equippedItem = savedItem;
+
+        // 아이콘 스프라이트 갱신
+        if (itemIcon != null)
+        {
+            ApplyIcon(equippedItem.itemImage);
+        }
     }
 }
 

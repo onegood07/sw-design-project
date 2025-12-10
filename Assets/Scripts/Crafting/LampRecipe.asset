@@ -17,8 +17,8 @@ MonoBehaviour:
     \uC544\uC774\uD15C\uC744 \uC815\uC758\uD569\uB2C8\uB2E4."
   requiredMaterials:
   - item: {fileID: -967469265316974195, guid: 636bd03e8d9f75c48a70e92071664bc9, type: 3}
-    amount: 1
+    amount: 4
   - item: {fileID: 8110723627053447128, guid: 5f3a59114b93870448531afcf21a3975, type: 3}
-    amount: 1
+    amount: 8
   resultItem: {fileID: -7234725743834073140, guid: 0a964f875a8e24d87ae5ea4b26ad8646, type: 3}
   resultCount: 1

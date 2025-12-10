@@ -43,6 +43,10 @@ public class ZombieStat : MonoBehaviour
     private AgentOverride2d agent2d;
     private NavMeshAgent navAgent;
 
+    [Header("공격 당할 때 사운드")]
+    [SerializeField]private AudioClip hitClip;
+
+
     void Awake()
     {
         // AgentOverride2d 및 내장 NavMeshAgent 가져오기
@@ -146,7 +150,18 @@ public class ZombieStat : MonoBehaviour
         currentHp -= damage;
         zombieNavMove?.OnDamageTaken();
         if (currentHp <= 0)
+        {
             DestroyZombie();
+        }
+        // 사운드 매니저와 피격 사운드 클립이 유효할 때만 재생
+        if (SoundManager.Instance != null && hitClip != null)
+        {
+            SoundManager.Instance.PlaySFX(hitClip, 1.0f);
+        }
+        else if (hitClip != null && SoundManager.Instance == null)
+        {
+            Debug.LogWarning("[ZombieStat] SoundManager.Instance 가 null 입니다. 좀비 피격 사운드를 재생할 수 없습니다.");
+        }
     }
 
     // 아이템 드롭

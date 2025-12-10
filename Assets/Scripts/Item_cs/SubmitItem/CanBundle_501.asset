@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: CanBundle_501
   m_EditorClassIdentifier: Assembly-CSharp::SubmitData
   ItemName: 501
+  Score: 5
   Description: "\uD1B5\uC870\uB9BC \uBB36\uC74C"
   Icon: {fileID: 0}
   MaxStackCount: 99
   isAvailable: 0
-  coolTime: 0
+  originCoolTime: 0
+  clip: {fileID: 0}

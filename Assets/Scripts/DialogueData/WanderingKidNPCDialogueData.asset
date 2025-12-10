@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: WanderingKidNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
+  - text: "\uCD08\uCF5C\uB9BF\uB3C4 \uC8FC\uACE0 \uC258\uD130\uB3C4 \uAC19\uC774
+      \uAC00\uC790\uACE0 \uD574\uC918\uC11C \uACE0\uB9C8\uC6CC!!"
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
   - text: "\uC557, \uC5EC\uAE30\uC11C \uBB50\uD574? \uB098\uB294 \uC7AC\uBC0C\uB294
       \uAC70 \uCC3E\uC73C\uB7EC \uC654\uB294\uB370. \uB098\uB791 \uB180\uB798?"
     typingSpeed: 0.05
@@ -22,9 +30,9 @@ MonoBehaviour:
     choices:
     - choiceText: "\uD544\uC694\uD55C \uAC70 \uC788\uC5B4? \uB098\uB791 \uAC19\uC774
         \uAC00\uC790. \uB180\uC544\uC904\uAC8C."
-      nextNodeIndex: 1
-    - choiceText: "\uC5EC\uAE34 \uC704\uD5D8\uD574. \uC258\uD130\uB85C \uAC00\uC790."
       nextNodeIndex: 2
+    - choiceText: "\uC5EC\uAE34 \uC704\uD5D8\uD574. \uC258\uD130\uB85C \uAC00\uC790."
+      nextNodeIndex: 3
     nextNodeIndex: 0
   - text: "\uC815\uB9D0? \uB098 \uCD08\uCF5C\uB9BF \uBA39\uACE0 \uC2F6\uC5B4!"
     typingSpeed: 0.05
@@ -32,7 +40,7 @@ MonoBehaviour:
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
+    nextNodeIndex: 4
   - text: "\uD765, \uC7AC\uBBF8\uC5C6\uC5B4..."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
@@ -45,7 +53,28 @@ MonoBehaviour:
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
+    hasChoices: 1
+    choices:
+    - choiceText: "\uC774\uC81C \uB098\uB791 \uAC19\uC774 \uAC08\uAC70\uC9C0? \uCD08\uCF5C\uB9BF\uB3C4
+        \uBA39\uC5C8\uC796\uC544."
+      nextNodeIndex: 5
+    - choiceText: "\uB098\uB791 \uC258\uD130\uB85C \uAC00\uC790. \uC5EC\uAE34 \uB108\uC5D0\uAC8C
+        \uB108\uBB34 \uC704\uD5D8\uD574."
+      nextNodeIndex: 6
+    nextNodeIndex: -1
+  - text: "\uC73C\uC74C... \uC88B\uC544!! \uC258\uD130\uB85C \uAC00\uBA74 \uB354
+      \uC7AC\uBC0C\uC744 \uAC83 \uAC19\uC544!"
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  startNodeIndex: 0
+  - text: "\uC751 \uC54C\uC558\uC5B4! \uB098 \uC258\uD130\uB85C \uAC00\uBCFC\uB798."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  startNodeIndex: 1

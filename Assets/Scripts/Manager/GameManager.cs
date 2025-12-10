@@ -28,8 +28,6 @@ public class GameManager : MonoBehaviour
     public float DayTimer { get; private set; } = 0f; 
     public float NightTimer { get; private set; } = 0f; 
     
-    // ⭐ 제거됨: [HideInInspector] public Vector3 SpawnPositionAfterLoad = Vector3.zero;
-
     // MARK: 납입품 관련 설정
     [Header("Item Submission Settings")]
     public Item[] AvailableSubmitItems; // Item 클래스가 외부에서 정의되어 있다고 가정합니다.
@@ -39,7 +37,7 @@ public class GameManager : MonoBehaviour
     
     // 납입 목표는 이제 '점수'입니다.
     public int TargetRequiredScore = 100; 
-    public int MaxRequiredIncrease = 3; 
+    public int MaxRequiredIncrease = 3;
 
     // MARK: 좀비 능력치 배율 설정
     [Header("Zombie Multipliers")]
@@ -61,9 +59,9 @@ public class GameManager : MonoBehaviour
     // 스폰 관련 설정
     [Header("Spawn Settings")]
     public SpawnManager spawnManager; // SpawnManager 클래스가 외부에서 정의되어 있다고 가정합니다.
-    public int ItemSpawnCount = 5;
-    public int NPCSpawnCount = 3;
-    public int BaseZombieSpawnCount = 10; 
+    public int ItemSpawnCount = 70;
+    public int NPCSpawnCount = 5;
+    public int BaseZombieSpawnCount = 30; 
     private int CurrentZombieSpawnCount;
 
     // 페이즈 지속 시간 (시간 비율 조정: 예시로 60초/120초로 늘림)
@@ -151,7 +149,9 @@ public class GameManager : MonoBehaviour
         }
         
         Debug.Log($"☀️ [{CurrentDay}] 낮 시작! (즉시 스폰)");
-        StartDayPhase(); 
+        
+        // Start에서 즉시 스폰 요청 (씬 로드 후 즉시 실행)
+        StartDayPhase(true); 
         
         gameLoopCoroutine = StartCoroutine(GameLoopCoroutine());
         
@@ -185,20 +185,32 @@ public class GameManager : MonoBehaviour
     }
 
     // MARK: 플레이어 사망 처리
-    public void PlayerDied()
+public void PlayerDied()
+{
+    CurrentEnding = GameEnding.GameOver;
+    Debug.Log("[GameManager] 게임 오버 엔딩");
+
+    // 1. 메인 UI 비활성화 (uiRoot는 GameManager에 남아있어도 됨)
+    if (uiRoot != null)
+        uiRoot.SetActive(false);
+
+    // 2. 🌟 GameOverCanvasManager의 싱글톤 인스턴스를 찾아 패널 활성화
+    // 만약 싱글톤이 제대로 작동한다면, 이 호출은 유일한 캔버스에만 적용됩니다.
+    if (GameOverCanvasManager.Instance != null)
     {
-        CurrentEnding = GameEnding.GameOver;
-        Debug.Log("[GameManager] 게임 오버 엔딩");
-
-        if (uiRoot != null)
-            uiRoot.SetActive(false);
-
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
-
-        if (gameLoopCoroutine != null)
-            StopCoroutine(gameLoopCoroutine);
+        // Canvas 자체가 DontDestroyOnLoad 되어 있으므로, SetPanelActive를 호출
+        GameOverCanvasManager.Instance.SetPanelActive(true);
     }
+    else
+    {
+         // 🚨 이 로그가 뜬다면 싱글톤 Awake보다 PlayerDied가 먼저 호출된 경우이거나, 스크립트가 없습니다.
+         Debug.LogError("[GameManager] GameOverCanvasManager 싱글톤 인스턴스를 찾을 수 없습니다.");
+    }
+
+    // 3. 메인 게임 루프 코루틴 중단
+    if (gameLoopCoroutine != null)
+        StopCoroutine(gameLoopCoroutine);
+}
 
     // MARK: 글로벌 라이트 적용
     public void ApplyGlobalLight()
@@ -226,95 +238,127 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // MARK: 전체 게임 루프 코루틴
-  // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
-IEnumerator GameLoopCoroutine()
-{
-    // ⭐ DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
-    (float dayTime, float nightTime) GetDuration(GameDays day)
+    // TODO: 일차별 시간대 설정 (반드시 GameLoopCoroutine와 동일하게 수정해줘야함)
+    public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
     {
-        // 💡 모든 일차의 낮/밤 시간을 테스트용으로 30초(0.5분)로 고정합니다.
-        const float TEST_DURATION = 30f; 
-
         switch (day)
         {
-           case GameDays.FirstDay: 
-                    return (TEST_DURATION, TEST_DURATION); // 1일차: 낮 30초, 밤 30초
+            case GameDays.FirstDay: 
+                    // 1일차: 낮 7분 (420초), 밤 3분 (180초)
+                   return (180f, 180f);
                 case GameDays.SecondDay: 
-                    return (TEST_DURATION, TEST_DURATION); // 2일차: 낮 30초, 밤 30초
+                    // 2일차: 낮 6분 (360초), 밤 4분 (240초)
+                    return (180f, 180f);
                 case GameDays.ThirdDay: 
-                    return (TEST_DURATION, TEST_DURATION); // 3일차: 낮 30초, 밤 30초
+                    // 3일차: 낮 5분 (300초), 밤 5분 (300초)
+                    return (180f, 180f);
                 default:
-                    // 혹시 모를 경우를 대비한 기본값
-                    return (TEST_DURATION, TEST_DURATION);
+                    return (120f, 180f); // 안전 반환값
         }
     }
-    
-    // 1일차 낮 시간 설정 (Start()에서 이미 시작된 루프)
-    float firstDayDuration = GetDuration(GameDays.FirstDay).dayTime;
-    DayTimer = 0f;
-    while (DayTimer < firstDayDuration)
-    {
-        DayTimer += Time.deltaTime;
-        yield return null;
-    }
-    
-    // 2일차부터 3일차까지 루프
-    while (CurrentDay <= GameDays.ThirdDay)
-    {
-        (float currentDayDuration, float currentNightDuration) = GetDuration(CurrentDay);
 
-        // 1. 밤 페이즈
-        CurrentPhase = Phase.Night;
-        CurrentZombieSpawnCount += 20; 
-        Debug.Log($"🌙 [{CurrentDay}] 밤 시작! ({currentNightDuration/60f:F1}분 = {currentNightDuration:F0}초)");
-        ApplyGlobalLight();
-        StartNightPhase();
-        
-        NightTimer = 0f;
-        while (NightTimer < currentNightDuration) // ⭐ 동적 밤 시간 적용 (30초)
+ // TODO: 일차별 시간대 설정 (반드시 GetDurationForDay 동일하게 수정해줘야함)
+// MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
+    IEnumerator GameLoopCoroutine()
+    {
+        // ⭐ DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
+        (float dayTime, float nightTime) GetDuration(GameDays day)
         {
-            NightTimer += Time.deltaTime;
-            yield return null;
-        } 
-
-        // 2. 다음 날 전환
-        yield return StartCoroutine(NextDayCoroutine()); 
+            switch (day)
+            {
+                case GameDays.FirstDay: 
+                    // 1일차: 낮 7분 (420초), 밤 3분 (180초)
+                   return (180f, 180f);
+                case GameDays.SecondDay: 
+                    // 2일차: 낮 6분 (360초), 밤 4분 (240초)
+                    return (180f, 180f);
+                case GameDays.ThirdDay: 
+                    // 3일차: 낮 5분 (300초), 밤 5분 (300초)
+                    return (180f, 180f);
+                default:
+                    // 혹시 모를 경우를 대비한 기본값
+                    return (120f, 180f);
+            }
+        }
         
-       if (CurrentDay > GameDays.ThirdDay)
-        {
-             CurrentEnding = GameEnding.Happy;
-             Debug.Log("[GameManager] 생존 성공! Happy Ending");
-             break; 
-        } 
-        
-        // 3. 낮 페이즈
-        (currentDayDuration, currentNightDuration) = GetDuration(CurrentDay); // 다음 날 시간 다시 가져옴
-        CurrentPhase = Phase.Day;
-        Debug.Log($"☀️ [{CurrentDay}] 낮 시작! ({currentDayDuration/60f:F1}분 = {currentDayDuration:F0}초)");
-        ApplyGlobalLight(); 
-        StartDayPhase();    
-        
+        // 1일차 낮 시간 설정 (Start()에서 이미 시작된 루프)
+        float firstDayDuration = GetDuration(GameDays.FirstDay).dayTime;
         DayTimer = 0f;
-        while (DayTimer < currentDayDuration) // ⭐ 동적 낮 시간 적용 (30초)
+        while (DayTimer < firstDayDuration)
         {
             DayTimer += Time.deltaTime;
             yield return null;
         }
+        
+        // 2일차부터 3일차까지 루프
+        while (CurrentDay <= GameDays.ThirdDay)
+        {
+            (float currentDayDuration, float currentNightDuration) = GetDuration(CurrentDay);
+
+            // 1. 밤 페이즈
+            CurrentPhase = Phase.Night;
+            // 좀비 수량 증가 (밤 페이즈 시작 시)
+            CurrentZombieSpawnCount += 20; 
+            Debug.Log($"🌙 [{CurrentDay}] 밤 시작! ({currentNightDuration/60f:F1}분 = {currentNightDuration:F0}초)");
+            ApplyGlobalLight();
+            
+            // 밤 스폰 요청 (추가 스폰)
+            StartNightPhase();
+            
+            NightTimer = 0f;
+            while (NightTimer < currentNightDuration) // ⭐ 동적 밤 시간 적용
+            {
+                NightTimer += Time.deltaTime;
+                yield return null;
+            } 
+
+            // 2. 다음 날 전환
+            yield return StartCoroutine(NextDayCoroutine()); 
+            
+            if (CurrentDay > GameDays.ThirdDay)
+            {
+                CurrentEnding = GameEnding.Happy;
+                Debug.Log("[GameManager] 생존 성공! Happy Ending");
+                break; 
+            } 
+            
+            // 3. 낮 페이즈
+            (currentDayDuration, currentNightDuration) = GetDuration(CurrentDay); // 다음 날 시간 다시 가져옴
+            CurrentPhase = Phase.Day;
+            Debug.Log($"☀️ [{CurrentDay}] 낮 시작! ({currentDayDuration/60f:F1}분 = {currentDayDuration:F0}초)");
+            ApplyGlobalLight(); 
+            
+            // 낮 스폰 요청 (초기 스폰 - 씬 오브젝트 초기화 후)
+            StartDayPhase(false);    
+            
+            DayTimer = 0f;
+            while (DayTimer < currentDayDuration) // ⭐ 동적 낮 시간 적용
+            {
+                DayTimer += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        Debug.Log("모든 날이 종료되었습니다!");
     }
-
-    Debug.Log("모든 날이 종료되었습니다!");
-}
-
 
  // MARK: 납입 점수 기준에 따른 생존자 감소 계산
     private int CalculateSurvivorLoss()
     {
-        if (PreviousDayTargetScore <= 0) return 0; 
-
+        // 납입 점수 계산: Item에 itemDataAsset이 없으므로 임시로 10점씩 부여하는 로직을 따릅니다.
+        PreviousDaySubmittedScore = 0;
+        foreach (var pair in CurrentSubmittedData)
+        {
+            // ⭐ 납입품은 임시로 개당 10점으로 가정
+            PreviousDaySubmittedScore += pair.Value * 10; 
+        }
+        
+        PreviousDayTargetScore = TargetRequiredScore;
+        
         int submittedScore = PreviousDaySubmittedScore;
         int lossCount = 0;
 
+        // 임시로 TargetRequiredScore가 100이라고 가정
         if (submittedScore >= 100) lossCount = 0; 
         else if (submittedScore >= 70) lossCount = 2;
         else if (submittedScore >= 50) lossCount = 3;
@@ -326,18 +370,17 @@ IEnumerator GameLoopCoroutine()
         
         Debug.Log($"[Survival Check] 납입 점수: {submittedScore} / {PreviousDayTargetScore}. 생존자 {actualLoss}명 감소. 잔여 생존자: {SurvivorCount}");
 
-        // TODO: 수정해야함
-        // if (SurvivorCount <= 0)
-        // {
-        //      if (CurrentEnding == GameEnding.None)
-        //         PlayerDied(); 
-        // }
+        if (SurvivorCount <= 0)
+        {
+             if (CurrentEnding == GameEnding.None)
+                PlayerDied(); 
+        }
 
         return actualLoss;
     }
 
-// MARK: 낮 페이즈 로직
-void StartDayPhase()
+// MARK: 낮 페이즈 로직 (isInitialSpawn: Start()에서 처음 호출될 때 true)
+void StartDayPhase(bool isInitialSpawn)
 {
     if (IsInShelter) 
     {
@@ -347,8 +390,13 @@ void StartDayPhase()
     
     if (spawnManager != null)
     {
-        DynamicSetItemRatios(); 
-        spawnManager.StartSpawnProcess(ItemSpawnCount, NPCSpawnCount, CurrentZombieSpawnCount);
+        // 🌟 InitialSpawn이거나 (게임 시작), 씬이 변경된 후 첫 낮 페이즈일 때만 StartSpawnProcess를 호출합니다.
+        if (isInitialSpawn || SceneManager.GetActiveScene().name == MainWorldSceneName)
+        {
+            DynamicSetItemRatios(); 
+            // StartSpawnProcess는 Item, NPC, Zombie를 모두 파괴하고 새로 스폰하는 함수라고 가정
+            spawnManager.StartSpawnProcess(ItemSpawnCount, NPCSpawnCount, CurrentZombieSpawnCount);
+        }
     }
     else
     {
@@ -368,6 +416,7 @@ void StartNightPhase()
     if (spawnManager != null)
     {
         DynamicSetItemRatios(); 
+        // 밤에는 기존 좀비를 유지하고 새로운 좀비만 추가 스폰합니다.
         spawnManager.SpawnZombiesOnly(CurrentZombieSpawnCount); 
     }
     else
@@ -381,7 +430,7 @@ void StartNightPhase()
     {
         if (spawnManager != null)
         {
-             // spawnManager.ApplyItemSectorRatios(heal, weapon, lantern, quest, material, submit);
+             spawnManager.ApplyItemSectorRatios(heal, weapon, lantern, quest, material, submit);
              Debug.Log($"[GameManager] 아이템 스폰 비율 설정: Submit={submit:F2}");
         }
     }
@@ -389,7 +438,8 @@ void StartNightPhase()
     // MARK: 아이템 섹터 비율 동적 설정 (납입품 점수 기반 가중치 부여)
     void DynamicSetItemRatios()
     {
-        int requiredScore = GetCurrentRequiredTotalScore();
+        // GetCurrentRequiredTotalScore()를 GetCurrentRequiredTotalScore_Simulated()로 대체
+        int requiredScore = GetCurrentRequiredTotalScore_Simulated(); 
         float scoreRatio = Mathf.Clamp01((float)requiredScore / TargetRequiredScore); 
         
         float submitRatio = 0.1f + scoreRatio * 0.3f;
@@ -402,25 +452,25 @@ void StartNightPhase()
         float questRatio = baseTotalOtherRatio * (0.1f / baseOthersTotal);
         float materialRatio = baseTotalOtherRatio * (0.2f / baseOthersTotal);
         
+        // SetItemSectorRatios 호출 시 인자 6개를 전달해야 합니다.
         SetItemSectorRatios(healRatio, weaponRatio, lanternRatio, questRatio, materialRatio, submitRatio);
     }
 
-    // MARK: 현재 요구되는 납입품의 총 점수 계산
-    private int GetCurrentRequiredTotalScore()
+    // MARK: 현재 요구되는 납입품의 총 점수 계산 (시뮬레이션 버전)
+    private int GetCurrentRequiredTotalScore_Simulated()
     {
         int requiredScore = 0;
         foreach (var pair in CurrentRequiredItemsData)
         {
-            // ItemDataAsset이 있다고 가정하고 점수 계산 로직은 주석 처리
-            if (pair.Key != null && pair.Key.itemDataAsset != null)
-            {
-                requiredScore += pair.Value * pair.Key.itemDataAsset.getScore;
-            }
+             // ItemDataAsset이 없으므로, 요구 수량 * 임시 점수(10점)로 계산
+             requiredScore += pair.Value * 10; 
         }
         return requiredScore;
     }
 
-// MARK: 일차별 랜덤 납입품 목록 생성 로직 (수정됨: 종류 최소 3종 ~ 최대 6종, 수량 최대 5개 제한)
+// GameManager.cs 내 GenerateRequiredItems() 함수만 수정합니다.
+
+// MARK: 일차별 랜덤 납입품 목록 생성
     void GenerateRequiredItems()
     {
         CurrentRequiredItemsData.Clear(); 
@@ -432,8 +482,31 @@ void StartNightPhase()
             return;
         }
 
-        int currentTargetScore = TargetRequiredScore; 
+        // 💡 수정 시작: 일차별 목표 점수 설정 (가이드라인)
+        int calculatedTargetGuide = 100; // 가이드라인 목표 점수
+        int scoreFluctuationRange = 10; // 목표 점수 대비 ±10% 변동 허용
+
+        switch (CurrentDay)
+        {
+            case GameDays.FirstDay:
+                calculatedTargetGuide = 100;
+                break;
+            case GameDays.SecondDay:
+                calculatedTargetGuide = 150;
+                break;
+            case GameDays.ThirdDay:
+                calculatedTargetGuide = 200;
+                break;
+            default:
+                calculatedTargetGuide = 100;
+                break;
+        }
         
+        // 최종적으로 분배할 목표 점수를 가이드라인 근처에서 랜덤하게 결정 (예: 100점 기준 90~110점 사이)
+        int minTarget = Mathf.Max(1, calculatedTargetGuide - scoreFluctuationRange);
+        int maxTarget = calculatedTargetGuide + scoreFluctuationRange;
+        int calculatedTargetScore = Random.Range(minTarget, maxTarget + 1);
+
         // 1. 요구 아이템 종류 최소/최대 설정 (최소 3종, 최대 6종)
         const int MIN_REQUIRED_ITEMS = 3; 
         const int MAX_REQUIRED_ITEMS = 6;
@@ -444,12 +517,13 @@ void StartNightPhase()
 
         foreach (Item item in AvailableSubmitItems)
         {
-            // ItemDataAsset에서 실제 점수(getScore)를 가져옵니다.
-            int score = (item != null && item.itemDataAsset != null) ? item.itemDataAsset.getScore : 0;
-            
+            // 임시로 3점에서 5점 사이의 랜덤 값을 사용 (실제 데이터에 맞게 수정 필요)
+            int score = Random.Range(3, 6); // 3, 4, 5 중 하나
+
             if (score <= 0) continue; 
 
-            // 점수가 높을수록 가중치를 낮춥니다.
+            // 점수가 높을수록 가중치를 낮춥니다. 
+            // 가중치는 목표 점수가 아닌 100을 기준으로 계산하여 아이템 선택 확률의 일관성을 유지합니다.
             float weight = 100f / (float)score; 
             weightedPool.Add((item, score, weight));
             totalWeight += weight;
@@ -457,28 +531,26 @@ void StartNightPhase()
         
         int availableUniqueItems = weightedPool.Count;
 
-        // 유효 아이템 개수가 최소 요구치(3개)보다 적으면 경고
+        // 유효 아이템 개수 검증 (3개 미만 경고 로직 유지)
         if (availableUniqueItems < MIN_REQUIRED_ITEMS)
         {
             Debug.LogWarning($"[GameManager] 유효한 납입 아이템이 {availableUniqueItems}개 밖에 없어 {MIN_REQUIRED_ITEMS}개 이상 요구할 수 없습니다. 가능한 모든 ({availableUniqueItems}개) 아이템을 요구합니다.");
         }
         
-        // 실제로 요구할 아이템 종류 개수 결정 (풀 개수와 MAX/MIN 요구 개수를 모두 고려)
+        // 실제로 요구할 아이템 종류 개수 결정 로직 유지
         int maxItemsToRequire = Mathf.Min(MAX_REQUIRED_ITEMS, availableUniqueItems);
         int requiredItemCount = Random.Range(Mathf.Min(MIN_REQUIRED_ITEMS, maxItemsToRequire), maxItemsToRequire + 1);
 
         if (requiredItemCount == 0 && availableUniqueItems > 0) 
         {
-             // 혹시 3개 미만인 풀에서 Range가 0을 반환하지 않도록 최소 1개는 요구하도록 보장
             requiredItemCount = 1; 
         }
 
         if (requiredItemCount == 0) return; // 요구할 아이템이 없으면 종료
 
-        // 3. 가중치 기반 아이템 무작위 선택
+        // 3. 가중치 기반 아이템 무작위 선택 로직 유지
         List<(Item item, int score)> selectedItemsWithScore = new List<(Item, int)>();
         
-        // requiredItemCount 횟수만큼 반복하여 아이템을 선택
         for (int i = 0; i < requiredItemCount; i++)
         {
             float randomValue = Random.Range(0f, totalWeight);
@@ -499,17 +571,15 @@ void StartNightPhase()
                 }
             }
             
-            // 만약 선택 가능한 아이템이 없거나 (totalWeight=0) 루프가 끝났다면 종료
             if (selectedItem == null) break;
             
             selectedItemsWithScore.Add((selectedItem, selectedScore));
             
-            // 선택된 아이템은 풀에서 제거하고 가중치도 갱신합니다.
             totalWeight -= weightedPool[selectedIndex].weight;
             weightedPool.RemoveAt(selectedIndex);
         }
         
-        // 4. 점수 할당 및 수량 계산 (수량 최대 5개 이하로 제한)
+        // 4. 점수 할당 및 수량 계산 (calculatedTargetScore를 기준으로 할당)
         int actualSelectedCount = selectedItemsWithScore.Count;
         
         if (actualSelectedCount == 0)
@@ -518,23 +588,31 @@ void StartNightPhase()
             return;
         }
         
-        int remainingScore = currentTargetScore;
+        int remainingScore = calculatedTargetScore;
         List<int> scoreAllocations = new List<int>();
         
         int minTotalScoreNeeded = actualSelectedCount; 
         if (remainingScore < minTotalScoreNeeded) remainingScore = minTotalScoreNeeded;
 
+        // 남은 점수를 분배 (각 아이템에 최소 1점 할당)
         for (int i = 0; i < actualSelectedCount - 1; i++)
         {
             int minScore = 1;
             int maxAllocation = remainingScore - (actualSelectedCount - (i + 1)); 
             if (maxAllocation < minScore) maxAllocation = minScore;
             
-            int allocatedScore = Random.Range(minScore, maxAllocation + 1);
+            // ⭐ 수정: 할당 점수 무작위성 범위 확장 (최대 할당 점수의 30%까지 랜덤하게 할당)
+            // 이렇게 하면, 각 아이템의 점수 기여도가 더 불규칙해져 최종 합산 점수가 calculatedTargetScore와 더 '랜덤'해집니다.
+            int baseAllocation = (int)((float)remainingScore / (actualSelectedCount - i));
+            int randomAllocationRange = Mathf.Max(1, baseAllocation / 3);
+            
+            // 할당 점수의 무작위성을 높입니다.
+            int allocatedScore = Random.Range(Mathf.Max(minScore, baseAllocation - randomAllocationRange), Mathf.Min(maxAllocation, baseAllocation + randomAllocationRange) + 1);
+            
             scoreAllocations.Add(allocatedScore);
             remainingScore -= allocatedScore;
         }
-        scoreAllocations.Add(remainingScore); 
+        scoreAllocations.Add(remainingScore); // 마지막 아이템에 남은 점수 전부 할당
         
         int actualTotalRequiredScore = 0;
         
@@ -544,63 +622,34 @@ void StartNightPhase()
             var (item, itemUnitScore) = selectedItemsWithScore[i];
             int requiredScorePortion = scoreAllocations[i];
             
-            // 요구 수량 계산
             int requiredCount = Mathf.CeilToInt((float)requiredScorePortion / itemUnitScore);
-            
-            int preClampCount = requiredCount; 
-            
-            // ⭐ 요구 수량을 1개 이상, 5개 이하로 제한합니다. (최대 5개 제한)
-            requiredCount = Mathf.Clamp(requiredCount, 1, 5); 
-            
-          if (preClampCount > 5)
-{
-    // ⭐ ItemData 에셋 대신, Item MonoBehaviour 자체의 itemName 필드를 사용합니다.
-    string itemName = (item != null) ? item.itemName : "Unknown Item";
-    
-    // 이전에 ItemDataAsset에서 가져오던 로직을 item.itemName으로 변경
-    
-    Debug.LogWarning($"[GameManager] 아이템: {itemName}, 단위 점수: {itemUnitScore}. 할당 점수: {requiredScorePortion}. " +
-                     $"계산된 수량: {preClampCount} -> ⭐ 5개로 강제 제한됨!");
-}
             
             CurrentRequiredItemsData.Add(item, requiredCount);
             CurrentSubmittedData.Add(item, 0); 
 
-            actualTotalRequiredScore += requiredCount * itemUnitScore;
+            actualTotalRequiredScore += requiredCount * itemUnitScore; 
         }
+        
+        // 💡 수정 완료: TargetRequiredScore를 계산된 실제 요구 총 점수로 업데이트
+        TargetRequiredScore = actualTotalRequiredScore;
 
-        Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. 목표 점수: {currentTargetScore}, 실제 요구 점수 합산: {actualTotalRequiredScore}. (총 {CurrentRequiredItemsData.Count}종)");
+        Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. (가이드라인: {calculatedTargetGuide}점). 실제 목표 점수: {TargetRequiredScore}. (총 {CurrentRequiredItemsData.Count}종)");
     }
-
     // MARK: 다음 날로 전환
     IEnumerator NextDayCoroutine()
     {
         GameDays previousDay = CurrentDay; 
         
-        PreviousDayTargetScore = TargetRequiredScore;
-        
-        PreviousDaySubmittedScore = 0;
-        foreach (var pair in CurrentSubmittedData)
-        {
-            Item item = pair.Key;
-            int submittedCount = pair.Value;
-            
-            if (item != null)
-            {
-                PreviousDaySubmittedScore += submittedCount * 10;
-            }
-        }
-        
+        // 납입 점수 계산 및 생존자 감소 처리
         int survivorLoss = CalculateSurvivorLoss();
         
         switch (CurrentDay)
         {
            case GameDays.FirstDay: CurrentDay = GameDays.SecondDay; CurrentZombieSpawnCount += 10; break;
             // ⭐ 3일차가 마지막이므로, 2일차 다음은 3일차
-            case GameDays.SecondDay: CurrentDay = GameDays.ThirdDay; CurrentZombieSpawnCount += 10; break;
+            case GameDays.SecondDay: CurrentDay = GameDays.ThirdDay; CurrentZombieSpawnCount += 20; break;
             // ⭐ 3일차 다음은 Enum의 다음 값 (종료 처리)
             case GameDays.ThirdDay: CurrentDay++; break;
-            // case GameDays.FourthDay: 제거
         }
 
         Debug.Log($"다음 날: {CurrentDay}, 좀비 수: {CurrentZombieSpawnCount}");
@@ -609,6 +658,7 @@ void StartNightPhase()
         {
             if (spawnManager != null)
             {
+                // 일차 변경 시 모든 스폰 데이터를 완전히 초기화합니다.
                 spawnManager.ResetPersistentData();
                 Debug.Log("[GameManager] 일차 변경으로 아이템/NPC/좀비 영구 데이터 및 씬 오브젝트 초기화 완료.");
             }
@@ -616,10 +666,6 @@ void StartNightPhase()
             GenerateRequiredItems(); 
             
             Coroutine uiWait = ShowDayChangeMessage(CurrentDay, survivorLoss); 
-            // if (uiWait != null)
-            // {
-            //     yield return uiWait;
-            // }
         }
 
         yield break;
@@ -643,30 +689,33 @@ void StartNightPhase()
     }
 
     // MARK: 현재 누적 납입 점수 계산 함수
-public int GetCurrentSubmittedTotalScore()
-{
-    int submittedScore = 0;
-    foreach (var pair in CurrentSubmittedData)
+    public int GetCurrentSubmittedTotalScore()
     {
-        if (pair.Key != null) submittedScore += pair.Value * 10; // 임시 점수
+        int submittedScore = 0;
+        foreach (var pair in CurrentSubmittedData)
+        {
+            // 임시 점수 (ItemDataAsset이 없으므로)
+            // if (pair.Key != null) submittedScore += pair.Value * pair.Key.itemDataAsset.score; 
+            if (pair.Key != null) submittedScore += pair.Value * 10; 
+        }
+        return submittedScore;
     }
-    return submittedScore;
-}
 
-// MARK: 현재 누적 납입 점수를 기반으로 예정된 생존자 손실 인원수 예측 함수
-public int PredictSurvivorLoss()
-{
-    int submittedScore = GetCurrentSubmittedTotalScore();
-    int lossCount = 0;
+    // MARK: 현재 누적 납입 점수를 기반으로 예정된 생존자 손실 인원수 예측 함수
+    public int PredictSurvivorLoss()
+    {
+        int submittedScore = GetCurrentSubmittedTotalScore();
+        int lossCount = 0;
 
-    if (submittedScore >= 100) lossCount = 0;
-    else if (submittedScore >= 70) lossCount = 2;
-    else if (submittedScore >= 50) lossCount = 3;
-    else if (submittedScore >= 40) lossCount = 4;
-    else lossCount = 5;
+        // 임시로 TargetRequiredScore가 100이라고 가정
+        if (submittedScore >= 100) lossCount = 0;
+        else if (submittedScore >= 70) lossCount = 2;
+        else if (submittedScore >= 50) lossCount = 3;
+        else if (submittedScore >= 40) lossCount = 4;
+        else lossCount = 5;
 
-    return Mathf.Min(lossCount, SurvivorCount);
-}
+        return Mathf.Min(lossCount, SurvivorCount);
+    }
 
     // MARK: 일차 변경 안내 애니메이션 
     private IEnumerator ShowDayChangeCoroutine(int lossCount)
@@ -736,15 +785,29 @@ public int PredictSurvivorLoss()
         }
     }
     
-    // MARK: 씬 로드 시 실행 (UI 참조 복구 로직 강화)
+    // MARK: 씬 로드 시 실행 (UI 참조 복구 로직 강화 및 스폰 복원 총괄)
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         IsInShelter = (scene.name == ShelterSceneName); 
-
+        
+        // SpawnManager 인스턴스를 찾거나 참조를 유지합니다.
+        if (spawnManager == null)
+        {
+             spawnManager = Object.FindFirstObjectByType<SpawnManager>();
+        }
+        
         if (scene.name == MainWorldSceneName)
         {
-            spawnManager = Object.FindFirstObjectByType<SpawnManager>();
-            
+            // 🌟 쉘터에서 메인 월드로 돌아왔을 때 좀비 복원 로직을 명시적으로 호출합니다.
+            if (spawnManager != null)
+            {
+                 Debug.Log("[GameManager] 메인 씬 복귀: SpawnManager를 통해 영구/좀비 복원 로직 호출.");
+                 
+                 // ⭐ [오류 수정] RestoreTemporaryZombiesByCount() 대신 RestorePersistentObjects()를 호출합니다.
+                 spawnManager.RestorePersistentObjects(); 
+            }
+
+            // 3. UI 참조 복구 로직 (기존 로직 유지)
             if (DayChangePanel == null)
             {
                 GameObject newPanelObject = GameObject.Find("DayChangePanel"); 
@@ -777,30 +840,8 @@ public int PredictSurvivorLoss()
                 }
             }
         } 
-        else 
-        {
-            spawnManager = null;
-        }
-
+        
         ApplyGlobalLight(); 
-    }
-
-    public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
-    {
-        // ⭐ 테스트를 위해 GameLoopCoroutine 내부의 로직과 동일하게 30초로 변경해야 합니다.
-        const float TEST_DURATION = 30f; 
-
-        switch (day)
-        {
-            case GameDays.FirstDay: 
-                    return (TEST_DURATION, TEST_DURATION); // 1일차: 낮 30초, 밤 30초
-                case GameDays.SecondDay: 
-                    return (TEST_DURATION, TEST_DURATION); // 2일차: 낮 30초, 밤 30초
-                case GameDays.ThirdDay: 
-                    return (TEST_DURATION, TEST_DURATION); // 3일차: 낮 30초, 밤 30초
-                default:
-                    return (TEST_DURATION, TEST_DURATION); // 안전 반환값
-        }
     }
 
     public void ResetGameSession()
@@ -817,8 +858,6 @@ public int PredictSurvivorLoss()
         DayTimer = 0f;
         NightTimer = 0f;
         
-        // ⭐ 제거됨: SpawnPositionAfterLoad = Vector3.zero;
-        
         CurrentZombieSpawnCount = BaseZombieSpawnCount;
         SurvivorCount = InitialSurvivorCount;
         ShelterItemScore = 0;
@@ -828,10 +867,31 @@ public int PredictSurvivorLoss()
         CurrentRequiredItemsData.Clear();
         CurrentSubmittedData.Clear();
         
+        // SpawnManager 데이터도 초기화
+        if (spawnManager != null)
+        {
+             spawnManager.ResetPersistentData();
+        }
+
         Debug.Log("[GameManager] 전체 게임 세션 초기화 완료.");
         Debug.Log("=========================================");
     }
 
+    public void AddSurvivors(int amount)
+    {
+        if (amount > 0)
+        {
+            SurvivorCount += amount; 
+            Debug.Log($"[GameManager] 퀘스트 보상으로 생존자 {amount}명이 추가되었습니다. 현재 생존자 수: {SurvivorCount}");
+        }
+        else
+        {
+             Debug.LogWarning("[GameManager] AddSurvivors 함수에 0 또는 음수 값이 전달되었습니다. 생존자 수 변경 없음.");
+        }
+        
+        // 💡 필요한 경우 UI 업데이트 로직 호출 (예: HUD 또는 쉘터 UI)
+        // if (ShelterUI.Instance != null) ShelterUI.Instance.UpdateSurvivorDisplay(SurvivorCount); 
+    }
     // 대화 시작 시 호출
     public void StartInteraction()
     {

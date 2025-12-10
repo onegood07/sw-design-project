@@ -8,7 +8,7 @@ using System.Collections.Generic; // List를 사용하기 위해 추가 (과거 
 /// </summary>
 public class InventoryUI : MonoBehaviour
 {
-    // ✅ 싱글톤 인스턴스
+    // 싱글톤 인스턴스
     public static InventoryUI instance;
     
     Inventory inven;
@@ -20,7 +20,7 @@ public class InventoryUI : MonoBehaviour
     
     private void Awake()
     {
-        // ✅ 싱글톤 초기화
+        // 싱글톤 초기화
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
@@ -69,7 +69,7 @@ public class InventoryUI : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            // ⭐ 과거 버전의 안전성 로직 반영
+            // 과거 버전에서 사용하던 안전성 로직을 유지
             if (slots[i] != null && slots[i].GetComponent<Button>() != null)
             {
                 slots[i].GetComponent<Button>().interactable = true;
@@ -86,32 +86,35 @@ public class InventoryUI : MonoBehaviour
         }
     }
     
-  // 외부(ExchangeUI 등)에서 인벤토리 패널을 열 때 호출됩니다.
-/// </summary>
-public void OpenInventory()
-{
-    if (inventoryPanel != null && !activeInventory)
+    /// <summary>
+    /// 외부(ExchangeUI 등)에서 인벤토리 패널을 열 때 호출됩니다.
+    /// </summary>
+    public void OpenInventory()
     {
-        activeInventory = true;
-        inventoryPanel.SetActive(true);
-        
-        // ⭐⭐ 수정: 패널을 열 때 RedrawSlotUI를 호출하여 데이터를 강제로 반영합니다.
-        RedrawSlotUI(); 
-        
-        Debug.Log("[InventoryUI] 외부 요청으로 인벤토리 열림.");
+        if (inventoryPanel != null && !activeInventory)
+        {
+            activeInventory = true;
+            inventoryPanel.SetActive(true);
+            
+            // 패널을 열 때 RedrawSlotUI를 호출해 인벤토리 데이터를 강제로 반영한다.
+            RedrawSlotUI(); 
+            
+            Debug.Log("[InventoryUI] 외부 요청으로 인벤토리 열림.");
+        }
     }
-}
-
-// ToggleInventory() 함수에도 RedrawSlotUI() 호출 로직이 이미 잘 되어 있습니다.
-public void ToggleInventory()
-{
-    activeInventory = !activeInventory;
-    if (inventoryPanel != null)
-        inventoryPanel.SetActive(activeInventory);
+  
+    /// <summary>
+    /// 인벤토리 패널의 표시 여부를 토글합니다.
+    /// </summary>
+    public void ToggleInventory()
+    {
+        activeInventory = !activeInventory;
+        if (inventoryPanel != null)
+            inventoryPanel.SetActive(activeInventory);
     
-    // 이 부분은 이미 잘 되어 있습니다.
-    if(activeInventory) RedrawSlotUI(); 
-}
+        if (activeInventory) 
+            RedrawSlotUI(); 
+    }
     
     /// <summary>
     /// 외부(ExchangeUI 등)에서 인벤토리 패널을 닫을 때 호출됩니다.
@@ -147,7 +150,7 @@ public void ToggleInventory()
         {
             Slot currentSlot = slots[i];
 
-            // ⭐ 과거 버전의 핵심 안전성 로직: Slot 인스턴스 자체가 파괴되었는지 확인
+            // Slot 인스턴스가 파괴되었는지 확인
             if (currentSlot == null)
             {
                 Debug.LogWarning($"[InventoryUI] slots[{i}] 인스턴스가 파괴되어 건너뜁니다.");

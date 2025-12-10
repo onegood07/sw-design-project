@@ -50,8 +50,7 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
 
     /// <summary>
-    /// 아이콘이 다시 활성화될 때마다 레이캐스트를 복구해서 드래그가 막히지 않도록 한다.
-    /// (TrashZone에서 버리는 과정 중 OnEndDrag가 호출되지 않으면 blocksRaycasts 가 false로 남을 수 있음)
+    /// 아이콘이 다시 활성화될 때마다 레이캐스트를 복구해 드래그가 정상 동작하도록 설정한다.
     /// </summary>
     void OnEnable()
     {
@@ -92,7 +91,7 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             }
         }
 
-        if (slot.item == null) // ★ InventoryItem 기준
+        if (slot.item == null) // InventoryItem 기준
         {
             Debug.LogWarning("OnBeginDrag: slot.item이 null이어서 드래그를 시작할 수 없습니다. (슬롯이 비어있음) 객체: " + gameObject.name);
             return;
@@ -168,7 +167,7 @@ public class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
 
     /// <summary>
-    /// 외부(예: TrashZone)에서 드래그 아이콘을 원래 부모/위치로 되돌리고 싶을 때 호출합니다. (최신 버전 추가 함수)
+    /// 외부에서 드래그 아이콘을 원래 부모와 위치로 되돌리고 싶을 때 호출한다.
     /// </summary>
     public void RestoreToOriginal()
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // ★★★ HasItem 함수를 위해 LINQ 사용 (필수)
+using System.Linq; // HasItem 함수를 구현하기 위해 LINQ 사용
 
 /// <summary>
 /// 인벤토리 슬롯 리스트를 유지하며 아이템 추가/소비 이벤트를 브로드캐스트합니다.
@@ -28,7 +28,7 @@ public class Inventory : MonoBehaviour
     public delegate void OnChangeItem();
     public OnChangeItem onChangeItem;
 
-    // ★ InventoryItem List
+    // 인벤토리 아이템 목록
     public List<InventoryItem> items = new List<InventoryItem>();
 
     public int slotCnt = 20;
@@ -86,7 +86,7 @@ public class Inventory : MonoBehaviour
 
     /// <summary>
     /// 지정 슬롯에서 개수를 차감하고 0 이하일 경우 슬롯을 비웁니다.
-    /// 슬롯이 완전히 비워지면, 해당 인덱스를 참조하고 있던 퀵슬롯도 함께 정리합니다. (★ 최신 버전 로직)
+    /// 슬롯이 완전히 비워지면, 해당 인덱스를 참조하고 있던 퀵슬롯도 함께 정리합니다. (최신 버전 로직)
     /// </summary>
     public int ConsumeItemAt(int index, int amount = 1)
     {
@@ -111,9 +111,7 @@ public class Inventory : MonoBehaviour
         return item != null ? item.count : 0;
     }
     
-    // ==========================================================
-    // ★★★★★ 교환 시스템을 위한 필수 함수 ★★★★★
-    // ==========================================================
+    // 교환 시스템을 위한 함수들
     
     // 1. 특정 아이템을 요구 수량만큼 가지고 있는지 확인 (ExchangeSlot에서 호출)
     /// <summary>
@@ -168,7 +166,7 @@ public class Inventory : MonoBehaviour
 
     /// <summary>
     /// 인벤토리 리스트에서 null 슬롯을 제거하고, 남은 아이템들을 앞쪽으로 당겨 재배치합니다.
-    /// (아이템 순서는 유지, 퀵슬롯과의 인덱스 연동도 갱신) (★ 최신 버전 추가 함수)
+    /// (아이템 순서는 유지, 퀵슬롯과의 인덱스 연동도 갱신하는 함수)
     /// </summary>
     public void CompactItems()
     {
