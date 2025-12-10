@@ -17,8 +17,8 @@ MonoBehaviour:
   requiredItemName: Shoes
   requiredItemIcon: {fileID: -8461923687830504554, guid: 4f738b24494921d4191ce96659afd0bf, type: 3}
   requiredAmount: 1
-  giveItemReward: 0
+  giveItemReward: 1
   rewardItem: {fileID: 1511330356446781366, guid: 9c0014343ab8b684aafc23314b0bfa19, type: 3}
-  rewardCount: 1
+  rewardCount: 3
   increaseSurvivors: 1
   survivorIncreaseAmount: 1

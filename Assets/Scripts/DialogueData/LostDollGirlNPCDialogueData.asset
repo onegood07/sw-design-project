@@ -48,6 +48,26 @@ MonoBehaviour:
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
+    hasChoices: 1
+    choices:
+    - choiceText: "\uCC3E\uC558\uC73C\uB2C8 \uB098\uB791 \uC258\uD130\uB85C \uAC00\uC790."
+      nextNodeIndex: 4
+    - choiceText: "\uC5EC\uAE34 \uC704\uD5D8\uD574. \uBD80\uBAA8\uB2D8\uC740 \uC5B4\uB514
+        \uACC4\uC154?"
+      nextNodeIndex: 5
+    nextNodeIndex: -1
+  - text: "\uC74C.. \uC88B\uC544\uC694!! \uAC19\uC774 \uAC08\uB798\uC694."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
+  - text: "...\uBAA8\uB974\uACA0\uC5B4\uC694.. \uC258\uD130\uB85C \uAC00\uBA74 \uB9CC\uB0A0
+      \uC218 \uC788\uC744\uAE4C\uC694..? \uC77C\uB2E8 \uB530\uB77C\uAC08\uAC8C\uC694!"
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
