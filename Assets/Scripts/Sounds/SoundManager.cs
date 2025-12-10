@@ -41,7 +41,11 @@ public class SoundManager : MonoBehaviour
     // volume 매개변수를 선택적으로 받을 수 있게 수정 (기본값 1.0f)
     public void PlaySFX(AudioClip clip, float volumeScale = 1.0f)
     {
-        if (clip == null) return;
+        if (clip == null)
+        {
+            Debug.LogWarning("효과음을 재생할 수 없습니다.");
+            return;
+        }
 
         // 2. v 변수 삭제. 믹서가 이미 소리를 줄였으므로 여기선 그냥 튼다.
         // volumeScale은 "이 효과음만 특별히 좀 작게/크게 틀고 싶을 때" 씀

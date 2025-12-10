@@ -22,9 +22,11 @@ public class ZombieNavMove : MonoBehaviour
     [Header("공격 판정 오프셋")]
     [SerializeField] Vector2 zombieAttackOffset = new Vector2(0f, 0.5f);
     [SerializeField] Vector2 heroAttackOffset = new Vector2(0f, 0.5f);
-
+    [Header("공격할 때 사운드")]
+    [SerializeField]private AudioClip attackClip;
     Animator animator;
     int paramAttack = Animator.StringToHash("Attack");
+    [Header("애니메이션 원본 길이")]
     [SerializeField] float attackClipDuration = 0.417f; // 애니메이션 원본 길이
     Coroutine attackRoutine;
     bool isAttacking = false;
@@ -225,6 +227,7 @@ public class ZombieNavMove : MonoBehaviour
         if (heroStat != null && zombieStat != null)
         {
             heroStat.decreaseHp(zombieStat.power);
+            SoundManager.Instance.PlaySFX(attackClip,1.0f);
         }
     }
 

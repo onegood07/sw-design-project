@@ -30,6 +30,8 @@ public class HeroStat : MonoBehaviour
     [SerializeField] float hitEffectDuration = 0.3f;
     Color originalColor;
     Coroutine hitRoutine;
+    [Header("공격 당할 때 사운드")]
+    [SerializeField]private AudioClip clip;
 
     private void Awake()
     {
@@ -101,14 +103,14 @@ public class HeroStat : MonoBehaviour
         // 좀비의 공격력(Power)만큼 생명력 감소
         hp -= zombiePower;
         PlayHitEffect();
-
+        // 사운드 재생
+        SoundManager.Instance.PlaySFX(clip,1.0f);
         if (hp <= 0 && isSurvival) 
         {
             hp = 0; // HP를 0으로 고정
             isSurvival = false;
             Debug.Log("플레이어 사망!");
             // 플레이어 사망 시에 GameManager의 플레이어 사망 로직 불러오기
-            // GameManager가 싱글톤임을 가정합니다.
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.PlayerDied();

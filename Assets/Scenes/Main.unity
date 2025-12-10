@@ -97087,6 +97087,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   hitEffectDuration: 0.3
+  clip: {fileID: 8300000, guid: 88b91714a2e2cbb428f61e18ca4d39d8, type: 3}
 --- !u!114 &1380755845
 MonoBehaviour:
   m_ObjectHideFlags: 0

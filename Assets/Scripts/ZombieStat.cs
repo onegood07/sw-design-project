@@ -43,6 +43,10 @@ public class ZombieStat : MonoBehaviour
     private AgentOverride2d agent2d;
     private NavMeshAgent navAgent;
 
+    [Header("공격 당할 때 사운드")]
+    [SerializeField]private AudioClip hitClip;
+
+
     void Awake()
     {
         // AgentOverride2d 및 내장 NavMeshAgent 가져오기
@@ -146,7 +150,10 @@ public class ZombieStat : MonoBehaviour
         currentHp -= damage;
         zombieNavMove?.OnDamageTaken();
         if (currentHp <= 0)
+        {
             DestroyZombie();
+        }
+        SoundManager.Instance.PlaySFX(hitClip,1.0f);
     }
 
     // 아이템 드롭
