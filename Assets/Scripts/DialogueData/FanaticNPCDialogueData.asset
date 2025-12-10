@@ -21,8 +21,8 @@ MonoBehaviour:
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  - text: "\uC5B4\uB460\uC774 \uB2E4\uAC00\uC624\uACE0 \uC788\uB2E4\u2026 \uC131\uC218
-      \uD558\uB098\uB9CC \uC8FC\uBA74 \uB108\uC5D0\uAC8C \uCD95\uBCF5\uC744 \uB0B4\uB824\uC8FC\uACA0\uB2E4."
+  - text: "\uC5B4\uB460\uC774 \uB2E4\uAC00\uC624\uACE0 \uC788\uB2E4\u2026 \uC131\uC218\uB97C
+      \uC8FC\uBA74 \uB108\uC5D0\uAC8C \uCD95\uBCF5\uC744 \uB0B4\uB824\uC8FC\uACA0\uB2E4."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
