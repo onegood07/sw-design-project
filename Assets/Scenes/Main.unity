@@ -149,11 +149,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightController
   globalLight: {fileID: 1244517464}
-  transitionDuration: 1
+  transitionDuration: 2
   dayIntensity: 1
   dayColor: {r: 1, g: 1, b: 1, a: 1}
-  nightIntensity: 0.2
-  nightColor: {r: 0.026566401, g: 0.026566401, b: 0.028301895, a: 1}
+  nightIntensity: 0.05
+  nightColor: {r: 0.063501224, g: 0.06011924, b: 0.066037714, a: 1}
 --- !u!4 &869419
 Transform:
   m_ObjectHideFlags: 0
@@ -97244,8 +97244,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLightControl
   playerLight: {fileID: 1414283293}
-  baseRadius: 4
-  lanternRadius: 7
+  baseRadius: 2.5
+  lanternRadius: 4
   transitionSpeed: 5
 --- !u!95 &1380755850
 Animator:

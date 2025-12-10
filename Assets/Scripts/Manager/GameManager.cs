@@ -226,8 +226,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // MARK: 전체 게임 루프 코루틴
-  // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
+  // TODO: 수정
 // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
     IEnumerator GameLoopCoroutine()
     {
@@ -238,10 +237,10 @@ public class GameManager : MonoBehaviour
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (240f, 60f); 
+                    return (20f, 20f); 
                 case GameDays.SecondDay: 
                     // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (180f, 120f); 
+                    return (20f, 20f); 
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 2분 (120초), 밤 3분 (180초)
                     return (120f, 180f); 
@@ -784,16 +783,17 @@ public int PredictSurvivorLoss()
 
         ApplyGlobalLight(); 
     }
+ // TODO: 수정
 public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
     {
         switch (day)
         {
             case GameDays.FirstDay: 
                     // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (240f, 60f);
+                    return (20f, 20f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (180f, 120f);
+                    return (20f, 20f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 2분 (120초), 밤 3분 (180초)
                     return (120f, 180f);
