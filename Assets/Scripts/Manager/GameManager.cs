@@ -38,8 +38,8 @@ public class GameManager : MonoBehaviour
     public Dictionary<Item, int> CurrentSubmittedData { get; private set; } = new Dictionary<Item, int>();
     
     // 납입 목표는 이제 '점수'입니다.
-    public int TargetRequiredScore = 50; 
-    public int MaxRequiredIncrease = 3; 
+    public int TargetRequiredScore = 100; 
+    public int MaxRequiredIncrease = 3;
 
     // MARK: 좀비 능력치 배율 설정
     [Header("Zombie Multipliers")]
@@ -61,9 +61,9 @@ public class GameManager : MonoBehaviour
     // 스폰 관련 설정
     [Header("Spawn Settings")]
     public SpawnManager spawnManager; // SpawnManager 클래스가 외부에서 정의되어 있다고 가정합니다.
-    public int ItemSpawnCount = 5;
+    public int ItemSpawnCount = 70;
     public int NPCSpawnCount = 3;
-    public int BaseZombieSpawnCount = 10; 
+    public int BaseZombieSpawnCount = 30; 
     private int CurrentZombieSpawnCount;
 
     // 페이즈 지속 시간 (시간 비율 조정: 예시로 60초/120초로 늘림)
@@ -226,8 +226,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // MARK: 전체 게임 루프 코루틴
-  // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
+    // TODO: 일차별 시간대 설정 (반드시 GameLoopCoroutine와 동일하게 수정해줘야함)
+public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
+    {
+        switch (day)
+        {
+            case GameDays.FirstDay: 
+                    // 1일차: 낮 4분 (240초), 밤 1분 (60초)
+                   return (420f, 180f);
+                case GameDays.SecondDay: 
+                    // 2일차: 낮 3분 (180초), 밤 2분 (120초)
+                    return (360f, 240f);
+                case GameDays.ThirdDay: 
+                    // 3일차: 낮 2분 (120초), 밤 3분 (180초)
+                    return (300f, 300f);
+                default:
+                    return (120f, 180f); // 안전 반환값
+        }
+    }
+
+ // TODO: 일차별 시간대 설정 (반드시 GetDurationForDay 동일하게 수정해줘야함)
 // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
     IEnumerator GameLoopCoroutine()
     {
@@ -238,13 +256,13 @@ public class GameManager : MonoBehaviour
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (240f, 60f); 
+                   return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (180f, 120f); 
+                    return (360f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 2분 (120초), 밤 3분 (180초)
-                    return (120f, 180f); 
+                    return (300f, 300f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
                     return (120f, 180f);
@@ -420,6 +438,7 @@ void StartNightPhase()
         return requiredScore;
     }
 
+// TODO: 일차별 랜덤 납입품 목록 생성
 // MARK: 일차별 랜덤 납입품 목록 생성 로직 (수정됨: 종류 최소 3종 ~ 최대 6종, 수량 최대 5개 제한)
     void GenerateRequiredItems()
     {
@@ -434,9 +453,9 @@ void StartNightPhase()
 
         int currentTargetScore = TargetRequiredScore; 
         
-        // 1. 요구 아이템 종류 최소/최대 설정 (최소 3종, 최대 6종)
-        const int MIN_REQUIRED_ITEMS = 3; 
-        const int MAX_REQUIRED_ITEMS = 6;
+        // 1. 요구 아이템 종류 최소/최대 설정 (최소 4종, 최대 7종)
+        const int MIN_REQUIRED_ITEMS = 4; 
+        const int MAX_REQUIRED_ITEMS = 7;
         
         // 2. 가중치 풀 생성 (실제 아이템 점수 사용)
         List<(Item item, int score, float weight)> weightedPool = new List<(Item, int, float)>();
@@ -548,9 +567,9 @@ void StartNightPhase()
             int requiredCount = Mathf.CeilToInt((float)requiredScorePortion / itemUnitScore);
             
             int preClampCount = requiredCount; 
-            
-            // ⭐ 요구 수량을 1개 이상, 5개 이하로 제한합니다. (최대 5개 제한)
-            requiredCount = Mathf.Clamp(requiredCount, 1, 5); 
+            // TODO: 요구 수량 수정하는 방법(각 아이템별))
+            // ⭐ 요구 수량을 1개 이상, 5개 이하로 제한합니다. (최소 3개, 최대 8개 제한)
+            requiredCount = Mathf.Clamp(requiredCount, 3, 8); 
             
           if (preClampCount > 5)
 {
@@ -597,7 +616,7 @@ void StartNightPhase()
         {
            case GameDays.FirstDay: CurrentDay = GameDays.SecondDay; CurrentZombieSpawnCount += 10; break;
             // ⭐ 3일차가 마지막이므로, 2일차 다음은 3일차
-            case GameDays.SecondDay: CurrentDay = GameDays.ThirdDay; CurrentZombieSpawnCount += 10; break;
+            case GameDays.SecondDay: CurrentDay = GameDays.ThirdDay; CurrentZombieSpawnCount += 20; break;
             // ⭐ 3일차 다음은 Enum의 다음 값 (종료 처리)
             case GameDays.ThirdDay: CurrentDay++; break;
             // case GameDays.FourthDay: 제거
@@ -783,23 +802,6 @@ public int PredictSurvivorLoss()
         }
 
         ApplyGlobalLight(); 
-    }
-public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
-    {
-        switch (day)
-        {
-            case GameDays.FirstDay: 
-                    // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (240f, 60f);
-                case GameDays.SecondDay: 
-                    // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (180f, 120f);
-                case GameDays.ThirdDay: 
-                    // 3일차: 낮 2분 (120초), 밤 3분 (180초)
-                    return (120f, 180f);
-                default:
-                    return (120f, 180f); // 안전 반환값
-        }
     }
 
     public void ResetGameSession()
