@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
     // 스폰 관련 설정
     [Header("Spawn Settings")]
     public SpawnManager spawnManager; // SpawnManager 클래스가 외부에서 정의되어 있다고 가정합니다.
-    public int ItemSpawnCount = 5;
+    public int ItemSpawnCount = 70;
     public int NPCSpawnCount = 3;
     public int BaseZombieSpawnCount = 30; 
     private int CurrentZombieSpawnCount;
@@ -226,6 +226,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
+     // TODO: 수정
+public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
+    {
+        switch (day)
+        {
+            case GameDays.FirstDay: 
+                    // 1일차: 낮 4분 (240초), 밤 1분 (60초)
+                   return (420f, 180f);
+                case GameDays.SecondDay: 
+                    // 2일차: 낮 3분 (180초), 밤 2분 (120초)
+                    return (360f, 240f);
+                case GameDays.ThirdDay: 
+                    // 3일차: 낮 2분 (120초), 밤 3분 (180초)
+                    return (300f, 300f);
+                default:
+                    return (120f, 180f); // 안전 반환값
+        }
+    }
+
   // TODO: 수정
 // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
     IEnumerator GameLoopCoroutine()
@@ -237,13 +256,13 @@ public class GameManager : MonoBehaviour
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (30f, 30f); 
+                   return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (30f, 30f); 
+                    return (360f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 2분 (120초), 밤 3분 (180초)
-                    return (30f, 30f); 
+                    return (300f, 300f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
                     return (120f, 180f);
@@ -782,24 +801,6 @@ public int PredictSurvivorLoss()
         }
 
         ApplyGlobalLight(); 
-    }
- // TODO: 수정
-public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
-    {
-        switch (day)
-        {
-            case GameDays.FirstDay: 
-                    // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (30f, 30f);
-                case GameDays.SecondDay: 
-                    // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (30f, 30f);
-                case GameDays.ThirdDay: 
-                    // 3일차: 낮 2분 (120초), 밤 3분 (180초)
-                    return (30f, 30f);
-                default:
-                    return (120f, 180f); // 안전 반환값
-        }
     }
 
     public void ResetGameSession()
