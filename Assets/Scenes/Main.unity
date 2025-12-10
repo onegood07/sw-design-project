@@ -155,14 +155,14 @@ MonoBehaviour:
   dawnIntensity: 1
   dawnColor: {r: 1, g: 0.5, b: 0.3, a: 1}
   midDayIntensity: 1
-  midDayColor: {r: 1, g: 1, b: 1, a: 1}
+  midDayColor: {r: 0.6211158, g: 0.5987451, b: 0.6509434, a: 1}
   midDayToDuskTransitionDuration: 5
   duskIntensity: 0.7
   duskColor: {r: 1, g: 0.6, b: 0.3, a: 1}
   nightIntensity: 0.05
-  nightColor: {r: 0.1098033, g: 0.07809718, b: 0.14150941, a: 1}
+  nightColor: {r: 0.07829746, g: 0.07168923, b: 0.084905684, a: 1}
   blackoutDuration: 1
-  blackoutColor: {r: 0.108554535, g: 0.07489321, b: 0.16037738, a: 1}
+  blackoutColor: {r: 0.07993586, g: 0.076495215, b: 0.084905684, a: 1}
   blackoutIntensity: 0
 --- !u!4 &869419
 Transform:

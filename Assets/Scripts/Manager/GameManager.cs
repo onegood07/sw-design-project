@@ -237,13 +237,13 @@ public class GameManager : MonoBehaviour
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (20f, 20f); 
+                    return (30f, 30f); 
                 case GameDays.SecondDay: 
                     // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (20f, 20f); 
+                    return (30f, 30f); 
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 2분 (120초), 밤 3분 (180초)
-                    return (120f, 180f); 
+                    return (30f, 30f); 
                 default:
                     // 혹시 모를 경우를 대비한 기본값
                     return (120f, 180f);
@@ -790,13 +790,13 @@ public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
         {
             case GameDays.FirstDay: 
                     // 1일차: 낮 4분 (240초), 밤 1분 (60초)
-                    return (20f, 20f);
+                    return (30f, 30f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 3분 (180초), 밤 2분 (120초)
-                    return (20f, 20f);
+                    return (30f, 30f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 2분 (120초), 밤 3분 (180초)
-                    return (120f, 180f);
+                    return (30f, 30f);
                 default:
                     return (120f, 180f); // 안전 반환값
         }
