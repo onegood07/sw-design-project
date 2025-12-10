@@ -178,4 +178,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd5b194eaa0c9947ae26c3ba4dbba2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::bulletMove
-  destroyTime: 3
+  destroyTime: 0.5

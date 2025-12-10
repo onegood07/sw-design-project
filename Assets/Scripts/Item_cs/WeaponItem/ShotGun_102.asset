@@ -18,15 +18,15 @@ MonoBehaviour:
   Icon: {fileID: 4319395737909131107, guid: 6890018106e5f7447b4235e6666564e1, type: 3}
   MaxStackCount: 1
   isAvailable: 1
-  originCoolTime: 5
+  originCoolTime: 3
   clip: {fileID: 8300000, guid: 3061c7b9b32d894478e4126ccce25ca3, type: 3}
   power: 300
   bulletPrefab: {fileID: 6512657209323098972, guid: a5a1129b75efa1f47b5ae7a283227a66, type: 3}
   bulletSpeed: 10
+  effect: {fileID: 6922611086515251248, guid: 59a8293d103bac74399a733e25cf570e, type: 3}
   wides:
-  - -30
-  - -15
+  - -20
+  - -10
   - 0
-  - 15
-  - 30
-  sound: {fileID: 8300000, guid: 3061c7b9b32d894478e4126ccce25ca3, type: 3}
+  - 10
+  - 20
