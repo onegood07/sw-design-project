@@ -38,8 +38,8 @@ public class GameManager : MonoBehaviour
     public Dictionary<Item, int> CurrentSubmittedData { get; private set; } = new Dictionary<Item, int>();
     
     // 납입 목표는 이제 '점수'입니다.
-    public int TargetRequiredScore = 50; 
-    public int MaxRequiredIncrease = 3; 
+    public int TargetRequiredScore = 100; 
+    public int MaxRequiredIncrease = 3;
 
     // MARK: 좀비 능력치 배율 설정
     [Header("Zombie Multipliers")]
@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
     public SpawnManager spawnManager; // SpawnManager 클래스가 외부에서 정의되어 있다고 가정합니다.
     public int ItemSpawnCount = 5;
     public int NPCSpawnCount = 3;
-    public int BaseZombieSpawnCount = 10; 
+    public int BaseZombieSpawnCount = 30; 
     private int CurrentZombieSpawnCount;
 
     // 페이즈 지속 시간 (시간 비율 조정: 예시로 60초/120초로 늘림)
@@ -434,8 +434,8 @@ void StartNightPhase()
         int currentTargetScore = TargetRequiredScore; 
         
         // 1. 요구 아이템 종류 최소/최대 설정 (최소 3종, 최대 6종)
-        const int MIN_REQUIRED_ITEMS = 3; 
-        const int MAX_REQUIRED_ITEMS = 6;
+        const int MIN_REQUIRED_ITEMS = 4; 
+        const int MAX_REQUIRED_ITEMS = 7;
         
         // 2. 가중치 풀 생성 (실제 아이템 점수 사용)
         List<(Item item, int score, float weight)> weightedPool = new List<(Item, int, float)>();
@@ -549,7 +549,7 @@ void StartNightPhase()
             int preClampCount = requiredCount; 
             
             // ⭐ 요구 수량을 1개 이상, 5개 이하로 제한합니다. (최대 5개 제한)
-            requiredCount = Mathf.Clamp(requiredCount, 1, 5); 
+            requiredCount = Mathf.Clamp(requiredCount, 3, 8); 
             
           if (preClampCount > 5)
 {
@@ -596,7 +596,7 @@ void StartNightPhase()
         {
            case GameDays.FirstDay: CurrentDay = GameDays.SecondDay; CurrentZombieSpawnCount += 10; break;
             // ⭐ 3일차가 마지막이므로, 2일차 다음은 3일차
-            case GameDays.SecondDay: CurrentDay = GameDays.ThirdDay; CurrentZombieSpawnCount += 10; break;
+            case GameDays.SecondDay: CurrentDay = GameDays.ThirdDay; CurrentZombieSpawnCount += 20; break;
             // ⭐ 3일차 다음은 Enum의 다음 값 (종료 처리)
             case GameDays.ThirdDay: CurrentDay++; break;
             // case GameDays.FourthDay: 제거
