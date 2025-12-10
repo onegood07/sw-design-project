@@ -98242,6 +98242,7 @@ GameObject:
   - component: {fileID: 1488869004}
   - component: {fileID: 1488869003}
   - component: {fileID: 1488869002}
+  - component: {fileID: 1488869006}
   m_Layer: 5
   m_Name: GameOverCanvas
   m_TagString: Untagged
@@ -98332,6 +98333,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1488869006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488869001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfce3ebae36e4dd1b3b5a5f8e88bc73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverCanvasManager
 --- !u!114 &1510800354 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1197301866939096334, guid: 136a1c324c1eb5946a440ea73dfe6188, type: 3}
