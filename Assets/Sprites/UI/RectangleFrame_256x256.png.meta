@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4ff40ab04088bb54c88498e2a5229acc
+guid: 16fce1d0fe7f5844381c8462b06560d0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1341887061136673415
-    second: BlackSmallCircleBox_19x19_0
+      213: -3810018364180070970
+    second: RectangleFrame_256x256_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,23 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BlackSmallCircleBox_19x19_0
+      name: RectangleFrame_256x256_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 19
-        height: 19
+        x: 43
+        y: 42
+        width: 171
+        height: 171
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 7, y: 8, z: 8, w: 7}
+      border: {x: 11, y: 12, z: 12, w: 11}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 78a8eb72c275f9210800000000000000
-      internalID: 1341887061136673415
+      spriteID: 6cdf45feb78102bc0800000000000000
+      internalID: -3810018364180070970
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 492db94466e9f784eb3162279014622c
+    spriteID: 949ecf334a87e4640836b05b48747019
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BlackSmallCircleBox_19x19_0: 1341887061136673415
+      RectangleFrame_256x256_0: -3810018364180070970
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
