@@ -9,8 +9,7 @@ public class LightController : MonoBehaviour
 
     [Header("전역 라이트 및 기본 시간 설정")]
     public Light2D globalLight;
-    // **수정: Night -> Dawn 전환 시간을 4초로 길게 가져가기 위해 transitionDuration을 이 값에 맞춥니다.**
-    // **인스펙터에서 이 값을 4f로 설정하세요.**
+
     public float transitionDuration = 4f; // 일반 전환 시간 (일출 초기, 저녁->밤 전환 등에 사용)
 
     // MARK: 낮 페이즈 전환 (Night -> Day) 세부 설정

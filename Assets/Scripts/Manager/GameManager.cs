@@ -226,7 +226,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-     // TODO: 수정
+    // TODO: 일차별 시간대 설정 (반드시 GameLoopCoroutine와 동일하게 수정해줘야함)
 public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
     {
         switch (day)
@@ -245,7 +245,7 @@ public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
         }
     }
 
-  // TODO: 수정
+ // TODO: 일차별 시간대 설정 (반드시 GetDurationForDay 동일하게 수정해줘야함)
 // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
     IEnumerator GameLoopCoroutine()
     {
@@ -438,6 +438,7 @@ void StartNightPhase()
         return requiredScore;
     }
 
+// TODO: 일차별 랜덤 납입품 목록 생성
 // MARK: 일차별 랜덤 납입품 목록 생성 로직 (수정됨: 종류 최소 3종 ~ 최대 6종, 수량 최대 5개 제한)
     void GenerateRequiredItems()
     {
@@ -452,7 +453,7 @@ void StartNightPhase()
 
         int currentTargetScore = TargetRequiredScore; 
         
-        // 1. 요구 아이템 종류 최소/최대 설정 (최소 3종, 최대 6종)
+        // 1. 요구 아이템 종류 최소/최대 설정 (최소 4종, 최대 7종)
         const int MIN_REQUIRED_ITEMS = 4; 
         const int MAX_REQUIRED_ITEMS = 7;
         
@@ -566,8 +567,8 @@ void StartNightPhase()
             int requiredCount = Mathf.CeilToInt((float)requiredScorePortion / itemUnitScore);
             
             int preClampCount = requiredCount; 
-            
-            // ⭐ 요구 수량을 1개 이상, 5개 이하로 제한합니다. (최대 5개 제한)
+            // TODO: 요구 수량 수정하는 방법(각 아이템별))
+            // ⭐ 요구 수량을 1개 이상, 5개 이하로 제한합니다. (최소 3개, 최대 8개 제한)
             requiredCount = Mathf.Clamp(requiredCount, 3, 8); 
             
           if (preClampCount > 5)
