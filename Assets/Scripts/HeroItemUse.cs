@@ -39,10 +39,19 @@ public class HeroItemUse : MonoBehaviour
     {
         if (context.performed)
         {
+            // UI 위에서 눌렀으면 아이템 사용 무시
             if (IsPointerOverUIObject())
             {
                 return;
             }
+
+            // 필수 입력/카메라가 없는 경우 방어 코드
+            if (Mouse.current == null || Camera.main == null)
+            {
+                Debug.LogWarning("[HeroItemUse] Mouse.current 또는 Camera.main 이 없어 ItemUse 를 처리할 수 없습니다.");
+                return;
+            }
+
             // 스크린 포인트 값을 월드 포지션 값으로 변환함.
             // 스크린 포인트 값은 화면 왼쪽 아래가 0,0 임.
             Vector3 mouseWorldPosition3D = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
@@ -151,6 +160,10 @@ public class HeroItemUse : MonoBehaviour
     // EventSystem.current.IsPointerOverGameObject() 사용 시 이전 프레임에서의 값을 참조하여 경고 로그가 발생함.
     private bool IsPointerOverUIObject()
     {
+        // EventSystem 이 없으면 UI 위가 아니라고 간주
+        if (EventSystem.current == null || Mouse.current == null)
+            return false;
+
         // 1. EventSystem 및 PointerData 생성
         PointerEventData eventData = new PointerEventData(EventSystem.current);
         

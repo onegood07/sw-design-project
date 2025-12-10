@@ -18,8 +18,6 @@ public class HeroStat : MonoBehaviour
     // 이동속도
     public float speed = 1000f;
     public float baseSpeed = 1000f;
-    // 신발/버프 등으로 인한 일시적 이동속도 증가 여부
-    private bool isSpeedBoosted = false;
     public bool isSurvival;
 
     // 부스트 코루틴 활성 여부
@@ -103,8 +101,11 @@ public class HeroStat : MonoBehaviour
         // 좀비의 공격력(Power)만큼 생명력 감소
         hp -= zombiePower;
         PlayHitEffect();
-        // 사운드 재생
-        SoundManager.Instance.PlaySFX(clip,1.0f);
+        // 사운드 재생 (사운드 매니저와 클립이 유효할 때만 호출)
+        if (SoundManager.Instance != null && clip != null)
+        {
+            SoundManager.Instance.PlaySFX(clip, 1.0f);
+        }
         if (hp <= 0 && isSurvival) 
         {
             hp = 0; // HP를 0으로 고정
@@ -134,7 +135,6 @@ public class HeroStat : MonoBehaviour
         {
             yield break;
         }
-        isSpeedBoosted = true;
         speed += mul;
         Debug.Log("이동속도 증가");
 
@@ -143,7 +143,6 @@ public class HeroStat : MonoBehaviour
 
         speed -= mul;
         Debug.Log("돌아옴");
-        isSpeedBoosted = false;
     }
     /*
     - ActiveHeroSpeedBoost
@@ -172,8 +171,6 @@ public class HeroStat : MonoBehaviour
             StopCoroutine(activeBoostCoroutine);
             activeBoostCoroutine = null;
         }
-
-        isSpeedBoosted = false;
 
         // 허기 상태에 따라 적절한 기본 속도로 복구
         if (hunger <= 100f)

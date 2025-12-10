@@ -227,7 +227,12 @@ public class ZombieNavMove : MonoBehaviour
         if (heroStat != null && zombieStat != null)
         {
             heroStat.decreaseHp(zombieStat.power);
-            SoundManager.Instance.PlaySFX(attackClip,1.0f);
+
+            // 사운드 매니저와 클립이 유효할 때만 공격 사운드를 재생
+            if (SoundManager.Instance != null && attackClip != null)
+            {
+                SoundManager.Instance.PlaySFX(attackClip, 1.0f);
+            }
         }
     }
 

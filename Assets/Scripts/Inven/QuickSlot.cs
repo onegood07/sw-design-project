@@ -100,6 +100,12 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
         }
     }
 
+    private void Start()
+    {
+        // InventoryManager 에 저장된 퀵슬롯 데이터를 이용해 상태를 복원
+        RestoreFromInventoryManager();
+    }
+
     private void OnDestroy()
     {
         allSlots.Remove(this);
@@ -213,17 +219,12 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
         rectTransform.anchoredPosition = baseAnchoredPosition + new Vector2(0f, offsetY);
     }
 
-    /// <summary>
-    /// 인벤토리의 Slot에서 끌어온 아이템을 이 퀵슬롯에 등록하는 함수.
-    /// Drag 끝났을 때 ItemDragHandler 에서 직접 호출한다.
-    /// </summary>
+    // 인벤토리 슬롯에서 끌어온 아이템을 이 퀵슬롯에 등록
     public void AssignFromSlot(Slot fromSlot)
     {
         if (fromSlot == null || fromSlot.item == null) return;
 
         InventoryItem fromItem = fromSlot.item;
-
-        // 필요하다면 특정 타입의 아이템만 올리도록 타입 제한을 둘 수 있다.
 
         linkedItem = fromItem;
         linkedItemData = fromItem.itemData;
@@ -241,9 +242,60 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
             Debug.LogWarning($"[QuickSlot] ItemData 가 없어 퀵슬롯 {quickIndex + 1}에 등록되지 않았습니다.", this);
         }
 
-        // 이후에 필요하면:
-        // - Inventory.instance.quickSlots[quickIndex] 에도 함께 저장 (InventoryManager 연동)
-        // - 단축키 입력 시 linkedItem 을 사용하는 로직 연결
+    }
+
+    // InventoryManager 에 저장된 퀵슬롯 데이터를 이용해 QuickSlot UI를 복원
+    private void RestoreFromInventoryManager()
+    {
+        if (InventoryManager.Instance == null)
+            return;
+
+        var mgr = InventoryManager.Instance;
+
+        // InventoryManager 쪽에 저장된 데이터 조회 (0 기반 인덱스)
+        if (quickIndex < 0 || quickIndex >= mgr.quickSlotItems.Length)
+            return;
+
+        ItemData data = mgr.quickSlotItems[quickIndex];
+        int count = mgr.quickSlotCounts[quickIndex];
+        int invIndex = mgr.quickSlotInventoryIndices[quickIndex];
+
+        if (data == null || count <= 0)
+        {
+            // 저장된 아이템이 없으면 비워진 상태로 유지
+            ClearSlotVisual();
+            return;
+        }
+
+        linkedItemData = data;
+        linkedItemCount = count;
+        linkedInventoryIndex = invIndex;
+
+        // 인벤토리에 같은 인덱스가 살아 있다면 InventoryItem 참조까지 복원
+        if (Inventory.instance != null &&
+            invIndex >= 0 && invIndex < Inventory.instance.items.Count)
+        {
+            linkedItem = Inventory.instance.items[invIndex];
+        }
+
+        // 아이콘 스프라이트는 InventoryItem 이 있으면 그걸 우선 사용,
+        // 없으면 ItemData 의 아이콘을 사용한다.
+        Sprite sprite = null;
+        if (linkedItem != null)
+            sprite = linkedItem.itemImage;
+        if (sprite == null && linkedItemData != null)
+            sprite = linkedItemData.getItemIcon;
+
+        if (sprite != null)
+        {
+            ApplyIcon(sprite);
+        }
+        else
+        {
+            ClearSlotVisual();
+        }
+
+        UpdateCountDisplay();
     }
 
     /// <summary>
