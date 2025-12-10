@@ -6,7 +6,7 @@ public class DialogueManager : MonoBehaviour
 
     private DialogueData currentData; // 현재 DialogueData
     private int currentNodeIndex; // 현재 노드 인덱스
-    private DialogueNPC currentNPC; // 현재 NPC
+    public DialogueNPC currentNPC;
     
     public bool IsDialogueActive { get; private set; } = false;
 
@@ -19,12 +19,15 @@ public class DialogueManager : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void StartDialogue(DialogueData data, DialogueNPC npc)
+    /// <summary>
+    /// 대화를 시작하는 함수. DialogueNPC가 계산한 시작 노드 인덱스를 받습니다.
+    /// </summary>
+    public void StartDialogue(DialogueData data, DialogueNPC npc, int startingIndex) // ⭐ 시그니처 수정
     {
-        Debug.Log($"[DialogueManager] StartDialogue 호출 - NPC: {npc.name}, startNodeIndex: {data.startNodeIndex}");
+        Debug.Log($"[DialogueManager] StartDialogue 호출 - NPC: {npc.name}, startingIndex: {startingIndex}");
 
         currentData = data;
-        currentNodeIndex = data.startNodeIndex;
+        currentNodeIndex = startingIndex; // ⭐ 전달받은 시작 인덱스 사용
         currentNPC = npc; 
 
         IsDialogueActive = true; 
@@ -58,12 +61,12 @@ public class DialogueManager : MonoBehaviour
     /// </summary>
     public void StartQuestSubmission(QuestData questData)
     {
+        // 이 함수는 기존 로직을 유지합니다. currentNodeIndex는 현재 대화 위치입니다.
         Debug.Log($"[DialogueManager] StartQuestSubmission 호출 - currentData: {currentData}, currentNodeIndex: {currentNodeIndex}");
 
         if (currentData == null || currentData.nodes == null)
         {
             Debug.LogWarning("[DialogueManager] currentData가 Null이거나 노드 배열이 Null입니다. 기본 인덱스 0으로 SubmitUI 시도");
-            // 퀘스트 UI가 열릴 때 QuestManager가 StartInteraction을 호출합니다.
             QuestManager.instance?.OpenSubmitUI(questData, 0);
             IsDialogueActive = false;
             return;
@@ -118,8 +121,7 @@ public class DialogueManager : MonoBehaviour
         ShowNode(currentNodeIndex);
 
         IsDialogueActive = true;
-        // ⭐ [수정 완료]: StartDialogue에서 이미 StartInteraction을 호출했으므로 제거합니다.
-        // GameManager.Instance?.StartInteraction(); 
+        // StartDialogue에서 이미 StartInteraction을 호출했습니다.
         Debug.Log($"[DialogueManager] 퀘스트 완료 후 노드 {nodeIndex}에서 대화를 재개합니다.");
     }
     

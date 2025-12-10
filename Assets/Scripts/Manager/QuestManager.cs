@@ -89,7 +89,8 @@ public class QuestManager : MonoBehaviour
         // 4. 인벤토리 UI 활성화 
         if (InventoryUI.instance != null) 
         {
-            InventoryUI.instance.OpenInventory();
+            // InventoryUI.instance.OpenInventory()는 정의되어 있다고 가정합니다.
+            InventoryUI.instance.OpenInventory(); 
             Debug.Log("[QuestManager] 퀘스트 제출 UI와 함께 인벤토리 UI를 열었습니다.");
         }
         else
@@ -118,6 +119,7 @@ public void OnSubmitButtonClicked()
         return;
     }
 
+    // QuestSlot.ConfirmSubmission()는 정의되어 있다고 가정합니다.
     bool confirmed = questDropSlot.ConfirmSubmission(); 
     
     // 2. ConfirmSubmission() 호출 후, QuestSlot이 혹시 파괴되었는지 재확인 (방어 코드)
@@ -170,7 +172,7 @@ public void CloseSubmitUI()
 {
     Debug.Log("[CloseSubmitUI] 호출됨. 제출 UI와 대화 상태 정리 시작.");
 
-    // ⭐ [수정] 퀘스트 미완료 상태 (사용자가 X 버튼 등으로 닫음)일 때만 대화를 취소하고 상호작용 종료
+    // ⭐ 퀘스트 미완료 상태 (사용자가 X 버튼 등으로 닫음)일 때만 대화를 취소하고 상호작용 종료
     if (activeQuestData != null) 
     {
         if (DialogueManager.Instance != null)
@@ -183,10 +185,8 @@ public void CloseSubmitUI()
              GameManager.Instance?.EndInteraction(); // DialogueManager가 없으면 수동 종료
         }
     }
-    // else (퀘스트 완료 후 닫는 경우): HandleQuestCompletion에서 activeQuestData = null로 설정됨.
-    // 대화가 재개되었다면 DialogueManager.IsDialogueActive가 true이므로 상호작용 유지.
-    // 대화가 재개되지 않았다면 상호작용을 여기서 종료해야 합니다.
-
+    // 퀘스트 완료 후 닫는 경우: HandleQuestCompletion에서 activeQuestData = null로 설정됨.
+    // 대화 재개 여부에 따라 상호작용 종료를 결정합니다.
     if (activeQuestData == null && DialogueManager.Instance != null && !DialogueManager.Instance.IsDialogueActive)
     {
         // 퀘스트는 완료되었는데 대화가 재개되지 않았을 경우 (HandleQuestCompletion에서 nextDialogueNodeIndex == -1인 경우)
@@ -198,6 +198,7 @@ public void CloseSubmitUI()
     // 4. 인벤토리 UI 비활성화
     if (InventoryUI.instance != null) 
     {
+        // InventoryUI.instance.CloseInventory()는 정의되어 있다고 가정합니다.
         InventoryUI.instance.CloseInventory();
         Debug.Log("[CloseSubmitUI] 인벤토리 UI를 닫았습니다.");
     } else {
@@ -240,6 +241,9 @@ private void HandleQuestCompletion(QuestSlot slot)
 {
     QuestData data = slot.AssignedQuestData;
     
+    // 퀘스트 완료 후 NPC가 반복할 대화 노드의 인덱스 (임시 지정)
+    const int QUEST_COMPLETED_REPEAT_NODE_INDEX = 0; 
+
     if (data == null)
     {
         Debug.LogError("[HandleQuestCompletion] QuestData를 찾을 수 없습니다. 보상 지급 실패.");
@@ -263,7 +267,18 @@ private void HandleQuestCompletion(QuestSlot slot)
         }
     }
     
-    // ... (보상 없음 경고 로직 유지) ...
+    // ⭐ [추가]: NPC에게 퀘스트 완료 상태를 영구적으로 설정
+    if (DialogueManager.Instance != null && DialogueManager.Instance.currentNPC != null) 
+    {
+        DialogueNPC currentNPC = DialogueManager.Instance.currentNPC;
+        
+        // DialogueNPC의 CompleteQuestState를 호출하여 NPC 자신의 상태를 변경하고,
+        // 이 함수 내부에서 SpawnManager에게 영구 데이터 업데이트를 요청합니다.
+        // DialogueNPC.CompleteQuestState(int repeatNodeIndex)는 DialogueNPC.cs에 구현되어 있다고 가정합니다.
+        currentNPC.CompleteQuestState(QUEST_COMPLETED_REPEAT_NODE_INDEX); 
+        Debug.Log($"[HandleQuestCompletion] NPC '{currentNPC.name}'의 퀘스트 완료 상태 설정 완료. 반복 노드: {QUEST_COMPLETED_REPEAT_NODE_INDEX}");
+    }
+
 
     // 3. 대화 재개 및 상태 초기화 로직
     if (nextDialogueNodeIndex != -1)
