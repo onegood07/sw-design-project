@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Emergency_food_204
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 204
-  Score: 15
+  Score: 4
   Description: "\uBE44\uC0C1 \uC2DD\uB7C9 \uD329"
   Icon: {fileID: 0}
   MaxStackCount: 99

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Antiseptic_201
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
   ItemName: 201
-  Score: 5
+  Score: 3
   Description: "\uC18C\uB3C5\uC57D"
   Icon: {fileID: 2619156217251398772, guid: a4d9ddf8d7e6b0146a1fdbc0159db0f4, type: 3}
   MaxStackCount: 99
