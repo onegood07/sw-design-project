@@ -1,3 +1,5 @@
+// Assets/Scripts/Manager/SpawnManager.cs
+
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
@@ -33,7 +35,7 @@ public struct PersistentItemData
     public ItemType type;
 }
 
-// 🌟 씬 전환 시 유지할 NPC 정보 구조체 (⭐ 상태 필드 추가)
+// 🌟 씬 전환 시 유지할 NPC 정보 구조체 (⭐ 상태 필드 추가 및 삭제 플래그 추가)
 [System.Serializable]
 public struct PersistentNPCData
 {
@@ -45,6 +47,9 @@ public struct PersistentNPCData
     
     // ⭐ [수정 반영]: 퀘스트 완료 후 반복할 대화 노드의 인덱스
     public int repeatDialogueNodeIndex; 
+
+    // ⭐ [추가]: 퀘스트 완료 후 다음 씬 로드 시 영구적으로 제거할지 여부
+    public bool isMarkedForRemoval; 
 }
 
 public class SpawnManager : MonoBehaviour
@@ -284,13 +289,14 @@ public class SpawnManager : MonoBehaviour
             // NPC일 경우 Persistent NPC Data 기록 (type이 null이면서 spawnedNPCs에 추가된 경우)
             else if (type == null && outputList == spawnedNPCs)
             {
-                // ⭐ [수정 반영]: 초기 NPC 생성 시 퀘스트 미완료 상태로 기록
+                // ⭐ [수정 반영]: 초기 NPC 생성 시 퀘스트 미완료 상태로 기록 및 제거 플래그 초기화
                 persistentNPCs.Add(new PersistentNPCData
                 {
                     position = spawnPos,
                     prefabName = prefabName,
                     isQuestCompleted = false,             // ⭐ 초기값
-                    repeatDialogueNodeIndex = -1          // ⭐ 초기값
+                    repeatDialogueNodeIndex = 0,          // ⭐ 초기값
+                    isMarkedForRemoval = false            // ⭐ [추가] 초기값
                 });
             }
             
@@ -303,9 +309,10 @@ public class SpawnManager : MonoBehaviour
         return usedPositions; 
     }
     
-    // ⭐ [추가]: NPC가 퀘스트를 완료했을 때 Persistent Data를 업데이트하는 함수
+    // ⭐ [수정된 함수]: NPC가 퀘스트를 완료했을 때 Persistent Data를 업데이트하거나 제거하는 함수
     /// <summary>
-    /// NPC의 퀘스트 완료 상태와 반복 대화 노드 인덱스를 영구 데이터에 업데이트합니다.
+    /// NPC의 퀘스트 완료 상태와 반복 대화 노드 인덱스를 영구 데이터에 업데이트합니다. 
+    /// 퀘스트 완료 시 (isCompleted = true) 해당 NPC는 영구 데이터에 '제거 예정'으로 표시되며, 다음 씬 로드 시 영구적으로 제거됩니다.
     /// </summary>
     public void UpdatePersistentNPCData(GameObject npcObject, int repeatNodeIndex, bool isCompleted)
     {
@@ -316,23 +323,32 @@ public class SpawnManager : MonoBehaviour
 
         if (index != -1)
         {
-            // Persistent Data를 복사하여 수정
             PersistentNPCData updatedData = persistentNPCs[index];
+            
             updatedData.isQuestCompleted = isCompleted;
             updatedData.repeatDialogueNodeIndex = repeatNodeIndex;
+
+            if (isCompleted) 
+            {
+                // ⭐ [수정] 즉시 제거하지 않고, 다음 씬 로드 시 제거되도록 플래그만 설정
+                updatedData.isMarkedForRemoval = true;
+                Debug.Log($"[SpawnManager] 퀘스트 완료 NPC '{npcObject.name}' 영구 데이터에 '제거 예정' 플래그 설정 완료.");
+            }
             
             // 수정된 데이터를 다시 리스트에 저장
             persistentNPCs[index] = updatedData;
+
             Debug.Log($"[SpawnManager] Persistent NPC Data 업데이트 완료: {npcObject.name} (Quest Completed: {isCompleted}, Repeat Node: {repeatNodeIndex})");
         }
         else
         {
-             Debug.LogWarning($"[SpawnManager] Persistent NPC Data를 찾을 수 없어 업데이트 실패: {npcObject.name} at {npcPos}");
+             // 퀘스트 완료 NPC가 영구 데이터에 없을 경우 (두 번 이상 완료 보고 시도 등)
+             Debug.LogWarning($"[SpawnManager] Persistent NPC Data를 찾을 수 없어 업데이트/제거 실패: {npcObject.name} at {npcPos}");
         }
     }
 
 
-    // MARK: - 🌟 지속 오브젝트 복원 함수 (⭐ NPC 재스폰 방지 및 상태 복원 로직 포함)
+    // MARK: - 🌟 지속 오브젝트 복원 함수 (⭐ 삭제 예정 NPC 필터링 로직 추가)
     public void RestorePersistentObjects()
     {
         Debug.Log("[SpawnManager] RestorePersistentObjects 시작.");
@@ -341,6 +357,9 @@ public class SpawnManager : MonoBehaviour
         ClearItems();
         ClearNPCs();
         ClearZombies(); 
+        
+        // ⭐ [추가] 영구 제거될 NPC 목록을 따로 저장
+        List<PersistentNPCData> npcsToKeep = new List<PersistentNPCData>();
         
         List<Vector3> occupiedPositions = new List<Vector3>();
 
@@ -358,17 +377,18 @@ public class SpawnManager : MonoBehaviour
             }
         }
         
-        // 2. NPC 복원 (⭐ 로직 수정)
+        // 2. NPC 복원 (⭐ 삭제 예정 NPC는 복원하지 않고, 리스트에서 영구 제거)
         int restoredNpcCount = 0;
         foreach (var npcData in persistentNPCs)
         {
-            // ⭐ [수정 반영]: 퀘스트가 완료된 NPC는 복원하지 않고 건너뜱니다. (재스폰 방지)
-            if (npcData.isQuestCompleted) 
+            if (npcData.isMarkedForRemoval)
             {
-                Debug.Log($"[SpawnManager] 퀘스트 완료된 NPC '{npcData.prefabName}'는 재스폰하지 않습니다.");
+                // 영구 제거 대상. 복원하지 않고 리스트에 추가하지 않음.
+                Debug.Log($"[SpawnManager] '제거 예정'으로 표시된 NPC '{npcData.prefabName}'를 영구 데이터에서 제거하고 복원하지 않습니다.");
                 continue; 
             }
 
+            // 복원 대상
             GameObject prefabToSpawn = GetNpcPrefabByName(npcData.prefabName);
 
             if (prefabToSpawn != null)
@@ -378,21 +398,26 @@ public class SpawnManager : MonoBehaviour
                 occupiedPositions.Add(npcData.position);
                 restoredNpcCount++;
 
-                // ⭐ [수정 반영]: 복원된 NPC에게 완료 상태 및 반복 노드 설정 전달
-                // DialogueNPC.cs에 RestoreState(bool isCompleted, int repeatNode) 함수가 있다고 가정
+                // 복원된 NPC에게 완료 상태 및 반복 노드 설정 전달
                 DialogueNPC npcComponent = obj.GetComponent<DialogueNPC>();
                 if (npcComponent != null)
                 {
                     npcComponent.RestoreState(npcData.isQuestCompleted, npcData.repeatDialogueNodeIndex); 
                 }
+                
+                // ⭐ [추가] 복원된 NPC는 유지할 목록에 추가
+                npcsToKeep.Add(npcData);
             }
         }
+        
+        // ⭐ [추가] 영구 데이터 리스트를 유지할 NPC 목록으로 덮어씁니다. (실제 영구 제거)
+        persistentNPCs = npcsToKeep;
         
         // 🚨 3. 좀비 강제 스폰 (아이템/NPC 복원 직후 낮 좀비 스폰 보장)
         Debug.Log($"[SpawnManager] 복원 후 낮 좀비 스폰 강제 실행: {defaultDayZombieCount}마리.");
         SpawnZombiesDuringRestore(defaultDayZombieCount, occupiedPositions);
         
-        Debug.Log($"[SpawnManager] 오브젝트 복원 및 좀비 스폰 완료: 아이템 {spawnedItems.Count}개, NPC {restoredNpcCount}명 (미완료 NPC만), 좀비 {spawnedZombies.Count}마리");
+        Debug.Log($"[SpawnManager] 오브젝트 복원 및 좀비 스폰 완료: 아이템 {spawnedItems.Count}개, NPC {restoredNpcCount}명, 좀비 {spawnedZombies.Count}마리");
     }
 
     // 🚨 좀비 스폰 로직 분리 (복원 시 사용)
@@ -494,7 +519,8 @@ public class SpawnManager : MonoBehaviour
             foreach (var requiredItem in GameManager.Instance.CurrentRequiredItemsData)
             {
                 // **⭐⭐⭐ 요청에 따라 Item 클래스 정의가 있다고 가정하고 원래 코드를 복구합니다. ⭐⭐⭐**
-                Item requiredItemData = requiredItem.Key as Item; 
+                // Item requiredItemData = requiredItem.Key as Item; 
+                Item requiredItemData = requiredItem.Key as Item; // 이 줄은 Item 클래스가 정의되어 있어야 컴파일됩니다.
                 int requiredQuantity = requiredItem.Value;
                 
                 if (requiredItemData == null) continue;

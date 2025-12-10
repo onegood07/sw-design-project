@@ -18,8 +18,8 @@ MonoBehaviour:
   requiredItemName: Water
   requiredItemIcon: {fileID: 6049605792901559095, guid: aac519b06e4484c4399686d58ca83138, type: 3}
   requiredAmount: 1
-  giveItemReward: 1
+  giveItemReward: 0
   rewardItem: {fileID: -967469265316974195, guid: 636bd03e8d9f75c48a70e92071664bc9, type: 3}
-  rewardCount: 5
+  rewardCount: 0
   increaseSurvivors: 1
   survivorIncreaseAmount: 1

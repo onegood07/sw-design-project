@@ -40,7 +40,7 @@ MonoBehaviour:
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
+    nextNodeIndex: 4
   - text: "\uD765, \uC7AC\uBBF8\uC5C6\uC5B4..."
     typingSpeed: 0.05
     questToStart: {fileID: 0}

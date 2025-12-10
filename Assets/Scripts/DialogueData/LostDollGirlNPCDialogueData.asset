@@ -40,7 +40,7 @@ MonoBehaviour:
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
+    nextNodeIndex: 4
   - text: "\uC544\uB2C8\uC5D0\uC694\u2026 \uACF0\uC778\uD615\uC744 \uBABB \uCC3E\uC73C\uBA74
       \uC804 \uBABB \uAC00\uC694\u2026"
     typingSpeed: 0.05
