@@ -5,7 +5,7 @@ public class BulletMove : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 velocity;
     private float bulletPower;
-    [SerializeField]private float destroyTime = 3f;
+    [SerializeField]private float destroyTime = 0.5f;
 
     void Awake()
     {
