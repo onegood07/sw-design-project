@@ -4,7 +4,11 @@ using System.Collections.Generic;
 
 public class CraftingUI : MonoBehaviour 
 {
-    [Header("Visual Root Panel")]
+    [Header("UI Root References")]
+    // ⭐ 캔버스 전체를 활성화/비활성화할 최상위 오브젝트 (인스펙터에 CraftingCanvas를 연결)
+    public GameObject rootCanvasObject; 
+    
+    // 이 UI 컴포넌트 내부의 시각적 루트 패널
     public GameObject visualRootPanel;
 
     [Header("UI References")]
@@ -28,30 +32,61 @@ public class CraftingUI : MonoBehaviour
     }
 
     // ===========================
-    //     UI Show / Hide
+    //     UI Show / Hide (인벤토리 활성화 로직 추가)
     // ===========================
     public void Show(RecipeData[] recipes) 
     {
+        // ⭐ 1. 캔버스 루트 오브젝트를 강제로 활성화합니다.
+        if (rootCanvasObject != null)
+        {
+            rootCanvasObject.SetActive(true);
+            Debug.Log("[CraftingUI] Root Canvas Object 활성화 완료.");
+        }
+        
         currentRecipes = recipes;
         if (visualRootPanel != null)
-            visualRootPanel.SetActive(true);
+            visualRootPanel.SetActive(true); // 내부 패널 활성화
 
         GenerateRecipes(recipes);
 
         if (currentRecipeItems.Count > 0)
         {
-            // 첫 번째 항목 선택 (하이라이트용)
             SelectRecipeItem(currentRecipeItems[0]); 
+        }
+        
+        // ⭐ 2. [추가] 인벤토리 UI 활성화 (ExchangeUI와 동일한 방식)
+        if (InventoryUI.instance != null)
+        {
+            InventoryUI.instance.OpenInventory();
+            Debug.Log("[CraftingUI] 조합 UI가 열리면서 인벤토리 UI를 열었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("[CraftingUI] InventoryUI 인스턴스를 찾을 수 없습니다.");
         }
     }
 
     public void Hide()
     {
+        // ⭐ 1. 캔버스 루트 오브젝트를 비활성화합니다.
+        if (rootCanvasObject != null)
+        {
+            rootCanvasObject.SetActive(false);
+            Debug.Log("[CraftingUI] Root Canvas Object 비활성화 완료.");
+        }
+        
         if (visualRootPanel != null)
-            visualRootPanel.SetActive(false);
+            visualRootPanel.SetActive(false); // 내부 패널 비활성화
 
         ClearRecipeItems();
         selectedRecipeItem = null;
+        
+        // ⭐ 2. [추가] 인벤토리 UI 비활성화
+        if (InventoryUI.instance != null)
+        {
+            InventoryUI.instance.CloseInventory();
+            Debug.Log("[CraftingUI] 조합 UI가 닫히면서 인벤토리 UI를 닫았습니다.");
+        }
     }
 
     // ===========================
@@ -67,7 +102,6 @@ public class CraftingUI : MonoBehaviour
         {
             CraftingRecipeItem newItem = Instantiate(craftingRecipePrefab, contentParent.transform);
             newItem.Setup(recipe);
-            // 항목 클릭 시 선택 상태만 변경하도록 리스너 연결
             newItem.onSelected += SelectRecipeItem; 
             currentRecipeItems.Add(newItem);
         }
