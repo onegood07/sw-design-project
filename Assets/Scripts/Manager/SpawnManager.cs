@@ -1,3 +1,5 @@
+// Assets/Scripts/Manager/SpawnManager.cs
+
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
@@ -24,24 +26,31 @@ public struct ItemSectorSpawnProbablity
     public float ratio; // 아이템 타입 스폰 확률
 }
 
-// 🌟 씬 전환 시 유지할 아이템 정보 구조체
+// 씬 전환 시 유지할 아이템 정보 구조체 (유지)
 [System.Serializable]
 public struct PersistentItemData
 {
     public Vector3 position;
-    public string prefabName; // 프리팹을 찾기 위한 이름 (복원 시 사용)
+    public string prefabName; 
     public ItemType type;
 }
 
-// 🌟 씬 전환 시 유지할 NPC 정보 구조체
+// 🌟 씬 전환 시 유지할 NPC 정보 구조체 (⭐ 상태 필드 추가 및 삭제 플래그 추가)
 [System.Serializable]
 public struct PersistentNPCData
 {
     public Vector3 position;
     public string prefabName; // 프리팹을 찾기 위한 이름 (복원 시 사용)
-}
+    
+    // ⭐ [수정 반영]: 퀘스트 완료 상태
+    public bool isQuestCompleted; 
+    
+    // ⭐ [수정 반영]: 퀘스트 완료 후 반복할 대화 노드의 인덱스
+    public int repeatDialogueNodeIndex; 
 
-// 좀비는 영구 데이터를 저장하지 않습니다.
+    // ⭐ [추가]: 퀘스트 완료 후 다음 씬 로드 시 영구적으로 제거할지 여부
+    public bool isMarkedForRemoval; 
+}
 
 public class SpawnManager : MonoBehaviour
 {
@@ -252,7 +261,6 @@ public class SpawnManager : MonoBehaviour
         List<Vector3> usedPositions = new List<Vector3>();
         List<Vector3> copy = new List<Vector3>(availablePositions);
         
-        // 🚨 수정: 프리팹 이름 저장 시 (Clone) 문자열 제거
         string prefabName = prefab.name.Replace("(Clone)", "").Trim(); 
 
         for (int i = 0; i < count; i++)
@@ -281,11 +289,14 @@ public class SpawnManager : MonoBehaviour
             // NPC일 경우 Persistent NPC Data 기록 (type이 null이면서 spawnedNPCs에 추가된 경우)
             else if (type == null && outputList == spawnedNPCs)
             {
-                // 🌟 Persistent NPC Data 기록
+                // ⭐ [수정 반영]: 초기 NPC 생성 시 퀘스트 미완료 상태로 기록 및 제거 플래그 초기화
                 persistentNPCs.Add(new PersistentNPCData
                 {
                     position = spawnPos,
-                    prefabName = prefabName
+                    prefabName = prefabName,
+                    isQuestCompleted = false,             // ⭐ 초기값
+                    repeatDialogueNodeIndex = 0,          // ⭐ 초기값
+                    isMarkedForRemoval = false            // ⭐ [추가] 초기값
                 });
             }
             
@@ -298,15 +309,57 @@ public class SpawnManager : MonoBehaviour
         return usedPositions; 
     }
     
-    // MARK: - 🌟 지속 오브젝트 복원 함수
+    // ⭐ [수정된 함수]: NPC가 퀘스트를 완료했을 때 Persistent Data를 업데이트하거나 제거하는 함수
+    /// <summary>
+    /// NPC의 퀘스트 완료 상태와 반복 대화 노드 인덱스를 영구 데이터에 업데이트합니다. 
+    /// 퀘스트 완료 시 (isCompleted = true) 해당 NPC는 영구 데이터에 '제거 예정'으로 표시되며, 다음 씬 로드 시 영구적으로 제거됩니다.
+    /// </summary>
+    public void UpdatePersistentNPCData(GameObject npcObject, int repeatNodeIndex, bool isCompleted)
+    {
+        Vector3 npcPos = npcObject.transform.position;
+        
+        // 위치를 기반으로 영구 데이터 리스트에서 해당 NPC를 찾습니다.
+        int index = persistentNPCs.FindIndex(data => Vector3.Distance(data.position, npcPos) < 0.1f);
+
+        if (index != -1)
+        {
+            PersistentNPCData updatedData = persistentNPCs[index];
+            
+            updatedData.isQuestCompleted = isCompleted;
+            updatedData.repeatDialogueNodeIndex = repeatNodeIndex;
+
+            if (isCompleted) 
+            {
+                // ⭐ [수정] 즉시 제거하지 않고, 다음 씬 로드 시 제거되도록 플래그만 설정
+                updatedData.isMarkedForRemoval = true;
+                Debug.Log($"[SpawnManager] 퀘스트 완료 NPC '{npcObject.name}' 영구 데이터에 '제거 예정' 플래그 설정 완료.");
+            }
+            
+            // 수정된 데이터를 다시 리스트에 저장
+            persistentNPCs[index] = updatedData;
+
+            Debug.Log($"[SpawnManager] Persistent NPC Data 업데이트 완료: {npcObject.name} (Quest Completed: {isCompleted}, Repeat Node: {repeatNodeIndex})");
+        }
+        else
+        {
+             // 퀘스트 완료 NPC가 영구 데이터에 없을 경우 (두 번 이상 완료 보고 시도 등)
+             Debug.LogWarning($"[SpawnManager] Persistent NPC Data를 찾을 수 없어 업데이트/제거 실패: {npcObject.name} at {npcPos}");
+        }
+    }
+
+
+    // MARK: - 🌟 지속 오브젝트 복원 함수 (⭐ 삭제 예정 NPC 필터링 로직 추가)
     public void RestorePersistentObjects()
     {
         Debug.Log("[SpawnManager] RestorePersistentObjects 시작.");
         
-        // 씬에서 이미 스폰된 오브젝트 목록 초기화 (OnSceneLoaded에서 ClearAll()을 이미 호출했으나 안정성을 위해 다시 호출 가능)
+        // 씬에서 이미 스폰된 오브젝트 목록 초기화 (안정성을 위해 재호출)
         ClearItems();
         ClearNPCs();
         ClearZombies(); 
+        
+        // ⭐ [추가] 영구 제거될 NPC 목록을 따로 저장
+        List<PersistentNPCData> npcsToKeep = new List<PersistentNPCData>();
         
         List<Vector3> occupiedPositions = new List<Vector3>();
 
@@ -324,9 +377,18 @@ public class SpawnManager : MonoBehaviour
             }
         }
         
-        // 2. NPC 복원
+        // 2. NPC 복원 (⭐ 삭제 예정 NPC는 복원하지 않고, 리스트에서 영구 제거)
+        int restoredNpcCount = 0;
         foreach (var npcData in persistentNPCs)
         {
+            if (npcData.isMarkedForRemoval)
+            {
+                // 영구 제거 대상. 복원하지 않고 리스트에 추가하지 않음.
+                Debug.Log($"[SpawnManager] '제거 예정'으로 표시된 NPC '{npcData.prefabName}'를 영구 데이터에서 제거하고 복원하지 않습니다.");
+                continue; 
+            }
+
+            // 복원 대상
             GameObject prefabToSpawn = GetNpcPrefabByName(npcData.prefabName);
 
             if (prefabToSpawn != null)
@@ -334,14 +396,28 @@ public class SpawnManager : MonoBehaviour
                 GameObject obj = Instantiate(prefabToSpawn, npcData.position, Quaternion.identity);
                 spawnedNPCs.Add(obj);
                 occupiedPositions.Add(npcData.position);
+                restoredNpcCount++;
+
+                // 복원된 NPC에게 완료 상태 및 반복 노드 설정 전달
+                DialogueNPC npcComponent = obj.GetComponent<DialogueNPC>();
+                if (npcComponent != null)
+                {
+                    npcComponent.RestoreState(npcData.isQuestCompleted, npcData.repeatDialogueNodeIndex); 
+                }
+                
+                // ⭐ [추가] 복원된 NPC는 유지할 목록에 추가
+                npcsToKeep.Add(npcData);
             }
         }
+        
+        // ⭐ [추가] 영구 데이터 리스트를 유지할 NPC 목록으로 덮어씁니다. (실제 영구 제거)
+        persistentNPCs = npcsToKeep;
         
         // 🚨 3. 좀비 강제 스폰 (아이템/NPC 복원 직후 낮 좀비 스폰 보장)
         Debug.Log($"[SpawnManager] 복원 후 낮 좀비 스폰 강제 실행: {defaultDayZombieCount}마리.");
         SpawnZombiesDuringRestore(defaultDayZombieCount, occupiedPositions);
         
-        Debug.Log($"[SpawnManager] 오브젝트 복원 및 좀비 스폰 완료: 아이템 {spawnedItems.Count}개, NPC {spawnedNPCs.Count}명, 좀비 {spawnedZombies.Count}마리");
+        Debug.Log($"[SpawnManager] 오브젝트 복원 및 좀비 스폰 완료: 아이템 {spawnedItems.Count}개, NPC {restoredNpcCount}명, 좀비 {spawnedZombies.Count}마리");
     }
 
     // 🚨 좀비 스폰 로직 분리 (복원 시 사용)
@@ -352,7 +428,7 @@ public class SpawnManager : MonoBehaviour
              GetSpawnPositions();
             if (allSpawnPositions.Count == 0)
             {
-                 Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없어 좀비 스폰을 건너뜱니다.");
+                 Debug.LogWarning("[SpawnManager] 스폰 가능한 위치가 없어 좀비 스폰을 건너뜁니다.");
                  return;
             }
         }
@@ -375,7 +451,6 @@ public class SpawnManager : MonoBehaviour
     // 🌟 프리팹 이름으로 아이템 프리팹을 찾는 헬퍼 함수
     private GameObject GetItemPrefabByName(string name)
     {
-        // 🚨 수정: (Clone)이 제거된 이름으로 찾기 위해 trim() 사용
         string cleanName = name.Replace("(Clone)", "").Trim(); 
 
         foreach (var info in itemInfos)
@@ -391,7 +466,6 @@ public class SpawnManager : MonoBehaviour
     // 🌟 프리팹 이름으로 NPC 프리팹을 찾는 헬퍼 함수
     private GameObject GetNpcPrefabByName(string name)
     {
-        // 🚨 수정: (Clone)이 제거된 이름으로 찾기 위해 trim() 사용
         string cleanName = name.Replace("(Clone)", "").Trim(); 
 
         foreach (var prefab in npcPrefabs)
@@ -435,7 +509,7 @@ public class SpawnManager : MonoBehaviour
         int spawnedItemCount = 0; // 실제로 스폰된 아이템 수 카운트
 
         // ---------------------------------------------------------------------------------
-        // ⭐ 1단계: GameManager의 납입 요구 목록에 있는 아이템을 필드에 모두 소환
+        // 1단계: GameManager의 납입 요구 목록에 있는 아이템을 필드에 모두 소환
         // ---------------------------------------------------------------------------------
         if (GameManager.Instance != null && GameManager.Instance.CurrentRequiredItemsData.Count > 0)
         {
@@ -444,20 +518,20 @@ public class SpawnManager : MonoBehaviour
             // 납입품 리스트를 순회하며 요구 수량만큼 스폰
             foreach (var requiredItem in GameManager.Instance.CurrentRequiredItemsData)
             {
-                // requiredItem.Key는 GameManager가 요구하는 Item 인스턴스 (프리팹 또는 원본 데이터)
-                Item requiredItemData = requiredItem.Key;
+                // **⭐⭐⭐ 요청에 따라 Item 클래스 정의가 있다고 가정하고 원래 코드를 복구합니다. ⭐⭐⭐**
+                // Item requiredItemData = requiredItem.Key as Item; 
+                Item requiredItemData = requiredItem.Key as Item; // 이 줄은 Item 클래스가 정의되어 있어야 컴파일됩니다.
                 int requiredQuantity = requiredItem.Value;
                 
                 if (requiredItemData == null) continue;
 
-                // 1. 요구된 ItemData의 itemName을 기준으로 SpawnManager의 프리팹 정보를 찾습니다.
                 string targetName = requiredItemData.itemName.Replace("(Clone)", "").Trim(); 
                 
-                // FirstOrDefault 대신 루프를 사용하여 ItemSpawnInfo를 찾습니다.
+                // -------------------------------------------------------------------------
+                
                 ItemSpawnInfo? targetInfo = null;
                 foreach (var info in itemInfos)
                 {
-                    // 이름이 일치하고 프리팹이 할당되어 있는지 확인
                     if (info.prefab != null && info.prefab.name.Replace("(Clone)", "").Trim() == targetName)
                     {
                         targetInfo = info;
@@ -511,7 +585,7 @@ public class SpawnManager : MonoBehaviour
 
 
         // ---------------------------------------------------------------------------------
-        // ⭐ 2단계: 남은 수량(totalItemCount - spawnedItemCount)만큼 나머지 아이템을 확률적으로 스폰
+        // 2단계: 남은 수량(totalItemCount - spawnedItemCount)만큼 나머지 아이템을 확률적으로 스폰 (기존 로직 유지)
         // ---------------------------------------------------------------------------------
         
         int remainingItemsToSpawn = totalItemCount - spawnedItemCount;
@@ -545,7 +619,6 @@ public class SpawnManager : MonoBehaviour
                 Vector3 spawnPos = remainingPositions[posIndex];
                 remainingPositions.RemoveAt(posIndex);
                 
-                // 🚨 수정: (Clone)이 제거된 이름으로 저장
                 string prefabName = selectedInfo.prefab.name.Replace("(Clone)", "").Trim();
 
 
@@ -568,7 +641,7 @@ public class SpawnManager : MonoBehaviour
         Debug.Log($"[SpawnManager] 확률적 아이템 {remainingItemsToSpawn}개 스폰 시도. 실제 스폰된 아이템 총 {spawnedItemCount}개.");
 
 
-        // 3. NPC 스폰 및 Persistent NPC Data 기록 (기존 로직 유지)
+        // 3. NPC 스폰 및 Persistent NPC Data 기록 (⭐ 초기 상태 기록 로직 반영됨)
         int actualNpcCount = Mathf.Min(npcCount, npcPrefabs.Length); 
 
         if (npcPrefabs.Length == 0) 
@@ -591,7 +664,7 @@ public class SpawnManager : MonoBehaviour
 
             foreach (GameObject npcPrefab in npcsToSpawn)
             {
-                // SpawnObjects를 사용하여 생성 및 persistentNPCs에 기록
+                // SpawnObjects를 사용하여 생성 및 persistentNPCs에 (미완료 상태로) 기록
                 List<Vector3> usedNpcPositions = SpawnObjects(npcPrefab, 1, remainingPositions, spawnedNPCs); 
                 remainingPositions.RemoveAll(pos => usedNpcPositions.Contains(pos));
             }

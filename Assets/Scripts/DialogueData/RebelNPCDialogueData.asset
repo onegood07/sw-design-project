@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: RebelNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
+  - text: "\uADF8\uB4E4\uC744 \uC5BC\uB9C8\uB098 \uBBFF\uB294 \uAC74\uAC00? \uC6B0\uB9AC\uB294
+      \uAC01\uC790\uC758 \uD798\uC73C\uB85C \uC0B4\uC544\uB0A8\uC544\uC57C \uD574."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
   - text: "\uAC70\uAE30 \uB108. \uB098\uB97C \uC880 \uB3C4\uC640\uC918\uC57C\uACA0\uB294\uB370. "
     typingSpeed: 0.05
     questToStart: {fileID: 0}
@@ -20,26 +28,24 @@ MonoBehaviour:
     hasChoices: 1
     choices:
     - choiceText: "\uB0B4\uAC00? \uBB54\uB370?"
-      nextNodeIndex: 1
-    - choiceText: "\uC2EB\uC740\uB370."
       nextNodeIndex: 2
+    - choiceText: "\uC2EB\uC740\uB370."
+      nextNodeIndex: 3
     nextNodeIndex: 1
-  - text: "\uBB34\uAE30 \uB0A8\uB294 \uAC70 \uC788\uC5B4? \uD558\uB098\uB9CC \uC880
-      \uC918\uBD10."
+  - text: "\uBB34\uAE30 \uB0A8\uB294 \uAC70 \uC788\uC5B4? \uC88B\uC740 \uACF3\uC5D0
+      \uC4F8\uD14C\uB2C8 \uC880 \uC918\uBD10."
     typingSpeed: 0.05
     questToStart: {fileID: 11400000, guid: a6231184d92c04072b9c33a83a8fe88f, type: 2}
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
+    nextNodeIndex: 4
   - text: "...\uBD84\uBA85 \uD6C4\uD68C\uD560\uAC70\uC57C."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 1
-    choices:
-    - choiceText: "\uADF8\uB7EC\uC9C0, \uBB50."
-      nextNodeIndex: -1
+    choices: []
     nextNodeIndex: -1
   - text: "\uB10C \uADF8\uB798\uB3C4 \uB9D0\uC774 \uD1B5\uD558\uB124. \uC790, \uBC1B\uC544.
       \uC5EC\uAE30\uC11C \uC0B4\uC544\uB0A8\uC73C\uB824\uBA74 \uD544\uC694\uD560\uAC70\uC57C."
@@ -49,4 +55,4 @@ MonoBehaviour:
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  startNodeIndex: 0
+  startNodeIndex: 1

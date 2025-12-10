@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour
     [Header("Spawn Settings")]
     public SpawnManager spawnManager; // SpawnManager 클래스가 외부에서 정의되어 있다고 가정합니다.
     public int ItemSpawnCount = 70;
-    public int NPCSpawnCount = 3;
+    public int NPCSpawnCount = 5;
     public int BaseZombieSpawnCount = 30; 
     private int CurrentZombieSpawnCount;
 
@@ -484,8 +484,9 @@ void StartNightPhase()
         return requiredScore;
     }
 
-// TODO: 일차별 랜덤 납입품 목록 생성
-// MARK: 일차별 랜덤 납입품 목록 생성 로직 (수정됨: 종류 최소 3종 ~ 최대 6종, 수량 20개~33개 이내)
+// GameManager.cs 내 GenerateRequiredItems() 함수만 수정합니다.
+
+// MARK: 일차별 랜덤 납입품 목록 생성
     void GenerateRequiredItems()
     {
         CurrentRequiredItemsData.Clear(); 
@@ -497,9 +498,31 @@ void StartNightPhase()
             return;
         }
 
-        // 목표 점수는 100점이라고 가정합니다.
-        int currentTargetScore = TargetRequiredScore; 
+        // 💡 수정 시작: 일차별 목표 점수 설정 (가이드라인)
+        int calculatedTargetGuide = 100; // 가이드라인 목표 점수
+        int scoreFluctuationRange = 10; // 목표 점수 대비 ±10% 변동 허용
+
+        switch (CurrentDay)
+        {
+            case GameDays.FirstDay:
+                calculatedTargetGuide = 100;
+                break;
+            case GameDays.SecondDay:
+                calculatedTargetGuide = 150;
+                break;
+            case GameDays.ThirdDay:
+                calculatedTargetGuide = 200;
+                break;
+            default:
+                calculatedTargetGuide = 100;
+                break;
+        }
         
+        // 최종적으로 분배할 목표 점수를 가이드라인 근처에서 랜덤하게 결정 (예: 100점 기준 90~110점 사이)
+        int minTarget = Mathf.Max(1, calculatedTargetGuide - scoreFluctuationRange);
+        int maxTarget = calculatedTargetGuide + scoreFluctuationRange;
+        int calculatedTargetScore = Random.Range(minTarget, maxTarget + 1);
+
         // 1. 요구 아이템 종류 최소/최대 설정 (최소 3종, 최대 6종)
         const int MIN_REQUIRED_ITEMS = 3; 
         const int MAX_REQUIRED_ITEMS = 6;
@@ -510,20 +533,13 @@ void StartNightPhase()
 
         foreach (Item item in AvailableSubmitItems)
         {
-            // ⭐ [수정 필요] ItemDataAsset이 없으므로, 여기서 실제 아이템의 납입 점수를 가져와야 합니다.
-            // 임시로 Item 객체에 public int SubmitScore 필드가 있다고 가정하고 3~5점 범위에서 값을 가져옵니다.
-            int score;
-            
-            // 💡 Item 객체에 SubmitScore 필드가 있다고 가정합니다. (실제 프로젝트에 맞게 수정 필요)
-            // score = item.SubmitScore; 
-            
             // 임시로 3점에서 5점 사이의 랜덤 값을 사용 (실제 데이터에 맞게 수정 필요)
-            score = Random.Range(3, 6); // 3, 4, 5 중 하나
+            int score = Random.Range(3, 6); // 3, 4, 5 중 하나
 
             if (score <= 0) continue; 
 
-            // 점수가 높을수록 가중치를 낮춥니다. (저가치 아이템이 더 자주 선택됨)
-            // 3~5점 범위이므로 평균 요구 수량은 20~33개가 됩니다.
+            // 점수가 높을수록 가중치를 낮춥니다. 
+            // 가중치는 목표 점수가 아닌 100을 기준으로 계산하여 아이템 선택 확률의 일관성을 유지합니다.
             float weight = 100f / (float)score; 
             weightedPool.Add((item, score, weight));
             totalWeight += weight;
@@ -579,7 +595,7 @@ void StartNightPhase()
             weightedPool.RemoveAt(selectedIndex);
         }
         
-        // 4. 점수 할당 및 수량 계산 (총합 100점 보장)
+        // 4. 점수 할당 및 수량 계산 (calculatedTargetScore를 기준으로 할당)
         int actualSelectedCount = selectedItemsWithScore.Count;
         
         if (actualSelectedCount == 0)
@@ -588,7 +604,7 @@ void StartNightPhase()
             return;
         }
         
-        int remainingScore = currentTargetScore;
+        int remainingScore = calculatedTargetScore;
         List<int> scoreAllocations = new List<int>();
         
         int minTotalScoreNeeded = actualSelectedCount; 
@@ -601,7 +617,14 @@ void StartNightPhase()
             int maxAllocation = remainingScore - (actualSelectedCount - (i + 1)); 
             if (maxAllocation < minScore) maxAllocation = minScore;
             
-            int allocatedScore = Random.Range(minScore, maxAllocation + 1);
+            // ⭐ 수정: 할당 점수 무작위성 범위 확장 (최대 할당 점수의 30%까지 랜덤하게 할당)
+            // 이렇게 하면, 각 아이템의 점수 기여도가 더 불규칙해져 최종 합산 점수가 calculatedTargetScore와 더 '랜덤'해집니다.
+            int baseAllocation = (int)((float)remainingScore / (actualSelectedCount - i));
+            int randomAllocationRange = Mathf.Max(1, baseAllocation / 3);
+            
+            // 할당 점수의 무작위성을 높입니다.
+            int allocatedScore = Random.Range(Mathf.Max(minScore, baseAllocation - randomAllocationRange), Mathf.Min(maxAllocation, baseAllocation + randomAllocationRange) + 1);
+            
             scoreAllocations.Add(allocatedScore);
             remainingScore -= allocatedScore;
         }
@@ -609,31 +632,25 @@ void StartNightPhase()
         
         int actualTotalRequiredScore = 0;
         
-        // 최종 수량 계산 (클램프 제거로 100점 보장)
+        // 최종 수량 계산
         for (int i = 0; i < selectedItemsWithScore.Count; i++)
         {
             var (item, itemUnitScore) = selectedItemsWithScore[i];
             int requiredScorePortion = scoreAllocations[i];
             
-            // 요구 수량 계산: requiredCount는 ceilToInt 덕분에 항상 정수이며, 
-            // requiredCount * itemUnitScore >= requiredScorePortion을 만족합니다.
             int requiredCount = Mathf.CeilToInt((float)requiredScorePortion / itemUnitScore);
-            
-            // ⭐ [수정] 수량 제한 클램프를 제거합니다. 
-            // 20~33개 목표는 3~5점 밸런싱과 가중치로 달성됩니다.
             
             CurrentRequiredItemsData.Add(item, requiredCount);
             CurrentSubmittedData.Add(item, 0); 
 
-            // 실제 합산 점수는 requiredScorePortion과 같거나 약간 높습니다 (CeilToInt 사용 시)
-            // ex: 5점짜리에 9점 할당 -> ceil(9/5) = 2개 요구 -> 실제 점수 10점
             actualTotalRequiredScore += requiredCount * itemUnitScore; 
         }
+        
+        // 💡 수정 완료: TargetRequiredScore를 계산된 실제 요구 총 점수로 업데이트
+        TargetRequiredScore = actualTotalRequiredScore;
 
-        Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. 목표 점수: {currentTargetScore}, 실제 요구 점수 합산: {actualTotalRequiredScore}. (총 {CurrentRequiredItemsData.Count}종)");
+        Debug.Log($"[GameManager] {GetDayString(CurrentDay)} 납입 요구 목록 생성. (가이드라인: {calculatedTargetGuide}점). 실제 목표 점수: {TargetRequiredScore}. (총 {CurrentRequiredItemsData.Count}종)");
     }
-
-    
     // MARK: 다음 날로 전환
     IEnumerator NextDayCoroutine()
     {
