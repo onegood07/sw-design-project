@@ -81,7 +81,7 @@ public class HeroMoveControl : MonoBehaviour
     [Header("Roll (Dodge) Settings")]
     [SerializeField] private float rollSpeed = 8f;       // 구르기 속도
     [SerializeField] private float rollDuration = 0.25f; // 구르기가 유지되는 시간(초)
-    [SerializeField] private float rollCooldown = 0.5f;  // 구르기 후 다시 사용할 수 있을 때까지의 쿨타임(초)
+    [SerializeField] private float rollCooldown = 2f;    // 구르기 후 다시 사용할 수 있을 때까지의 쿨타임(초)
 
     private bool isRolling = false;          // 현재 구르기 중인지 여부
     private float rollTimer = 0f;            // 남은 구르기 시간
@@ -203,8 +203,8 @@ public class HeroMoveControl : MonoBehaviour
 
             rollDirection = dir;
             isRolling = true;
-            rollTimer = rollDuration;          // 구르기 타이머 시작
-            rollCooldownTimer = rollCooldown;  // 쿨타임 설정
+            rollTimer = rollDuration;                    // 구르기 지속 시간
+            rollCooldownTimer = Mathf.Max(rollCooldown, 2f);  // 최소 2초 쿨타임
 
             // 구르기 시작하는 동안에는 총을 숨긴다.
             if (weaponVisual != null)
