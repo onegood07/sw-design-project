@@ -13,6 +13,15 @@ MonoBehaviour:
   m_Name: LostFatherNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
+  - text: "\uC258\uD130\uB85C \uD568\uAED8 \uAC00\uC790\uACE0 \uD574\uC918\uC11C
+      \uACE0\uB9D9\uB124. \uC6B0\uB9AC \uB538\uB3C4... \uD568\uAED8 \uAC00\uBA74
+      \uC88B\uACA0\uB294\uB370."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
   - text: "\uD639\uC2DC\u2026 \uC791\uC740 \uC2E0\uBC1C \uD55C \uC9DD\uC774\uB77C\uB3C4
       \uBD24\uB098\u2026? \uC6B0\uB9AC \uB538 \uD754\uC801\uC744 \uCC3E\uACE0 \uC2F6\uC5B4..."
     typingSpeed: 0.05
@@ -21,10 +30,10 @@ MonoBehaviour:
     hasChoices: 1
     choices:
     - choiceText: "\uC544.. \uD639\uC2DC \uC774\uAC74\uAC00\uC694?"
-      nextNodeIndex: 1
+      nextNodeIndex: 2
     - choiceText: "\uC81C\uAC00 \uCC3E\uC544\uBCFC\uAC8C\uC694. \uC6B0\uC120 \uC800\uB791
         \uAC19\uC774 \uC258\uD130\uB85C \uAC00\uC2DC\uC8E0."
-      nextNodeIndex: 2
+      nextNodeIndex: 3
     nextNodeIndex: 0
   - text: "\uD638..\uD639\uC2DC.. \uC2E0\uBC1C\uC744 \uAC00\uC9C0\uACE0 \uC788\uB098?
       \uB098\uC5D0\uAC8C \uC81C\uBC1C \uADF8\uAC78 \uB2E4\uC624."
@@ -33,7 +42,7 @@ MonoBehaviour:
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
+    nextNodeIndex: 4
   - text: "\uC544\uB2C8\u2026 \uB09C \uB05D\uAE4C\uC9C0 \uCC3E\uC544\uC57C\uB9CC
       \uD574\u2026"
     typingSpeed: 0.05
@@ -51,9 +60,9 @@ MonoBehaviour:
     hasChoices: 1
     choices:
     - choiceText: "\uC800\uB791 \uAC19\uC774 \uC258\uD130\uB85C \uAC00\uC2DC\uC8E0."
-      nextNodeIndex: 4
-    - choiceText: "...\uAE08\uBC29 \uCC3E\uC744 \uC218 \uC788\uC744 \uAC81\uB2C8\uB2E4."
       nextNodeIndex: 5
+    - choiceText: "...\uAE08\uBC29 \uCC3E\uC744 \uC218 \uC788\uC744 \uAC81\uB2C8\uB2E4."
+      nextNodeIndex: 6
     nextNodeIndex: -1
   - text: "\uADF8\uB798... \uADF8\uB7EC\uC790.. \uACE0\uB9D9\uB124."
     typingSpeed: 0.05
@@ -63,11 +72,11 @@ MonoBehaviour:
     choices: []
     nextNodeIndex: -1
   - text: "\uADF8\uB807\uACA0\uC9C0.. \uADF8\uB7F4\uAC70\uC57C.. \uACE0\uB9D9\uB124.
-      \uC790\uB124\uB97C \uB530\uB77C\uAC00\uB9C8.."
+      \uACE7 \uC790\uB124\uB97C \uB530\uB77C\uAC00\uB9C8.."
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  startNodeIndex: 0
+  startNodeIndex: 1

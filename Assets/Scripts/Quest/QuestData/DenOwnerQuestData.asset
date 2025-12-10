@@ -17,7 +17,7 @@ MonoBehaviour:
     \uC124\uC815\uB429\uB2C8\uB2E4."
   requiredItemName: FirstAidKit
   requiredItemIcon: {fileID: 1142586732419344882, guid: 7e4b87674c09cec4e8f5306a0fa018a7, type: 3}
-  requiredAmount: 2
+  requiredAmount: 1
   giveItemReward: 1
   rewardItem: {fileID: -5417729018282012106, guid: fd3b8b600e994fc44abd4eefaf5b1b07, type: 3}
   rewardCount: 4

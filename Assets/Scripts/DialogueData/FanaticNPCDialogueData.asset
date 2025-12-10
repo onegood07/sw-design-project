@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: FanaticNPCDialogueData
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   nodes:
+  - text: "\uC790\uB124\uB294 \uB0B4 \uD615\uC81C\uC57C!!! \uACE7 \uC790\uB124\uB97C
+      \uB530\uB77C \uC258\uD130\uB85C \uAC00\uACA0\uB124."
+    typingSpeed: 0.05
+    questToStart: {fileID: 0}
+    shouldStartSubmission: 0
+    hasChoices: 0
+    choices: []
+    nextNodeIndex: -1
   - text: "\uC5B4\uB460\uC774 \uB2E4\uAC00\uC624\uACE0 \uC788\uB2E4\u2026 \uC131\uC218
       \uD558\uB098\uB9CC \uC8FC\uBA74 \uB108\uC5D0\uAC8C \uCD95\uBCF5\uC744 \uB0B4\uB824\uC8FC\uACA0\uB2E4."
     typingSpeed: 0.05
@@ -21,10 +29,10 @@ MonoBehaviour:
     hasChoices: 1
     choices:
     - choiceText: "\u2026\uBC1B\uC73C\uC138\uC694. "
-      nextNodeIndex: 1
+      nextNodeIndex: 2
     - choiceText: "\uD639\uC2DC \uB2E4\uB978 \uD615\uD0DC\uB85C \uAC10\uC5FC\uB41C
         \uAC70\uC5D0\uC694?"
-      nextNodeIndex: 2
+      nextNodeIndex: 3
     nextNodeIndex: 0
   - text: "\uC624, \uB108\uB3C4 \uC6B0\uB9AC \uD3B8\uC778\uAC00? \uADF8\uB807\uB2E4\uBA74
       \uC5B4\uC11C \uC99D\uBA85\uD574\uBD10!!!"
@@ -33,7 +41,7 @@ MonoBehaviour:
     shouldStartSubmission: 1
     hasChoices: 0
     choices: []
-    nextNodeIndex: 3
+    nextNodeIndex: 4
   - text: "\uB108, \uC9C0\uAE08 \uAC10\uD788 \uD558\uB298\uC744 \uBAA8\uB3C5\uD558\uB294
       \uAC70\uB0D0?!"
     typingSpeed: 0.04
@@ -50,9 +58,9 @@ MonoBehaviour:
     hasChoices: 1
     choices:
     - choiceText: "\uC544.. \uC54C\uACA0\uC73C\uB2C8\uAE4C \uC258\uD130\uB85C \uAC00\uC2DC\uC8E0."
-      nextNodeIndex: 4
-    - choiceText: "...\uC774\uC81C \uC808 \uBBFF\uC73C\uC2E4\uAC74\uAC00\uC694?"
       nextNodeIndex: 5
+    - choiceText: "...\uC774\uC81C \uC808 \uBBFF\uC73C\uC2E4\uAC74\uAC00\uC694?"
+      nextNodeIndex: 6
     nextNodeIndex: -1
   - text: "\uADF8\uB7EC\uC9C0. \uC774 \uB610\uD55C \uD558\uB298\uC758 \uACC4\uC2DC\uC77C\uD14C\uB2C8."
     typingSpeed: 0.05
@@ -61,11 +69,11 @@ MonoBehaviour:
     hasChoices: 1
     choices: []
     nextNodeIndex: -1
-  - text: "\uBB3C\uB860\uC774\uC9C0, \uC6B0\uB9AC\uB294 \uAC19\uC740 \uD3B8\uC774\uB2C8\uAE4C."
+  - text: "\uBB3C\uB860\uC774\uC9C0, \uC6B0\uB9AC\uB294 \uAC19\uC740 \uD3B8\uC774\uB2C8\uAE4C!!!!"
     typingSpeed: 0.05
     questToStart: {fileID: 0}
     shouldStartSubmission: 0
     hasChoices: 0
     choices: []
     nextNodeIndex: -1
-  startNodeIndex: 0
+  startNodeIndex: 1
