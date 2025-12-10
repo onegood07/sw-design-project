@@ -245,13 +245,13 @@ public void PlayerDied()
         {
             case GameDays.FirstDay: 
                     // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (120f, 120f);
+                   return (180f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (120f, 120f);
+                    return (180f, 180f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (120f, 120f);
+                    return (180f, 180f);
                 default:
                     return (120f, 180f); // 안전 반환값
         }
@@ -268,13 +268,13 @@ public void PlayerDied()
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (120f, 120f);
+                   return (180f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (120f, 120f);
+                    return (180f, 180f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (120f, 120f);
+                    return (180f, 180f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
                     return (120f, 180f);
@@ -499,9 +499,9 @@ void StartNightPhase()
 
         int currentTargetScore = TargetRequiredScore; 
         
-        // 1. 요구 아이템 종류 최소/최대 설정 (최소 4종, 최대 7종)
-        const int MIN_REQUIRED_ITEMS = 4; 
-        const int MAX_REQUIRED_ITEMS = 7;
+        // 1. 요구 아이템 종류 최소/최대 설정 (최소 5종, 최대 8종)
+        const int MIN_REQUIRED_ITEMS = 5; 
+        const int MAX_REQUIRED_ITEMS = 8;
         
         // 2. 가중치 풀 생성 (실제 아이템 점수 사용)
         List<(Item item, int score, float weight)> weightedPool = new List<(Item, int, float)>();
@@ -614,7 +614,7 @@ void StartNightPhase()
             
             int preClampCount = requiredCount; 
             // ⭐ [수정] 요구 수량 제한을 1개 이상, 5개 이하로 변경합니다.
-            requiredCount = Mathf.Clamp(requiredCount, 1, 5); 
+            requiredCount = Mathf.Clamp(requiredCount, 7, 10); 
             
             if (preClampCount > requiredCount) // 5개를 초과한 경우 경고
             {

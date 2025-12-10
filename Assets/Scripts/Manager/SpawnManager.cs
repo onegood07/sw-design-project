@@ -409,7 +409,6 @@ public class SpawnManager : MonoBehaviour
     public void StartSpawnProcess(int totalItemCount, int npcCount, int zombieCount)
     {
         // 🚨 수정: 아이템/NPC 영구 데이터가 있다면 초기 스폰 전체를 건너뜁니다.
-        // 좀비 스폰은 RestorePersistentObjects가 처리하므로, 여기서는 영구 데이터가 없는 경우만 초기 스폰을 진행합니다.
         if (persistentItems.Count > 0 || persistentNPCs.Count > 0)
         {
             Debug.LogWarning("[SpawnManager] 영구 데이터가 존재하여 StartSpawnProcess를 건너뛰었습니다. 복원 로직이 우선 적용됩니다.");
@@ -422,7 +421,6 @@ public class SpawnManager : MonoBehaviour
             ClearAll();
         }
 
-
         if (allSpawnPositions.Count == 0)
         {
              GetSpawnPositions();
@@ -434,11 +432,92 @@ public class SpawnManager : MonoBehaviour
         }
 
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
+        int spawnedItemCount = 0; // 실제로 스폰된 아이템 수 카운트
+
+        // ---------------------------------------------------------------------------------
+        // ⭐ 1단계: GameManager의 납입 요구 목록에 있는 아이템을 필드에 모두 소환
+        // ---------------------------------------------------------------------------------
+        if (GameManager.Instance != null && GameManager.Instance.CurrentRequiredItemsData.Count > 0)
+        {
+            int requiredItemSpawnedCount = 0;
+            
+            // 납입품 리스트를 순회하며 요구 수량만큼 스폰
+            foreach (var requiredItem in GameManager.Instance.CurrentRequiredItemsData)
+            {
+                // requiredItem.Key는 GameManager가 요구하는 Item 인스턴스 (프리팹 또는 원본 데이터)
+                Item requiredItemData = requiredItem.Key;
+                int requiredQuantity = requiredItem.Value;
+                
+                if (requiredItemData == null) continue;
+
+                // 1. 요구된 ItemData의 itemName을 기준으로 SpawnManager의 프리팹 정보를 찾습니다.
+                string targetName = requiredItemData.itemName.Replace("(Clone)", "").Trim(); 
+                
+                // FirstOrDefault 대신 루프를 사용하여 ItemSpawnInfo를 찾습니다.
+                ItemSpawnInfo? targetInfo = null;
+                foreach (var info in itemInfos)
+                {
+                    // 이름이 일치하고 프리팹이 할당되어 있는지 확인
+                    if (info.prefab != null && info.prefab.name.Replace("(Clone)", "").Trim() == targetName)
+                    {
+                        targetInfo = info;
+                        break;
+                    }
+                }
+
+                if (targetInfo.HasValue && targetInfo.Value.prefab != null)
+                {
+                    GameObject prefab = targetInfo.Value.prefab;
+                    ItemType itemType = targetInfo.Value.type;
+
+                    for (int i = 0; i < requiredQuantity; i++)
+                    {
+                        if (remainingPositions.Count == 0 || spawnedItemCount >= totalItemCount) break;
+
+                        int posIndex = Random.Range(0, remainingPositions.Count);
+                        Vector3 spawnPos = remainingPositions[posIndex];
+                        remainingPositions.RemoveAt(posIndex);
+                        
+                        // 🚨 오브젝트 스폰 및 영구 데이터 기록
+                        GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
+                        spawnedItems.Add(obj);
+
+                        if (itemManager != null)
+                            itemManager.RegisterSpawnedItem(obj, itemType);
+                                
+                        // 🌟 Persistent Item Data 기록
+                        persistentItems.Add(new PersistentItemData
+                        {
+                            position = spawnPos,
+                            prefabName = prefab.name.Replace("(Clone)", "").Trim(),
+                            type = itemType
+                        });
+
+                        requiredItemSpawnedCount++;
+                        spawnedItemCount++;
+                    }
+                } else {
+                     Debug.LogWarning($"[SpawnManager] 요구 아이템 '{targetName}'에 해당하는 프리팹을 itemInfos에서 찾을 수 없습니다. 스폰 생략.");
+                }
+                if (remainingPositions.Count == 0 || spawnedItemCount >= totalItemCount) break;
+            }
+
+            Debug.Log($"[SpawnManager] 납입 요구 아이템 {requiredItemSpawnedCount}개 우선 스폰 완료.");
+        }
+        else
+        {
+            Debug.Log("[SpawnManager] GameManager 인스턴스를 찾을 수 없거나 요구 납입품이 없습니다.");
+        }
+
+
+        // ---------------------------------------------------------------------------------
+        // ⭐ 2단계: 남은 수량(totalItemCount - spawnedItemCount)만큼 나머지 아이템을 확률적으로 스폰
+        // ---------------------------------------------------------------------------------
         
-        // 1. 아이템 스폰 및 Persistent Item Data 기록
+        int remainingItemsToSpawn = totalItemCount - spawnedItemCount;
         float totalWeight = itemInfos.Sum(info => info.ratio);
         
-        for (int i = 0; i < totalItemCount; i++)
+        for (int i = 0; i < remainingItemsToSpawn; i++)
         {
             if (remainingPositions.Count == 0 || totalWeight <= 0f) break; 
 
@@ -483,10 +562,13 @@ public class SpawnManager : MonoBehaviour
                     prefabName = prefabName,
                     type = selectedInfo.type
                 });
+                spawnedItemCount++;
             }
         }
+        Debug.Log($"[SpawnManager] 확률적 아이템 {remainingItemsToSpawn}개 스폰 시도. 실제 스폰된 아이템 총 {spawnedItemCount}개.");
 
-        // 2. NPC 스폰 및 Persistent NPC Data 기록
+
+        // 3. NPC 스폰 및 Persistent NPC Data 기록 (기존 로직 유지)
         int actualNpcCount = Mathf.Min(npcCount, npcPrefabs.Length); 
 
         if (npcPrefabs.Length == 0) 
@@ -515,7 +597,7 @@ public class SpawnManager : MonoBehaviour
             }
         }
 
-        // 3. 좀비 스폰 (초기 낮에는 일반 좀비만 스폰)
+        // 4. 좀비 스폰 (기존 로직 유지)
         Debug.Log($"[SpawnManager] 초기 좀비 스폰 시작: {zombieCount}마리 (Normal).");
         List<Vector3> usedZombiePositions = SpawnObjects(normalZombiePrefab, zombieCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
