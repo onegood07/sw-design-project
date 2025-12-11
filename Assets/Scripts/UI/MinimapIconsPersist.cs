@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class CanvasPersist : MonoBehaviour
+public class MinimapIconsPersist : MonoBehaviour
 {
-    public static CanvasPersist Instance;
+    public static MinimapIconsPersist Instance;
     void Awake()
     {
         if (Instance == null)

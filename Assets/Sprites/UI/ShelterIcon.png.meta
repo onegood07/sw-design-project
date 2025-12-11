@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 11497495abe76924899cf5c2a5c98e7c
+guid: ca2225a3f2895764c9c958b25c000804
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8434124247007698823
-    second: StatusIncDecButton_7x9_0
+      213: -5293274003819160386
+    second: ShelterIcon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 128
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,45 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: StatusIncDecButton_7x9_0
+      name: ShelterIcon_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 7
-        height: 9
+        width: 128
+        height: 117
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 2, y: 3, z: 2, w: 3}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 78f176611570c0570800000000000000
-      internalID: 8434124247007698823
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: StatusIncDecButton_7x9_1
-      rect:
-        serializedVersion: 2
-        x: 7
-        y: 0
-        width: 7
-        height: 9
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 2, y: 3, z: 2, w: 3}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: fbb3bc7e99786cf4f93773bbc6bd5430
-      internalID: -31393291
+      spriteID: ebc9c87a6538a86b0800000000000000
+      internalID: -5293274003819160386
       vertices: []
       indices: 
       edges: []
@@ -186,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4b0893b7580d0be47b19f644d3101798
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -194,12 +172,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":7.0,"y":9.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      StatusIncDecButton_7x9_0: 8434124247007698823
-      StatusIncDecButton_7x9_1: -31393291
+      ShelterIcon_0: -5293274003819160386
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,8 +1,9 @@
 using UnityEngine;
 
-public class CanvasPersist : MonoBehaviour
+public class MinimapCameraPersist : MonoBehaviour
 {
-    public static CanvasPersist Instance;
+    public static MinimapCameraPersist Instance;
+    
     void Awake()
     {
         if (Instance == null)
