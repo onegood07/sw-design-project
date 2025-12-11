@@ -22,9 +22,7 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: c48a972d3d024c2408a3331750786a29, type: 3}
   whichStat:
   - hunger
-  - speed
   healAmount:
   - 0
   - 200
-  - 20
-  buffDuration: 30
+  buffDuration: 0
