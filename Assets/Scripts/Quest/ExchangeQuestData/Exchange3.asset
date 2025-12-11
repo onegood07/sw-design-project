@@ -15,8 +15,11 @@ MonoBehaviour:
   questName: Exchange3
   questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
     \uC124\uC815\uB429\uB2C8\uB2E4."
-  requiredItemName: FirstAidKit
-  requiredItemIcon: {fileID: 1142586732419344882, guid: 7e4b87674c09cec4e8f5306a0fa018a7, type: 3}
-  requiredAmount: 1
-  rewardItem: {fileID: 8018865339420979663, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
-  rewardCount: 2
+  requiredItemName: Battery
+  requiredItemIcon: {fileID: -3017979480325208809, guid: 604963de1e5ba524188ed531a4088ce6, type: 3}
+  requiredAmount: 6
+  giveItemReward: 0
+  rewardItem: {fileID: -8838197168880746185, guid: de5ea7b0032b64ef5bd4e7835c50934a, type: 3}
+  rewardCount: 3
+  increaseSurvivors: 0
+  survivorIncreaseAmount: 1

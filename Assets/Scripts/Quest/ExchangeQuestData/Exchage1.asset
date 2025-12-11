@@ -15,8 +15,11 @@ MonoBehaviour:
   questName: Exchange1
   questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
     \uC124\uC815\uB429\uB2C8\uB2E4."
-  requiredItemName: Can
-  requiredItemIcon: {fileID: 7032184553362833509, guid: 38c3d8231c4eb73478464217531b4925, type: 3}
-  requiredAmount: 2
-  rewardItem: {fileID: -5984088972931491910, guid: 5d9a4a6bb9122432497b32b9a6cdd7e4, type: 3}
+  requiredItemName: Band
+  requiredItemIcon: {fileID: 1462799768519014029, guid: 9c77f37515354464aae966cdb8782afa, type: 3}
+  requiredAmount: 3
+  giveItemReward: 0
+  rewardItem: {fileID: -5417729018282012106, guid: fd3b8b600e994fc44abd4eefaf5b1b07, type: 3}
   rewardCount: 2
+  increaseSurvivors: 0
+  survivorIncreaseAmount: 1
