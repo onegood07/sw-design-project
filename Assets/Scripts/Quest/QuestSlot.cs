@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI; 
 
-// Slot 클래스를 상속받는다고 가정하며, itemIcon과 itemCountText는 Slot에 정의되어 있다고 가정합니다.
 public class QuestSlot : Slot
 {
     // ⭐ [추가]: QuestManager가 보상 타입(아이템/생존자)을 확인하고 처리할 수 있도록 QuestData 객체 자체를 저장합니다.
@@ -30,19 +29,14 @@ public class QuestSlot : Slot
     // QuestSlot의 Raycast Target을 담당하는 Image 컴포넌트 (슬롯 배경)
     private Image slotBackground;
 
-    // 가정: itemIcon과 itemCountText는 부모 클래스 Slot에 정의되어 있습니다.
-
     void Awake()
     {
         // 슬롯 자체의 Image 컴포넌트를 가져옴
         slotBackground = GetComponent<Image>();
         
-        // ⭐ [추가된 로직] 슬롯이 항상 드롭 가능하도록 Raycast Target을 강제로 활성화
         if (slotBackground != null)
         {
-            // 이 설정을 통해 itemIcon의 SetActive 상태와 무관하게 슬롯 영역 클릭 가능
             slotBackground.raycastTarget = true;
-            // Debug.Log("[QuestSlot] 배경 Raycast Target 활성화됨."); 
         }
         else
         {
@@ -63,23 +57,15 @@ public class QuestSlot : Slot
             return;
         }
 
-        // ⭐ [수정]: QuestData 객체 자체를 저장합니다.
         AssignedQuestData = data; 
-
-        // 1. 요구 사항 데이터 저장
         this.requiredItemName = data.requiredItemName;
         this.requiredAmount = data.requiredAmount;
-        
-        // 2. 보상 데이터 저장 (물물교환/보상에 사용됨)
         this.rewardItem = data.rewardItem;
         this.rewardCount = data.rewardCount;
+        this.submittedCount = 0; 
         
-        this.submittedCount = 0; // 퀘스트 시작 시 초기화
-        
-        // 초기 퀘스트 상태 UI 업데이트 (예: 0 / reqAmount 표시)
         ClearTemporarySlot();
         
-        // Slot 클래스에 itemCountText가 있다고 가정
         if (itemCountText != null)
         {
             itemCountText.text = $"{submittedCount} / {this.requiredAmount}";
@@ -89,39 +75,19 @@ public class QuestSlot : Slot
         Debug.Log($"[QuestSlot] 슬롯 초기화 완료: 요구: {this.requiredItemName} x {this.requiredAmount}, 보상: {(this.rewardItem != null ? this.rewardItem.name : "없음")} x {this.rewardCount}");
     }
 
-    public void RollbackSubmission()
-{
-    // 현재 QuestSlot의 OnDrop 로직은 아이템을 인벤토리에서 '제거'하지 않고 
-    // 'temporaryItem'으로 정보만 저장합니다.
-    
-    // 따라서 롤백은 단순히 임시 배치 상태를 클리어하고, 
-    // 제출 완료되지 않은 상태의 UI를 다시 표시하는 것으로 충분합니다.
-    
-    if (temporaryItem != null)
-    {
-         Debug.Log($"[QuestSlot] 퀘스트 취소로 인해 임시 배치된 아이템 ({temporaryItem.itemName})의 상태를 해제합니다.");
-    }
-    
-    // 임시 배치 정보 초기화 및 UI 정리
-    ClearTemporarySlot(); 
-    
-    // 이 시점에서 인벤토리에서 아이템이 소모되지 않았으므로 별도로 돌려줄 필요가 없습니다.
-}
-
     // 아이템 드롭 처리: 요구 아이템인지, 수량이 충분한지 확인
-    public override void OnDrop(PointerEventData eventData)
+   public override void OnDrop(PointerEventData eventData) {
     {
         if (string.IsNullOrEmpty(requiredItemName) || requiredAmount <= 0)
         {
             Debug.LogWarning("[QuestSlot] 이 슬롯은 아직 퀘스트 정보가 설정되지 않았습니다.");
             return;
         }
-        var drag = ItemDragHandler.currentlyDragging;
+        var drag = ItemDragHandler.currentlyDragging; 
         if (drag == null) return;
         Slot fromSlot = drag.slot; 
         if (fromSlot == null || fromSlot == this) return;
         
-        // Inventory.instance, ItemDragHandler.currentlyDragging 등은 외부 스크립트/싱글톤에서 가져온다고 가정
         Inventory inven = Inventory.instance;
         if (inven == null) 
         {
@@ -130,7 +96,7 @@ public class QuestSlot : Slot
         }
         
         int fromIdx = fromSlot.slotIndex;
-        InventoryItem draggedItem = inven.items.Count > fromIdx ? inven.items[fromIdx] : null;
+        InventoryItem draggedItem = inven.items.Count > fromIdx ? inven.items[fromIdx] : null; 
         
         if (draggedItem == null || draggedItem.itemName != requiredItemName)
         {
@@ -148,92 +114,91 @@ public class QuestSlot : Slot
         temporaryItemIndex = fromIdx;
         UpdateTemporarySlotUI(draggedItem);
         Debug.Log($"아이템 {requiredItemName}이 슬롯에 임시 배치되었습니다.");
+        
+        // ⭐ [수정] 아이템을 드롭했을 때 QuestManager에게 상태 변경을 알립니다.
+        if (QuestManager.instance != null)
+        {
+            // 드롭된 아이템의 수량으로 버튼 상태 업데이트를 요청
+            QuestManager.instance.NotifySlotStateChanged(draggedItem.count);
+        }
     }
+   }
     
-// QuestSlot.cs 스크립트
-/// <summary>
-/// 버튼이 눌렸을 때 임시 배치된 아이템을 확정 제출하는 함수 (QuestManager에서 호출됨)
-/// </summary>
-public bool ConfirmSubmission()
-{
-    if (temporaryItem == null || temporaryItemIndex == -1)
+    /// <summary>
+    /// 버튼이 눌렸을 때 임시 배치된 아이템을 확정 제출하는 함수 (QuestManager에서 호출됨)
+    /// </summary>
+    public bool ConfirmSubmission()
     {
-        Debug.LogWarning("[Quest] 슬롯에 납입할 아이템이 없습니다.");
-        return false;
-    }
-    
-    Inventory inven = Inventory.instance;
-    if (inven == null) 
-    {
-        Debug.LogError("[QuestSlot] Inventory.instance가 null입니다.");
-        ClearTemporarySlot();
-        return false;
-    }
-    
-    // 인벤토리에서 실제 아이템 확인 (드래그 후 인벤토리 변경이 발생했을 수 있으므로 재확인)
-    InventoryItem actualItem = inven.items[temporaryItemIndex];
-    if (actualItem == null || actualItem.itemName != requiredItemName)
-    {
-        Debug.LogError("[Quest] 인벤토리에서 아이템을 찾을 수 없거나 아이템이 변경되었습니다.");
-        ClearTemporarySlot(); 
-        return false;
-    }
-    
-    int needed = requiredAmount - submittedCount; 
-    if (needed <= 0)
-    {
-        Debug.Log($"[Quest] {requiredItemName}은 이미 충분히 제출되었습니다.");
-        ClearTemporarySlot(); 
-        return true; // 이미 완료된 것으로 간주
-    }
-    
-    // 제출하고자 하는 수량 (현재 인벤토리 슬롯에 있는 수량)
-    int potentialSubmitAmount = actualItem.count;
-    
-    // ⭐⭐⭐ 핵심 수정: 제출 버튼을 누르면, 현재 인벤토리 슬롯의 아이템 전체를 제출한다고 가정합니다. ⭐⭐⭐
-    // 하지만 요구량(needed)보다 적은 수량을 제출하면 아이템이 소모되고 퀘스트는 미완료 상태로 남아 유실감을 줍니다.
-    
-    // 만약 현재 슬롯에 있는 아이템을 다 털어도 요구량(needed)에 미치지 못한다면, 제출을 거부하고 롤백합니다.
-    if (potentialSubmitAmount < needed)
-    {
-        // 🚨 제출 거부: 요구량을 충족하지 못했으므로 소모하지 않습니다.
-        // 현재 로직은 드롭 시 소모하지 않았으므로, 임시 배치 상태만 해제합니다.
-        Debug.LogWarning($"[Quest] {requiredItemName} (현재 {potentialSubmitAmount}개)는 요구량({needed}개)을 충족하지 못합니다. 제출을 거부합니다.");
-        ClearTemporarySlot(); // 임시 배치 상태 해제
-        return false; 
-    }
-    
-    // 요구량을 충족할 수 있는 경우에만 소모 로직 진행
-    int submitAmount = needed; // 요구량 전체만 소모
+        if (temporaryItem == null || temporaryItemIndex == -1)
+        {
+            Debug.LogWarning("[Quest] 슬롯에 납입할 아이템이 없습니다.");
+            return false;
+        }
+        
+        Inventory inven = Inventory.instance;
+        if (inven == null) 
+        {
+            Debug.LogError("[QuestSlot] Inventory.instance가 null입니다.");
+            ClearTemporarySlot();
+            return false;
+        }
+        
+        // 인벤토리에서 실제 아이템 확인
+        InventoryItem actualItem = inven.items[temporaryItemIndex];
+        if (actualItem == null || actualItem.itemName != requiredItemName)
+        {
+            Debug.LogError("[Quest] 인벤토리에서 아이템을 찾을 수 없거나 아이템이 변경되었습니다.");
+            ClearTemporarySlot(); 
+            return false;
+        }
+        
+        int needed = requiredAmount - submittedCount; 
+        if (needed <= 0)
+        {
+            Debug.Log($"[Quest] {requiredItemName}은 이미 충분히 제출되었습니다.");
+            ClearTemporarySlot(); 
+            return true; // 이미 완료된 것으로 간주
+        }
+        
+        int potentialSubmitAmount = actualItem.count;
+        
+        // ⭐⭐⭐ 핵심 수정: 버튼 비활성화 정책으로 인해 이 블록은 거의 실행되지 않아야 하지만, 안전 장치로 남깁니다. ⭐⭐⭐
+        if (potentialSubmitAmount < needed)
+        {
+           // 🚨 제출 거부: 버튼이 비활성화되었어야 합니다. 코드가 여기에 도달하면 버그입니다.
+            Debug.LogError($"[Quest] FATAL ERROR: 수량 부족({potentialSubmitAmount}/{needed})으로 제출 거부됨. 버튼 비활성화 로직 확인 필요.");
+            
+            // UI를 띄우지 않고 롤백 (임시 아이템 해제)
+            ClearTemporarySlot(); 
+            return false;
+        }
+        
+        // 요구량을 충족할 수 있는 경우에만 소모 로직 진행
+        int submitAmount = needed; // 요구량 전체만 소모
 
-    // 인벤토리에서 아이템 소모
-    inven.ConsumeItemAt(temporaryItemIndex, submitAmount);
-    submittedCount += submitAmount;
-    
-    // UI 업데이트
-    UpdateQuestSlotUI(temporaryItem); 
-    
-    // QuestManager에게 제출 완료 알림 (보상 지급 트리거)
-    if (QuestManager.instance != null)
-    {
-        QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this); 
+        // 인벤토리에서 아이템 소모
+        inven.ConsumeItemAt(temporaryItemIndex, submitAmount);
+        submittedCount += submitAmount;
+        
+        // UI 업데이트
+        UpdateQuestSlotUI(temporaryItem); 
+        
+        // QuestManager에게 제출 완료 알림 (보상 지급 트리거)
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this); 
+        }
+        
+        ClearTemporarySlot(); // 임시 배치 상태 해제 -> NotifySlotStateChanged(0) 호출
+        
+        Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
+        
+        return true; // 제출 성공
     }
-    
-    ClearTemporarySlot(); // 임시 배치 상태 해제
-    
-    Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
-    
-    return true; // 제출 성공
-}
-    
-    
-    
-    
-    
+
     // 임시 배치된 아이템의 정보(개수)를 보여주는 UI 업데이트
     private void UpdateTemporarySlotUI(InventoryItem itemData)
     {
-        // Slot 클래스에 itemIcon이 있다고 가정
         if (itemIcon == null) 
         {
             Debug.LogError("[UI NRE Check] UpdateTemporarySlotUI: itemIcon이 Slot 인스펙터에 연결되지 않았습니다. 임시 UI 업데이트 실패."); 
@@ -251,7 +216,6 @@ public bool ConfirmSubmission()
     // 최종 제출 후 현재 진행 상태를 보여주는 UI 업데이트
     private void UpdateQuestSlotUI(InventoryItem itemData)
     {
-        // Slot 클래스에 itemIcon이 있다고 가정
         if (itemIcon == null) 
         {
             Debug.LogError("[UI NRE Check] UpdateQuestSlotUI: itemIcon이 Slot 인스펙터에 연결되지 않았습니다. 확정 UI 업데이트 건너뜀."); 
@@ -284,9 +248,30 @@ public bool ConfirmSubmission()
         // 제출된 아이템이 있다면, 현재 상태(submittedCount)를 다시 표시합니다.
         else if (itemIcon != null && itemCountText != null)
         {
-            // 아이콘은 이미 설정되어 있다고 가정하고 수량만 업데이트
             itemCountText.text = $"{submittedCount} / {requiredAmount}";
         }
+        
+        // ⭐ [추가]: 임시 아이템이 제거되었음을 QuestManager에게 알립니다 (수량: 0).
+        // 이로 인해 Submit 버튼이 비활성화됩니다.
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.NotifySlotStateChanged(0);
+        }
+    }
+    
+    /// <summary>
+    /// 퀘스트 제출 UI가 닫히거나, 제출이 확정되지 않았을 때 임시 배치 상태를 해제합니다.
+    /// QuestManager의 CloseSubmitUI에서 호출됩니다.
+    /// </summary>
+    public void RollbackSubmission()
+    {
+        if (temporaryItem != null)
+        {
+             Debug.Log($"[QuestSlot] 퀘스트 취소로 인해 임시 배치된 아이템 ({temporaryItem.itemName})의 상태를 해제합니다.");
+        }
+        
+        // 임시 배치 정보 초기화 및 UI 정리 (NotifySlotStateChanged(0) 포함)
+        ClearTemporarySlot(); 
     }
     
     /// <summary>
@@ -295,14 +280,14 @@ public bool ConfirmSubmission()
     public void ResetSlot()
     {
         // 모든 퀘스트 정보를 초기화합니다.
-        this.AssignedQuestData = null; // ⭐ [추가]: QuestData도 초기화
+        this.AssignedQuestData = null; 
         this.requiredItemName = null;
         this.requiredAmount = 0;
         this.rewardItem = null;
         this.rewardCount = 0;
         this.submittedCount = 0;
         
-        // UI도 완전히 숨깁니다.
+        // UI도 완전히 숨깁니다. (NotifySlotStateChanged(0) 포함)
         ClearTemporarySlot(); 
     }
 }

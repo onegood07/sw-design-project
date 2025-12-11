@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class QuestManager : MonoBehaviour
 {
@@ -18,14 +19,8 @@ public class QuestManager : MonoBehaviour
     public Button submitButton;
     // QuestSlot 클래스가 Item 타입의 RewardItem과 int 타입의 RewardCount 필드를 가지고 있다고 가정
     public QuestSlot questDropSlot; 
-    
     private QuestData activeQuestData;
     private int nextDialogueNodeIndex = -1;
-
-    // 가정: InventoryManager 클래스에 AddRewardItemToInventory(Item item, int count) 함수가 존재
-    // 가정: InventoryUI 클래스에 OpenInventory(), CloseInventory() 함수가 존재
-    // 가정: GameManager 클래스에 StartInteraction(), EndInteraction(), AddSurvivors(int amount) 함수가 존재
-    // 가정: DialogueManager 클래스에 ContinueDialogueAtNode(int index), EndDialogue(), IsDialogueActive 속성이 존재
 
     private void Awake()
     {
@@ -79,6 +74,8 @@ public class QuestManager : MonoBehaviour
             submitButton.onClick.RemoveAllListeners();
             submitButton.onClick.AddListener(OnSubmitButtonClicked);
             submitButton.gameObject.SetActive(true);
+            // ⭐ 초기 상태는 아이템이 없으므로 버튼 비활성화
+            submitButton.interactable = false; 
         }
 
         // 1. SubmitCanvas 및 패널 활성화
@@ -101,7 +98,6 @@ public class QuestManager : MonoBehaviour
         {
             Debug.LogWarning("[QuestManager] InventoryUI 인스턴스를 찾을 수 없습니다. 인벤토리를 열 수 없습니다.");
         }
-        // 대화 중 상호작용이 일시 중단된 경우, 퀘스트 UI가 열릴 때 다시 상호작용 시작을 알립니다.
         GameManager.Instance?.StartInteraction();
         Debug.Log("[OpenSubmitUI] UI 열림 완료");
     }
@@ -122,7 +118,7 @@ public void OnSubmitButtonClicked()
         return;
     }
 
-    // ⭐ 퀘스트 슬롯이 요구량을 충족할 수 있는 아이템을 임시 배치했는지 확인하고 소모/제출합니다.
+    // ⭐ 버튼이 활성화된 경우에만 ConfirmSubmission이 성공할 것입니다.
     bool confirmed = questDropSlot.ConfirmSubmission(); 
     
     if (confirmed)
@@ -130,34 +126,30 @@ public void OnSubmitButtonClicked()
         Debug.Log("[OnSubmitButtonClicked] 아이템 제출 시도 성공.");
         
         // 퀘스트 슬롯의 상태를 다시 확인하여 완료 여부 판단
-        // ⭐ OnItemSubmitted에서 HandleQuestCompletion 호출을 제거했으므로, 여기서 최종 확인합니다.
         if (questDropSlot.submittedCount >= questDropSlot.RequiredAmount)
         {
              HandleQuestCompletion(questDropSlot);
-             // 퀘스트 완료 후, 대화 재개 로직이 끝난 후 UI를 닫습니다.
              CloseSubmitUI(); 
         }
         else
         {
-             // 제출은 성공했지만 아직 미완료 (수량 갱신만)
              if (submitAmountText != null)
                  submitAmountText.text = $"수량: {questDropSlot.submittedCount} / {questDropSlot.RequiredAmount}";
              
-             // 퀘스트가 미완료 상태라면, Submit UI를 닫지 않고 유지합니다.
+             // 퀘스트가 미완료 상태라도 제출이 성공했으므로, 다시 버튼 비활성화 상태로 돌아갑니다.
+             // (ConfirmSubmission 내부에서 ClearTemporarySlot()이 호출되고, 이는 NotifySlotStateChanged(0)를 호출합니다.)
         }
     }
-    // confirmed가 false인 경우 (임시 아이템 없음 등), 아무 작업도 하지 않고 UI를 유지합니다.
+    // confirmed가 false인 경우 (버튼이 활성화되었는데도 제출에 실패한 경우 - 매우 드묾), 아무 작업도 하지 않고 UI를 유지합니다.
 }
     
 // ───────────────────────────────
 // 아이템 제출 시 (QuestSlot에서 호출 - 수량 갱신용)
 public void OnItemSubmitted(string itemName, int amountSubmitted, QuestSlot slot)
 {
-    // ⭐⭐ 핵심 수정: HandleQuestCompletion 중복 호출 방지를 위해 이 함수에서는 보상 처리를 하지 않습니다.
     if (slot.submittedCount >= slot.RequiredAmount)
     {
         Debug.Log($"[OnItemSubmitted] 퀘스트 '{activeQuestData.questName}' 완료 상태가 되었습니다. (제출 버튼 클릭 대기)");
-        // HandleQuestCompletion(slot); // 🚨🚨🚨 제거됨: OnSubmitButtonClicked에서 처리
     }
     
     // UI 업데이트 (ConfirmSubmission 직후)
@@ -172,26 +164,21 @@ public void CloseSubmitUI()
 {
     Debug.Log("[CloseSubmitUI] 호출됨. 제출 UI와 대화 상태 정리 시작.");
 
-    // 퀘스트가 미완료 상태(X 버튼으로 닫힘)인지 확인
     bool questWasCancelled = (activeQuestData != null); 
     bool dialogueIsResuming = nextDialogueNodeIndex != -1;
 
-    // 💡 아이템 되돌리기 로직 추가: 미완료 상태에서 닫았을 경우, 아이템을 돌려줍니다.
+    // 아이템 되돌리기 로직: 미완료 상태에서 닫았을 경우, 아이템을 돌려줍니다.
     if (questWasCancelled && questDropSlot != null)
     {
-        // QuestSlot의 RollbackSubmission()을 호출하여 임시 배치 상태를 해제하고,
-        // (QuestSlot의 OnDrop 로직이 인벤토리에서 아이템을 제거하지 않으므로) 유실 방지
         questDropSlot.RollbackSubmission(); 
         Debug.Log("[CloseSubmitUI] 퀘스트 미완료 취소: 슬롯 아이템을 인벤토리로 되돌렸습니다. (임시 상태 해제)");
     }
 
     // 1. 대화 관리자 정리
-    // 퀘스트가 미완료 상태(activeQuestData != null) 이고, 대화 재개 예정이 아닐 때만 Dialogue를 종료합니다.
     if (questWasCancelled && !dialogueIsResuming) 
     {
         if (DialogueManager.Instance != null)
         {
-            // 미완료 상태에서 닫으면, 현재 대화 상태를 취소합니다. (EndDialogue가 EndInteraction을 호출할 것입니다.)
             DialogueManager.Instance.EndDialogue(); 
             Debug.Log("[CloseSubmitUI] 퀘스트 취소 (미완료): DialogueManager.EndDialogue() 호출.");
         } else {
@@ -200,10 +187,9 @@ public void CloseSubmitUI()
         }
     }
     
-    // 2. GameManager.EndInteraction 호출 로직 (좀비 이동/공격 방지 해제)
+    // 2. GameManager.EndInteraction 호출 로직
     if (GameManager.Instance != null && !dialogueIsResuming) 
     {
-        // 퀘스트 완료 후 대화가 재개되지 않았고, activeQuestData가 이미 null인 상태
         if (activeQuestData == null)
         {
              GameManager.Instance.EndInteraction();
@@ -243,14 +229,14 @@ public void CloseSubmitUI()
         questDropSlot.gameObject.SetActive(false); 
     }
     
-    // 버튼 리스너 명시적 제거
+    // 버튼 리스너 명시적 제거 및 최종 상태 정리
     if (submitButton != null)
     {
         submitButton.onClick.RemoveAllListeners();
+        submitButton.interactable = false; // 혹시 몰라 최종 비활성화
         Debug.Log("[CloseSubmitUI] SubmitButton 리스너를 모두 제거했습니다.");
     }
     
-    // ⭐⭐ 최종적으로 상태 변수를 클리어합니다. (가장 안전한 시점) ⭐⭐
     activeQuestData = null; 
     nextDialogueNodeIndex = -1;
 
@@ -260,6 +246,7 @@ public void CloseSubmitUI()
 // 퀘스트 완료 후 보상 지급 및 상태 정리
 private void HandleQuestCompletion(QuestSlot slot)
 {
+    // ... (보상 로직 생략, 기존과 동일) ...
     QuestData data = slot.AssignedQuestData;
     
     if (data == null)
@@ -275,7 +262,6 @@ private void HandleQuestCompletion(QuestSlot slot)
     {
         if (InventoryManager.Instance != null)
         {
-            // InventoryManager를 통해 보상 지급
             InventoryManager.Instance.AddRewardItemToInventory(slot.RewardItem, slot.RewardCount); 
             
             Debug.Log($"[HandleQuestCompletion] 아이템 보상 지급 완료: {slot.RewardItem.itemName} x{slot.RewardCount}");
@@ -286,7 +272,7 @@ private void HandleQuestCompletion(QuestSlot slot)
         }
     }
     
-    // 2. 생존자 증가 보상 처리 (중복 방지를 위해 GameManager의 로그 외에는 여기서 로그를 남깁니다)
+    // 2. 생존자 증가 보상 처리
     if (data.increaseSurvivors)
     {
         if (GameManager.Instance != null) 
@@ -305,7 +291,6 @@ private void HandleQuestCompletion(QuestSlot slot)
     {
         if (DialogueManager.Instance != null)
         {
-            // 대화 재개 전에 상호작용 상태를 다시 확정합니다.
             GameManager.Instance?.StartInteraction(); 
             Debug.Log("[HandleQuestCompletion] 대화 재개를 위해 GameManager.StartInteraction() 호출.");
             
@@ -322,7 +307,29 @@ private void HandleQuestCompletion(QuestSlot slot)
          Debug.LogWarning("[HandleQuestCompletion] 다음 노드 인덱스가 없습니다. 상호작용 종료를 CloseSubmitUI에 위임합니다.");
     }
 
-    // 🚨 초기화 코드는 CloseSubmitUI가 최종적으로 정리하도록 남겨둡니다.
     Debug.Log("[HandleQuestCompletion] 보상 지급 및 대화 명령 완료.");
 }
+
+// ───────────────────────────────
+// [새로 추가] QuestSlot에서 호출되어 버튼 상태를 업데이트하는 함수
+// ───────────────────────────────
+
+/// <summary>
+/// QuestSlot으로부터 임시 배치된 아이템의 수량 변경 알림을 받고 제출 버튼 상태를 업데이트합니다.
+/// </summary>
+/// <param name="currentTemporaryItemCount">현재 임시 배치된 아이템 스택의 수량</param>
+public void NotifySlotStateChanged(int currentTemporaryItemCount)
+{
+    if (submitButton == null || questDropSlot == null) return;
+    
+    int needed = questDropSlot.RequiredAmount - questDropSlot.submittedCount;
+
+    // 현재 임시 아이템 스택이 남은 요구량을 충족하는지 확인
+    bool canSubmit = currentTemporaryItemCount >= needed;
+    
+    submitButton.interactable = canSubmit;
+    
+    Debug.Log($"[QuestManager] 제출 버튼 상태 업데이트: 필요 수량: {needed}, 임시 수량: {currentTemporaryItemCount}. 버튼 활성화: {canSubmit}");
+}
+
 }
