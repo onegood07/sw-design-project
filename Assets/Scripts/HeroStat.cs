@@ -63,16 +63,11 @@ public class HeroStat : MonoBehaviour
 
     void SpeedControl()
     {
-        // 허기가 많이 떨어지면 이동 속도 패널티 적용
-        if (hunger <= 100f)
+        // 허기가 충분할 때는 현재 속도가 기본 속도보다 느리면 기본 속도로만 복원한다.
+        // 허기가 떨어졌을 때는 speed 값 자체(신발/버프/물약 효과 등)는 건드리지 않고,
+        // 실제 이동 속도 계산 단계에서만 패널티를 곱해준다.
+        if (hunger > 100f)
         {
-            // 너무 빠르면 100으로 제한
-            if (speed > 100f)
-                speed = 100f;
-        }
-        else
-        {
-            // 허기가 충분할 때는 현재 속도가 기본 속도보다 느리면 기본 속도로 복원
             if (speed < baseSpeed)
             {
                 speed = baseSpeed;
@@ -172,15 +167,8 @@ public class HeroStat : MonoBehaviour
             activeBoostCoroutine = null;
         }
 
-        // 허기 상태에 따라 적절한 기본 속도로 복구
-        if (hunger <= 100f)
-        {
-            speed = 100f;
-        }
-        else
-        {
-            speed = baseSpeed;
-        }
+        // 장비 버프는 모두 제거하고 순수 기본 이동 속도로 복구
+        speed = baseSpeed;
     }
 
     void PlayHitEffect()
