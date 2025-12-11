@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d656abfcabef1d44a8e0a7fc2af245cc, type: 3}
+  m_Name: CanBundle_501
+  m_EditorClassIdentifier: Assembly-CSharp::MedicineData
+  ItemName: 501
+  Score: 5
+  Description: "\uCE94 \uBB36\uC74C"
+  Icon: {fileID: 0}
+  MaxStackCount: 0
+  isAvailable: 0
+  originCoolTime: 6
+  clip: {fileID: 8300000, guid: c48a972d3d024c2408a3331750786a29, type: 3}
+  whichStat:
+  - hunger
+  healAmount:
+  - 0
+  - 400
+  buffDuration: 0
