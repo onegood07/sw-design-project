@@ -36,6 +36,29 @@ public class InventoryManager : MonoBehaviour
     private void Start() {
         HeroMoveControl = HeroTransform.GetComponent<HeroMoveControl>();
         if(HeroMoveControl == null)Debug.Log("currentViewDirection 참조 불가");
+
+        // 인벤토리 변경 이벤트에 구독해서 퀵슬롯 수량을 실시간으로 동기화
+        if (Inventory.instance != null)
+        {
+            Inventory.instance.onChangeItem += OnInventoryChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Inventory.instance != null)
+        {
+            Inventory.instance.onChangeItem -= OnInventoryChanged;
+        }
+    }
+
+    /// <summary>
+    /// 인벤토리 아이템 변화(추가/삭제/조합/납입 등)가 생겼을 때
+    /// 퀵슬롯에 연결된 아이템 수량을 인벤토리 실제 수량과 동기화한다.
+    /// </summary>
+    private void OnInventoryChanged()
+    {
+        SyncQuickSlotsWithInventory();
     }
 
     // 드래그된 아이템 데이터를 지정한 퀵슬롯 인덱스에 등록합니다.
@@ -173,6 +196,53 @@ public class InventoryManager : MonoBehaviour
         {
             Debug.Log($"[InventoryManager Debug] '{itemName}' (으)로 조회 실패. 딕셔너리에 없음.");
             return 0;
+        }
+    }
+
+    /// <summary>
+    /// 현재 인벤토리 상태를 기준으로, 모든 퀵슬롯에 표시되는 아이템 개수를 재계산한다.
+    /// (인벤토리에 동일 아이템이 추가되었을 때 퀵슬롯 수량을 실시간으로 반영하기 위함)
+    /// </summary>
+    public void SyncQuickSlotsWithInventory()
+    {
+        if (Inventory.instance == null)
+            return;
+
+        var inven = Inventory.instance;
+
+        for (int i = 0; i < quickSlotItems.Length; i++)
+        {
+            var data = quickSlotItems[i];
+            if (data == null)
+                continue; // 이 퀵슬롯은 비어 있음
+
+            int invIndex = quickSlotInventoryIndices[i];
+            int newCount = 0;
+
+            // 연결된 인벤토리 인덱스가 유효하고, 실제 아이템이 남아 있다면 그 스택 수량을 가져온다.
+            if (invIndex >= 0 &&
+                invIndex < inven.items.Count &&
+                inven.items[invIndex] != null)
+            {
+                newCount = inven.items[invIndex].count;
+            }
+
+            // 인벤토리에 해당 스택이 사라졌다면 퀵슬롯도 정리
+            if (newCount <= 0)
+            {
+                ClearQuickSlotData(i);
+                continue;
+            }
+
+            // InventoryManager 내부 수량 갱신
+            quickSlotCounts[i] = newCount;
+
+            // QuickSlot UI 쪽에도 최신 개수 반영
+            var slot = QuickSlot.GetSlotByIndex(i);
+            if (slot != null)
+            {
+                slot.UpdateLinkedCount(newCount);
+            }
         }
     }
 
