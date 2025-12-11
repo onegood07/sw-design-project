@@ -482,7 +482,7 @@ public class SpawnManager : MonoBehaviour
     }
 
 
-    // MARK: 아이템, NPC, 좀비 스폰 함수 (🌟 영구 데이터가 없을 때만 실행)
+   // MARK: 아이템, NPC, 좀비 스폰 함수 (🌟 영구 데이터가 없을 때만 실행)
     public void StartSpawnProcess(int totalItemCount, int npcCount, int zombieCount)
     {
         // 🚨 수정: 아이템/NPC 영구 데이터가 있다면 초기 스폰 전체를 건너뜁니다.
@@ -708,34 +708,82 @@ public class SpawnManager : MonoBehaviour
         Debug.Log($"[SpawnManager] 2단계: 확률적 아이템 {remainingItemsToSpawn}개 스폰 시도. 실제 스폰된 아이템 총 {spawnedItemCount}개.");
 
 
-        // 3. NPC 스폰 및 Persistent NPC Data 기록 (기존 로직 유지)
-        int actualNpcCount = Mathf.Min(npcCount, npcPrefabs.Length); 
+        // ---------------------------------------------------------------------------------
+        // ⭐ [수정된 3단계]: NPC 스폰 (고정 2명 + 일반 최대 5명)
+        // ---------------------------------------------------------------------------------
+        
+        // 고정 소환할 NPC 목록 (프리팹 이름으로 식별)
+        string[] requiredNpcNames = { "ExchangeNPC", "RecipeNPC" }; 
+        List<GameObject> availableNpcs = new List<GameObject>(npcPrefabs);
+        List<GameObject> npcsToSpawn = new List<GameObject>();
+        int totalNpcSpawned = 0;
 
-        if (npcPrefabs.Length == 0) 
+        // 3-1. 고정 NPC 무조건 스폰 및 영구 데이터 기록 (2명)
+        foreach (string requiredName in requiredNpcNames)
         {
-            Debug.LogWarning("[SpawnManager] 스폰할 NPC 프리팹이 지정되지 않았습니다.");
+            GameObject requiredPrefab = GetNpcPrefabByName(requiredName); 
+
+            if (requiredPrefab != null)
+            {
+                if (remainingPositions.Count == 0)
+                {
+                    Debug.LogWarning($"[SpawnManager] 고정 NPC '{requiredName}' 스폰 시도 실패: 스폰 가능한 위치가 없습니다.");
+                    break; 
+                }
+
+                // SpawnObjects를 사용하여 생성 및 persistentNPCs에 기록
+                List<Vector3> usedPos = SpawnObjects(requiredPrefab, 1, remainingPositions, spawnedNPCs); 
+                remainingPositions.RemoveAll(pos => usedPos.Contains(pos));
+                
+                // availableNpcs 리스트에서 해당 프리팹을 제거하여 3-2단계에서 중복 스폰 방지
+                availableNpcs.RemoveAll(p => p != null && p.name.Replace("(Clone)", "").Trim() == requiredName);
+                totalNpcSpawned++;
+
+                Debug.Log($"[SpawnManager] 고정 NPC '{requiredName}' 스폰 완료.");
+            }
+            else
+            {
+                Debug.LogWarning($"[SpawnManager] 고정 NPC '{requiredName}' 프리팹을 npcPrefabs에서 찾을 수 없습니다.");
+            }
         }
-        else
+
+        // 3-2. 일반 NPC 추가 스폰 (나머지 NPC 중 최대 5명)
+        const int additionalNpcCount = 5;
+        int actualAdditionalCount = 0; 
+        int currentAvailableNpcCount = availableNpcs.Count;
+
+        // 스폰할 수 있는 최대 인원은 '남은 NPC 수' 또는 '요청된 추가 수(5명)' 중 작은 값
+        int countToSelect = Mathf.Min(additionalNpcCount, currentAvailableNpcCount); 
+
+        for (int i = 0; i < countToSelect; i++)
         {
-            List<GameObject> npcsToSpawn = new List<GameObject>();
-            List<GameObject> availableNpcs = new List<GameObject>(npcPrefabs);
+            if (availableNpcs.Count == 0) break;
+
+            int randomIndex = Random.Range(0, availableNpcs.Count);
+            GameObject selectedNpc = availableNpcs[randomIndex];
+
+            npcsToSpawn.Add(selectedNpc);
+            availableNpcs.RemoveAt(randomIndex); // 중복 방지를 위해 제거
+        }
+
+        // 선택된 일반 NPC들을 스폰합니다.
+        foreach (GameObject npcPrefab in npcsToSpawn)
+        {
+            if (remainingPositions.Count == 0)
+            {
+                Debug.LogWarning($"[SpawnManager] 일반 NPC '{npcPrefab.name}' 스폰 시도 실패: 스폰 가능한 위치가 없습니다.");
+                break;
+            }
             
-            for (int i = 0; i < actualNpcCount; i++)
-            {
-                if (availableNpcs.Count == 0) break;
-
-                int randomIndex = Random.Range(0, availableNpcs.Count);
-                npcsToSpawn.Add(availableNpcs[randomIndex]);
-                availableNpcs.RemoveAt(randomIndex); 
-            }
-
-            foreach (GameObject npcPrefab in npcsToSpawn)
-            {
-                // SpawnObjects를 사용하여 생성 및 persistentNPCs에 (미완료 상태로) 기록
-                List<Vector3> usedNpcPositions = SpawnObjects(npcPrefab, 1, remainingPositions, spawnedNPCs); 
-                remainingPositions.RemoveAll(pos => usedNpcPositions.Contains(pos));
-            }
+            // SpawnObjects를 사용하여 생성 및 persistentNPCs에 (미완료 상태로) 기록
+            List<Vector3> usedNpcPositions = SpawnObjects(npcPrefab, 1, remainingPositions, spawnedNPCs); 
+            remainingPositions.RemoveAll(pos => usedNpcPositions.Contains(pos));
+            actualAdditionalCount++;
+            totalNpcSpawned++;
         }
+
+        Debug.Log($"[SpawnManager] 3단계: NPC 스폰 완료. 총 {totalNpcSpawned}명 (고정 2명 + 일반 {actualAdditionalCount}명).");
+
 
         // 4. 좀비 스폰 (기존 로직 유지)
         Debug.Log($"[SpawnManager] 4단계: 초기 좀비 스폰 시작: {zombieCount}마리 (Normal).");
@@ -743,7 +791,7 @@ public class SpawnManager : MonoBehaviour
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
         Debug.Log($"[SpawnManager] 초기 좀비 스폰 완료: {usedZombiePositions.Count}마리.");
     }
-    
+
     // MARK: 좀비만 스폰 (밤 페이즈용 - 기존 좀비를 유지하고 추가 스폰)
     public void SpawnZombiesOnly(int totalTargetZombieCount)
     {
