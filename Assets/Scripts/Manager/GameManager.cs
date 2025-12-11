@@ -100,6 +100,7 @@ public class GameManager : MonoBehaviour
     public bool IsDialogueActive { get; private set; } = false;
     // 씬 로드 중 시간 흐름에 따른 조명 전환을 막는 플래그
     public bool IsSceneLoadingInProgress { get; private set; } = false;
+    [HideInInspector] private int delayedSurvivorIncreaseAmount = 0;
 
     // MARK: Awake 함수
     void Awake()
@@ -923,6 +924,33 @@ void StartNightPhase()
         // 💡 필요한 경우 UI 업데이트 로직 호출 (예: HUD 또는 쉘터 UI)
         // if (ShelterUI.Instance != null) ShelterUI.Instance.UpdateSurvivorDisplay(SurvivorCount); 
     }
+
+    // MARK: 생존자 증가 보상 예약 함수 (QuestManager에서 호출)
+public void ReserveSurvivorIncrease(int amount)
+{
+    if (amount > 0)
+    {
+        delayedSurvivorIncreaseAmount += amount;
+        Debug.Log($"[GameManager] 생존자 증가 보상 {amount}명이 예약되었습니다. 현재 예약 누적: {delayedSurvivorIncreaseAmount}");
+    }
+}
+
+// MARK: 예약된 생존자 증가 보상 실행 함수 (DialogueManager에서 호출)
+public void ExecuteReservedSurvivorIncrease()
+{
+    if (delayedSurvivorIncreaseAmount > 0)
+    {
+        // AddSurvivors는 이미 SurvivorCount를 증가시키고 UI를 업데이트한다고 가정
+        AddSurvivors(delayedSurvivorIncreaseAmount); 
+        
+        Debug.Log($"[GameManager] 예약된 생존자 보상 {delayedSurvivorIncreaseAmount}명 지급 완료.");
+        
+        // 지급 후 반드시 예약량 초기화
+        delayedSurvivorIncreaseAmount = 0; 
+    }
+}
+
+
     // 대화 시작 시 호출
     public void StartInteraction()
     {

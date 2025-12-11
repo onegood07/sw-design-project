@@ -282,16 +282,17 @@ private void HandleQuestCompletion(QuestSlot slot)
     }
     
     // 2. 생존자 증가 보상 처리
-    if (data.increaseSurvivors)
+   if (data.increaseSurvivors)
     {
         if (GameManager.Instance != null) 
         {
-            GameManager.Instance.AddSurvivors(data.survivorIncreaseAmount);
-            Debug.Log($"[HandleQuestCompletion] 생존자 수 증가 보상 지급 완료: {data.survivorIncreaseAmount}명 증가.");
+            // ⭐ AddSurvivors 대신 ReserveSurvivorIncrease 호출
+            GameManager.Instance.ReserveSurvivorIncrease(data.survivorIncreaseAmount);
+            Debug.Log($"[HandleQuestCompletion] 생존자 수 증가 보상 {data.survivorIncreaseAmount}명을 대화 종료 후 지급하도록 예약 완료.");
         }
         else
         {
-             Debug.LogError("[HandleQuestCompletion Error] GameManager.Instance가 Null입니다! 생존자 보상 지급 실패.");
+             Debug.LogError("[HandleQuestCompletion Error] GameManager.Instance가 Null입니다! 생존자 보상 예약 실패.");
         }
     }
 
