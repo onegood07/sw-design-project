@@ -51,29 +51,99 @@ public class InventoryManager : MonoBehaviour
         quickSlotInventoryIndices[index] = inventoryIndex;
     }
 
-    // QuestManager가 호출하는 규격에 맞춘 ItemData 기반 AddItem 함수 (대문자 A)
-    /// <summary>
-    /// ItemData 객체를 받아 소유 아이템 딕셔너리에 수량을 누적합니다. (QuestManager에서 호출)
-    /// </summary>
-    /// <param name="itemData">추가할 아이템 데이터</param>
-    /// <param name="count">추가할 수량</param>
-    public void AddItem(ItemData itemData, int count)
+    public void AddRewardItemToInventory(Item rewardItem, int count)
+{
+    if (rewardItem == null)
     {
-        if (itemData == null)
-        {
-            Debug.LogError("[InventoryManager] 추가하려는 ItemData가 null입니다.");
-            return;
-        }
-        
-        // ItemData Asset 이름을 키로 사용하여 딕셔너리에 추가합니다.
-        addItem(itemData.name, count); 
-        
-        Debug.Log($"[InventoryManager] ItemData를 통해 '{itemData.name}' {count}개를 추가했습니다. (addItem 호출 완료)");
-        
-        // (UI 갱신 관련 주석은 유지하거나 삭제하세요)
-        // if (InventoryUI.instance != null) { InventoryUI.instance.RefreshInventoryDisplay(); }
+        Debug.LogError("[InventoryManager] 추가하려는 보상 Item이 null입니다.");
+        return;
     }
+    
+    // 1. 딕셔너리에 수량 기록 (✅ 딕셔너리 기록)
+    // Item.itemName 필드를 사용하여 딕셔너리에 기록합니다.
+    addItem(rewardItem.itemName, count); 
+    
+    Debug.Log($"[InventoryManager] 딕셔너리 기록 완료: '{rewardItem.itemName}' {count}개.");
 
+    // 2. Inventory (UI 데이터 소스)에 아이템 추가 요청 (✅ UI 표시 - 원래 잘 작동했던 로직)
+    if (Inventory.instance != null)
+    {
+        // ⭐⭐⭐ 데이터 복사/생성 과정 없이, QuestManager에서 받은 Item 객체를 그대로 전달합니다. ⭐⭐⭐
+        Inventory.instance.AddItem(rewardItem, count); 
+        
+        Debug.Log($"[InventoryManager] Inventory.instance.AddItem('{rewardItem.itemName}') 호출 완료.");
+    }
+    else
+    {
+        Debug.LogError("[InventoryManager] Inventory.instance가 Null입니다. 아이템을 UI 데이터 구조에 추가할 수 없습니다.");
+    }
+    
+    // 3. UI 갱신 
+    if (InventoryUI.instance != null) 
+    { 
+        InventoryUI.instance.RedrawSlotUI(); 
+        Debug.Log("[InventoryManager] InventoryUI 갱신 요청 완료.");
+    }
+}
+
+
+//  public void AddItem(ItemData itemData, int count)
+// {
+//     if (itemData == null)
+//     {
+//         Debug.LogError("[InventoryManager] 추가하려는 ItemData가 null입니다.");
+//         return;
+//     }
+    
+//     // 1. InventoryManager의 딕셔너리에 수량 기록 (✅ 딕셔너리 기록)
+//     addItem(itemData.name, count); 
+    
+//     Debug.Log($"[InventoryManager] ItemData를 통해 '{itemData.name}' {count}개를 딕셔너리에 기록했습니다. (addItem 호출 완료)");
+
+//     // 2. Inventory (UI 데이터 소스)에 아이템 추가 요청 (✅ UI 표시 - 기존 작동 로직 재현)
+//     if (Inventory.instance != null)
+//     {
+//         // 🚨 Item 클래스가 MonoBehaviour를 상속하므로 GameObject를 생성하여 컴포넌트를 확보합니다.
+//         GameObject tempObj = new GameObject($"TempItem_{itemData.name}");
+//         Item dummyItem = tempObj.AddComponent<Item>(); // 유효한 Item 인스턴스 확보
+        
+//         // --- 핵심 데이터 복사 (UI 표시를 위해) ---
+//         dummyItem.itemName = itemData.name; 
+        
+//         // ⭐⭐⭐ 최종 오류 해결: ItemData의 getItemIcon 속성을 사용하여 Item.itemImage에 복사합니다. ⭐⭐⭐
+//         dummyItem.itemImage = itemData.getItemIcon; 
+        
+//         // ItemData Asset 자체도 참조로 남겨둡니다. 
+//         dummyItem.itemDataAsset = itemData; 
+//         // ----------------------------------------
+        
+//         // 3. Inventory.AddItem 함수 호출 (사용자님이 '잘 보인다'고 확인한 함수에 Item 인스턴스를 전달)
+//         Inventory.instance.AddItem(dummyItem, count); 
+        
+//         Debug.Log($"[InventoryManager] Inventory.instance.AddItem('{itemData.name}') 호출 완료.");
+        
+//         // 4. 임시로 생성된 GameObject는 즉시 파괴하여 씬을 정리합니다.
+//         // DestroyImmediate 대신 Destroy를 사용해 다음 프레임에 파괴되도록 합니다.
+//         Destroy(tempObj); 
+        
+//     }
+//     else
+//     {
+//         Debug.LogError("[InventoryManager] Inventory.instance가 Null입니다. 아이템을 UI 데이터 구조에 추가할 수 없습니다.");
+//     }
+    
+//     // 5. UI 갱신 
+//     if (InventoryUI.instance != null) 
+//     { 
+//         InventoryUI.instance.RedrawSlotUI(); 
+//         Debug.Log("[InventoryManager] InventoryUI 갱신 요청 완료.");
+//     }
+// }
+    
+    
+    
+    
+    
     // 소유 아이템 딕셔너리에 수량을 누적합니다.
     public void addItem(string itemName, int itemCnt)
     {
