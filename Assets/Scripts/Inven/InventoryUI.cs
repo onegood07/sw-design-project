@@ -177,8 +177,22 @@ public class InventoryUI : MonoBehaviour
     /// </summary>
     public void CompactInventory()
     {
-        if (inven == null) return;
+        // 방어 코드: 혹시 inven 참조가 초기화되지 않았으면 다시 시도
+        if (inven == null)
+        {
+            inven = Inventory.instance;
+        }
 
+        if (inven == null)
+        {
+            Debug.LogWarning("[InventoryUI] CompactInventory 호출 시 Inventory.instance 가 null 입니다.");
+            return;
+        }
+
+        // 1) 인벤토리 리스트에서 null 슬롯을 제거하고 앞으로 당긴다.
         inven.CompactItems();
+
+        // 2) 혹시 이벤트 연결이 안 되어 있는 상황을 대비해, 직접 한 번 더 UI를 강제로 갱신
+        RedrawSlotUI();
     }
 }
