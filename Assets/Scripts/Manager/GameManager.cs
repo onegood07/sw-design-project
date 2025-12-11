@@ -59,9 +59,9 @@ public class GameManager : MonoBehaviour
     // 스폰 관련 설정
     [Header("Spawn Settings")]
     public SpawnManager spawnManager; // SpawnManager 클래스가 외부에서 정의되어 있다고 가정합니다.
-    public int ItemSpawnCount = 70;
+    public int ItemSpawnCount = 80;
     public int NPCSpawnCount = 5;
-    public int BaseZombieSpawnCount = 30; 
+    public int BaseZombieSpawnCount = 40; 
     private int CurrentZombieSpawnCount;
 
     // 페이즈 지속 시간 (시간 비율 조정: 예시로 60초/120초로 늘림)

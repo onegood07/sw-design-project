@@ -82,6 +82,9 @@ public class SpawnManager : MonoBehaviour
     [Header("Managers")]
     public ItemManager itemManager;   // 아이템 등록 및 관리 매니저
 
+    [Header("스폰 개수 제한")]
+    public int maxWeaponsOnField = 4;
+
     // 스폰 가능한 모든 위치
     private List<Vector3> allSpawnPositions = new List<Vector3>();
 
@@ -508,6 +511,56 @@ public class SpawnManager : MonoBehaviour
         List<Vector3> remainingPositions = new List<Vector3>(allSpawnPositions);
         int spawnedItemCount = 0; // 실제로 스폰된 아이템 수 카운트
 
+        // ⭐⭐⭐ 0단계: 총기류(Weapon) 4개 고정 스폰 ⭐⭐⭐
+        
+        // Weapon 타입 아이템 정보 중 첫 번째 프리팹을 찾습니다.
+        ItemSpawnInfo? weaponInfo = itemInfos.FirstOrDefault(info => info.type == ItemType.Weapon && info.prefab != null);
+        
+        // 총기류 고정 스폰 개수 설정 (요청하신 대로 4개)
+        const int fixedWeaponSpawnCount = 4;
+        
+        if (weaponInfo.HasValue)
+        {
+            GameObject weaponPrefab = weaponInfo.Value.prefab;
+            string prefabName = weaponPrefab.name.Replace("(Clone)", "").Trim();
+
+            int actualSpawnedWeapons = 0;
+
+            for (int i = 0; i < fixedWeaponSpawnCount; i++)
+            {
+                if (remainingPositions.Count == 0 || spawnedItemCount >= totalItemCount) break;
+
+                int posIndex = Random.Range(0, remainingPositions.Count);
+                Vector3 spawnPos = remainingPositions[posIndex];
+                remainingPositions.RemoveAt(posIndex);
+                
+                // 오브젝트 스폰 및 영구 데이터 기록
+                GameObject obj = Instantiate(weaponPrefab, spawnPos, Quaternion.identity);
+                spawnedItems.Add(obj);
+
+                if (itemManager != null)
+                    itemManager.RegisterSpawnedItem(obj, ItemType.Weapon);
+                        
+                // Persistent Item Data 기록
+                persistentItems.Add(new PersistentItemData
+                {
+                    position = spawnPos,
+                    prefabName = prefabName,
+                    type = ItemType.Weapon
+                });
+
+                actualSpawnedWeapons++;
+                spawnedItemCount++;
+            }
+            
+            Debug.Log($"[SpawnManager] 0단계: 총기류 {actualSpawnedWeapons}개 고정 스폰 완료.");
+        } 
+        else
+        {
+            Debug.LogWarning("[SpawnManager] 총기류(ItemType.Weapon) 프리팹을 itemInfos에서 찾을 수 없어 고정 스폰을 건너뜁니다.");
+        }
+
+
         // ---------------------------------------------------------------------------------
         // 1단계: GameManager의 납입 요구 목록에 있는 아이템을 필드에 모두 소환
         // ---------------------------------------------------------------------------------
@@ -518,9 +571,8 @@ public class SpawnManager : MonoBehaviour
             // 납입품 리스트를 순회하며 요구 수량만큼 스폰
             foreach (var requiredItem in GameManager.Instance.CurrentRequiredItemsData)
             {
-                // **⭐⭐⭐ 요청에 따라 Item 클래스 정의가 있다고 가정하고 원래 코드를 복구합니다. ⭐⭐⭐**
-                // Item requiredItemData = requiredItem.Key as Item; 
-                Item requiredItemData = requiredItem.Key as Item; // 이 줄은 Item 클래스가 정의되어 있어야 컴파일됩니다.
+                // **⭐⭐⭐ Item 클래스 정의가 있다고 가정합니다. ⭐⭐⭐**
+                Item requiredItemData = requiredItem.Key as Item; 
                 int requiredQuantity = requiredItem.Value;
                 
                 if (requiredItemData == null) continue;
@@ -576,7 +628,7 @@ public class SpawnManager : MonoBehaviour
                 if (remainingPositions.Count == 0 || spawnedItemCount >= totalItemCount) break;
             }
 
-            Debug.Log($"[SpawnManager] 납입 요구 아이템 {requiredItemSpawnedCount}개 우선 스폰 완료.");
+            Debug.Log($"[SpawnManager] 1단계: 납입 요구 아이템 {requiredItemSpawnedCount}개 우선 스폰 완료.");
         }
         else
         {
@@ -585,11 +637,14 @@ public class SpawnManager : MonoBehaviour
 
 
         // ---------------------------------------------------------------------------------
-        // 2단계: 남은 수량(totalItemCount - spawnedItemCount)만큼 나머지 아이템을 확률적으로 스폰 (기존 로직 유지)
+        // 2단계: 남은 수량(totalItemCount - spawnedItemCount)만큼 나머지 아이템을 확률적으로 스폰
         // ---------------------------------------------------------------------------------
         
         int remainingItemsToSpawn = totalItemCount - spawnedItemCount;
         float totalWeight = itemInfos.Sum(info => info.ratio);
+
+        // ⭐ [핵심]: 0단계와 1단계를 거치면서 필드에 스폰된 총기류 개수를 정확히 계산합니다.
+        int currentWeaponCount = persistentItems.Count(data => data.type == ItemType.Weapon);
         
         for (int i = 0; i < remainingItemsToSpawn; i++)
         {
@@ -612,6 +667,18 @@ public class SpawnManager : MonoBehaviour
             if (selectedIndex != -1)
             {
                 var selectedInfo = itemInfos[selectedIndex];
+                
+                // ⭐ [핵심 수정]: 총기류(Weapon) 스폰 개수 제한 확인 및 건너뛰기
+                if (selectedInfo.type == ItemType.Weapon)
+                {
+                    if (currentWeaponCount >= fixedWeaponSpawnCount)
+                    {
+                        Debug.Log($"[SpawnManager] 총기류({selectedInfo.prefab.name}) 최대 스폰 개수({fixedWeaponSpawnCount})에 도달했습니다. 2단계 확률 스폰을 건너뜁니다.");
+                        continue; 
+                    }
+                    // 스폰이 허용되면 카운터를 증가시킵니다.
+                    currentWeaponCount++; 
+                }
                 
                 if (selectedInfo.prefab == null) continue;
 
@@ -638,10 +705,10 @@ public class SpawnManager : MonoBehaviour
                 spawnedItemCount++;
             }
         }
-        Debug.Log($"[SpawnManager] 확률적 아이템 {remainingItemsToSpawn}개 스폰 시도. 실제 스폰된 아이템 총 {spawnedItemCount}개.");
+        Debug.Log($"[SpawnManager] 2단계: 확률적 아이템 {remainingItemsToSpawn}개 스폰 시도. 실제 스폰된 아이템 총 {spawnedItemCount}개.");
 
 
-        // 3. NPC 스폰 및 Persistent NPC Data 기록 (⭐ 초기 상태 기록 로직 반영됨)
+        // 3. NPC 스폰 및 Persistent NPC Data 기록 (기존 로직 유지)
         int actualNpcCount = Mathf.Min(npcCount, npcPrefabs.Length); 
 
         if (npcPrefabs.Length == 0) 
@@ -671,13 +738,12 @@ public class SpawnManager : MonoBehaviour
         }
 
         // 4. 좀비 스폰 (기존 로직 유지)
-        Debug.Log($"[SpawnManager] 초기 좀비 스폰 시작: {zombieCount}마리 (Normal).");
+        Debug.Log($"[SpawnManager] 4단계: 초기 좀비 스폰 시작: {zombieCount}마리 (Normal).");
         List<Vector3> usedZombiePositions = SpawnObjects(normalZombiePrefab, zombieCount, remainingPositions, spawnedZombies);
         remainingPositions.RemoveAll(pos => usedZombiePositions.Contains(pos));
         Debug.Log($"[SpawnManager] 초기 좀비 스폰 완료: {usedZombiePositions.Count}마리.");
     }
-
-
+    
     // MARK: 좀비만 스폰 (밤 페이즈용 - 기존 좀비를 유지하고 추가 스폰)
     public void SpawnZombiesOnly(int totalTargetZombieCount)
     {

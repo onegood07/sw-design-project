@@ -17,7 +17,7 @@ MonoBehaviour:
     \uC124\uC815\uB429\uB2C8\uB2E4."
   requiredItemName: Band
   requiredItemIcon: {fileID: 1462799768519014029, guid: 9c77f37515354464aae966cdb8782afa, type: 3}
-  requiredAmount: 1
+  requiredAmount: 5
   giveItemReward: 1
   rewardItem: {fileID: 1200249886004421481, guid: 6c989bc03b49ad04a96b771c6c4031d6, type: 3}
   rewardCount: 2
