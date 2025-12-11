@@ -89,6 +89,25 @@ public class QuestSlot : Slot
         Debug.Log($"[QuestSlot] 슬롯 초기화 완료: 요구: {this.requiredItemName} x {this.requiredAmount}, 보상: {(this.rewardItem != null ? this.rewardItem.name : "없음")} x {this.rewardCount}");
     }
 
+    public void RollbackSubmission()
+{
+    // 현재 QuestSlot의 OnDrop 로직은 아이템을 인벤토리에서 '제거'하지 않고 
+    // 'temporaryItem'으로 정보만 저장합니다.
+    
+    // 따라서 롤백은 단순히 임시 배치 상태를 클리어하고, 
+    // 제출 완료되지 않은 상태의 UI를 다시 표시하는 것으로 충분합니다.
+    
+    if (temporaryItem != null)
+    {
+         Debug.Log($"[QuestSlot] 퀘스트 취소로 인해 임시 배치된 아이템 ({temporaryItem.itemName})의 상태를 해제합니다.");
+    }
+    
+    // 임시 배치 정보 초기화 및 UI 정리
+    ClearTemporarySlot(); 
+    
+    // 이 시점에서 인벤토리에서 아이템이 소모되지 않았으므로 별도로 돌려줄 필요가 없습니다.
+}
+
     // 아이템 드롭 처리: 요구 아이템인지, 수량이 충분한지 확인
     public override void OnDrop(PointerEventData eventData)
     {
@@ -131,74 +150,86 @@ public class QuestSlot : Slot
         Debug.Log($"아이템 {requiredItemName}이 슬롯에 임시 배치되었습니다.");
     }
     
-    /// <summary>
-    /// 버튼이 눌렸을 때 임시 배치된 아이템을 확정 제출하는 함수 (QuestManager에서 호출됨)
-    /// </summary>
-    public bool ConfirmSubmission()
+// QuestSlot.cs 스크립트
+/// <summary>
+/// 버튼이 눌렸을 때 임시 배치된 아이템을 확정 제출하는 함수 (QuestManager에서 호출됨)
+/// </summary>
+public bool ConfirmSubmission()
+{
+    if (temporaryItem == null || temporaryItemIndex == -1)
     {
-        if (temporaryItem == null || temporaryItemIndex == -1)
-        {
-            Debug.LogWarning("[Quest] 슬롯에 납입할 아이템이 없습니다.");
-            return false;
-        }
-        
-        Inventory inven = Inventory.instance;
-        if (inven == null) 
-        {
-            Debug.LogError("[QuestSlot] Inventory.instance가 null입니다.");
-            ClearTemporarySlot();
-            return false;
-        }
-        
-        // 인벤토리에서 실제 아이템 확인 (드래그 후 인벤토리 변경이 발생했을 수 있으므로 재확인)
-        InventoryItem actualItem = inven.items[temporaryItemIndex];
-        if (actualItem == null || actualItem.itemName != requiredItemName)
-        {
-            Debug.LogError("[Quest] 인벤토리에서 아이템을 찾을 수 없거나 아이템이 변경되었습니다.");
-            ClearTemporarySlot(); 
-            return false;
-        }
-        
-        int needed = requiredAmount - submittedCount; 
-        if (needed <= 0)
-        {
-            Debug.Log($"[Quest] {requiredItemName}은 이미 충분히 제출되었습니다.");
-            ClearTemporarySlot(); 
-            return true; // 이미 완료된 것으로 간주
-        }
-        
-        // 필요한 수량과 인벤토리의 실제 수량 중 작은 값만큼 제출
-        int submitAmount = Mathf.Min(needed, actualItem.count);
-        
-        // 인벤토리에서 아이템 소모
-        inven.ConsumeItemAt(temporaryItemIndex, submitAmount);
-        submittedCount += submitAmount;
-        
-        // UI 업데이트
-        UpdateQuestSlotUI(temporaryItem); 
-        
-        // ⭐ QuestManager에게 제출 완료 알림 (보상 지급 트리거)
-        if (QuestManager.instance != null)
-        {
-            // 이 함수 호출 후 QuestSlot 오브젝트가 파괴되는지 확인이 필요합니다.
-            QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this); 
-        }
-        
-        ClearTemporarySlot(); // 임시 배치 상태 해제
-        
-        Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
-
-        // 👇👇👇 중요: 여기서 파괴 여부 확인 👇👇👇
-        if (this.gameObject == null)
-        {
-            // 이 로그가 출력되면 QuestManager.OnItemSubmitted 또는 그 외부에 의해 객체가 파괴된 것입니다.
-            Debug.LogError("[QuestSlot] FATAL: ConfirmSubmission이 반환되기 직전에 오브젝트가 파괴되었습니다!"); 
-        }
-        // 👆👆👆 중요: 여기서 파괴 여부 확인 👆👆👆
-        
-        return true;
+        Debug.LogWarning("[Quest] 슬롯에 납입할 아이템이 없습니다.");
+        return false;
     }
+    
+    Inventory inven = Inventory.instance;
+    if (inven == null) 
+    {
+        Debug.LogError("[QuestSlot] Inventory.instance가 null입니다.");
+        ClearTemporarySlot();
+        return false;
+    }
+    
+    // 인벤토리에서 실제 아이템 확인 (드래그 후 인벤토리 변경이 발생했을 수 있으므로 재확인)
+    InventoryItem actualItem = inven.items[temporaryItemIndex];
+    if (actualItem == null || actualItem.itemName != requiredItemName)
+    {
+        Debug.LogError("[Quest] 인벤토리에서 아이템을 찾을 수 없거나 아이템이 변경되었습니다.");
+        ClearTemporarySlot(); 
+        return false;
+    }
+    
+    int needed = requiredAmount - submittedCount; 
+    if (needed <= 0)
+    {
+        Debug.Log($"[Quest] {requiredItemName}은 이미 충분히 제출되었습니다.");
+        ClearTemporarySlot(); 
+        return true; // 이미 완료된 것으로 간주
+    }
+    
+    // 제출하고자 하는 수량 (현재 인벤토리 슬롯에 있는 수량)
+    int potentialSubmitAmount = actualItem.count;
+    
+    // ⭐⭐⭐ 핵심 수정: 제출 버튼을 누르면, 현재 인벤토리 슬롯의 아이템 전체를 제출한다고 가정합니다. ⭐⭐⭐
+    // 하지만 요구량(needed)보다 적은 수량을 제출하면 아이템이 소모되고 퀘스트는 미완료 상태로 남아 유실감을 줍니다.
+    
+    // 만약 현재 슬롯에 있는 아이템을 다 털어도 요구량(needed)에 미치지 못한다면, 제출을 거부하고 롤백합니다.
+    if (potentialSubmitAmount < needed)
+    {
+        // 🚨 제출 거부: 요구량을 충족하지 못했으므로 소모하지 않습니다.
+        // 현재 로직은 드롭 시 소모하지 않았으므로, 임시 배치 상태만 해제합니다.
+        Debug.LogWarning($"[Quest] {requiredItemName} (현재 {potentialSubmitAmount}개)는 요구량({needed}개)을 충족하지 못합니다. 제출을 거부합니다.");
+        ClearTemporarySlot(); // 임시 배치 상태 해제
+        return false; 
+    }
+    
+    // 요구량을 충족할 수 있는 경우에만 소모 로직 진행
+    int submitAmount = needed; // 요구량 전체만 소모
 
+    // 인벤토리에서 아이템 소모
+    inven.ConsumeItemAt(temporaryItemIndex, submitAmount);
+    submittedCount += submitAmount;
+    
+    // UI 업데이트
+    UpdateQuestSlotUI(temporaryItem); 
+    
+    // QuestManager에게 제출 완료 알림 (보상 지급 트리거)
+    if (QuestManager.instance != null)
+    {
+        QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this); 
+    }
+    
+    ClearTemporarySlot(); // 임시 배치 상태 해제
+    
+    Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
+    
+    return true; // 제출 성공
+}
+    
+    
+    
+    
+    
     // 임시 배치된 아이템의 정보(개수)를 보여주는 UI 업데이트
     private void UpdateTemporarySlotUI(InventoryItem itemData)
     {
