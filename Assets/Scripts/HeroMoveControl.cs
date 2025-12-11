@@ -14,7 +14,9 @@ public class HeroMoveControl : MonoBehaviour
     // private float stepTime = 0.4f; // HeroStat.speed를 이용해 실제 속도를 계산할 때 쓰는 기준 시간 (현재 사용하지 않음)
 
     private float moveSpeed;                         // 최종 이동 속도
-    private const float minMoveSpeed = 0.5f;         // 이동 속도의 최소값
+    // 허기 패널티(예: speed 100 → 0.25f, 신발로 200 → 0.5f)에서도
+    // 신발 효과(배수 차이)가 느껴지도록 최소값을 너무 높지 않게 설정한다.
+    private const float minMoveSpeed = 0.25f;        // 이동 속도의 최소값
     private const float maxMoveSpeed = 6f;           // 이동 속도의 최대값
 
     private Rigidbody2D rb;                          // 물리 이동을 위한 Rigidbody2D
@@ -295,7 +297,18 @@ public class HeroMoveControl : MonoBehaviour
         var stat = HeroStat.Instance;
         if (stat != null)
         {
-            float ratio = stat.baseSpeed > 0f ? stat.speed / stat.baseSpeed : 1f;
+            // 1) 장비/물약 등으로 인해 변경된 현재 speed 값을 가져온다.
+            float effectiveSpeed = stat.speed;
+
+            // 2) 허기가 100 이하일 때는, "현재 속도"에 0.1배 패널티를 먼저 적용한다.
+            //    예) 기본 1000 → 100, 신발로 2배(2000) → 200 (허기 상태에서도 x2 유지)
+            if (stat.hunger <= 100f)
+            {
+                effectiveSpeed *= 0.1f;
+            }
+
+            // 3) 최종 이동속도는 baseSpeed 대비 비율로 환산해서 사용
+            float ratio = stat.baseSpeed > 0f ? effectiveSpeed / stat.baseSpeed : 1f;
             moveSpeed = 2.5f * Mathf.Max(ratio, 0.1f);
         }
         else
