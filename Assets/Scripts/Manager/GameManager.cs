@@ -262,17 +262,18 @@ public void PlayerDied()
     {
         switch (day)
         {
-            case GameDays.FirstDay: 
+           case GameDays.FirstDay: 
                     // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (180f, 180f);
+                   return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (180f, 180f);
+                    return (360f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (180f, 180f);
+                    return (300f, 300f);
                 default:
-                    return (120f, 180f); // 안전 반환값
+                    // 혹시 모를 경우를 대비한 기본값
+                    return (180f, 180f);
         }
     }
 
@@ -288,16 +289,16 @@ public void PlayerDied()
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (180f, 180f);
+                   return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (180f, 180f);
+                    return (360f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (180f, 180f);
+                    return (300f, 300f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
-                    return (120f, 180f);
+                    return (180f, 180f);
             }
         }
         
