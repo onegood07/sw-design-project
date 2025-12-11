@@ -108,10 +108,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51e977184393f80439fe57a9d879ff2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  itemType: 3
+  itemType: 0
   itemName: CanBundle
   itemImage: {fileID: 6070672825478603292, guid: 19b1382790b4a6640a3b91df5cebf7ef, type: 3}
-  itemDataAsset: {fileID: 11400000, guid: 401c7a9b95f6c56469c2a316906cd742, type: 2}
+  itemDataAsset: {fileID: 11400000, guid: a8a64524402e22b479e335696fd23ccb, type: 2}
 --- !u!114 &-3252740436256949635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,9 +213,9 @@ BoxCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
-    border: {x: 0.15625, y: 0.15625, z: 0.125, w: 0.125}
+    border: {x: 0.10416667, y: 0.10416667, z: 0.083333336, w: 0.083333336}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 0.6666667, y: 0.6666667}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

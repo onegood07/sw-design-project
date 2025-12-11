@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d656abfcabef1d44a8e0a7fc2af245cc, type: 3}
-  m_Name: EnergeBar_401
+  m_Name: CanBundle_501
   m_EditorClassIdentifier: Assembly-CSharp::MedicineData
-  ItemName: 401
-  Score: 4
-  Description: "\uC5D0\uB108\uC9C0 \uBC14"
+  ItemName: 501
+  Score: 5
+  Description: "\uCE94 \uBB36\uC74C"
   Icon: {fileID: 0}
-  MaxStackCount: 99
-  isAvailable: 1
-  originCoolTime: 3
+  MaxStackCount: 0
+  isAvailable: 0
+  originCoolTime: 6
   clip: {fileID: 8300000, guid: c48a972d3d024c2408a3331750786a29, type: 3}
   whichStat:
   - hunger
   healAmount:
   - 0
-  - 200
+  - 400
   buffDuration: 0
