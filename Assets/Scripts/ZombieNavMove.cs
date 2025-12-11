@@ -88,7 +88,7 @@ public class ZombieNavMove : MonoBehaviour
     public void CallDestroy()
     {
         isLive = false;
-        if (agent != null)
+        if (IsAgentUsable())
             agent.isStopped = true;   // 이동 정지
 
         SetAnimDirection(Vector2Int.zero);
@@ -110,7 +110,7 @@ public class ZombieNavMove : MonoBehaviour
    if (dialogueActive)
     {
         // 이미 멈춰있을 수 있지만, 매 프레임 확실히 확인
-        if (agent != null && !agent.isStopped) 
+        if (IsAgentUsable() && !agent.isStopped) 
             agent.isStopped = true; 
         
         // 정지 상태 애니메이션을 위해 현재 방향으로 설정
@@ -124,7 +124,7 @@ public class ZombieNavMove : MonoBehaviour
 
     if (isHitStopped)
     {
-        if (agent != null && !agent.isStopped)
+        if (IsAgentUsable() && !agent.isStopped)
             agent.isStopped = true;
 
         SetAnimDirection(lastMoveDir);
@@ -140,11 +140,14 @@ public class ZombieNavMove : MonoBehaviour
     // 1) 플레이어가 공격 사거리 안에 있으면 → 이동 중단 + 공격 처리
     if (dist <= attackRange)
     {
-        if (!agent.isStopped)
-            agent.isStopped = true;
+        if (IsAgentUsable())
+        {
+            if (!agent.isStopped)
+                agent.isStopped = true;
 
-        if (agent.hasPath)
-            agent.ResetPath();
+            if (agent.hasPath)
+                agent.ResetPath();
+        }
 
         // 공격을 위해 플레이어 방향으로 애니메이션 방향만 돌리기
         Vector2 toHero = (Vector2)(heroTr.position - transform.position);
@@ -179,14 +182,15 @@ public class ZombieNavMove : MonoBehaviour
     {
         // 공격 범위를 벗어나면 다시 이동 가능
         inAttackRange = false;
-        if (!isAttacking)
+        if (IsAgentUsable() && !isAttacking)
             agent.isStopped = false;
     }
 
     // 2) 추적 범위 안 → 플레이어를 계속 추적
     if (dist <= chaseRange)
     {
-        agent.SetDestination(heroTr.position);
+        if (IsAgentUsable())
+            agent.SetDestination(heroTr.position);
     }
     else
     {
@@ -194,7 +198,7 @@ public class ZombieNavMove : MonoBehaviour
         wanderTimer -= dt;
 
         // 일정 시간마다 새 목적지 생성
-        if (wanderTimer <= 0f || agent.remainingDistance <= 0.1f)
+        if (IsAgentUsable() && (wanderTimer <= 0f || agent.remainingDistance <= 0.1f))
         {
             wanderTimer = wanderInterval;
 
@@ -211,7 +215,9 @@ public class ZombieNavMove : MonoBehaviour
     }
 
     // 4) 실제 이동 벡터(v)를 이용해서 4방향 애니메이션 갱신
-    Vector3 v = agent.desiredVelocity;            // NavMeshAgent가 향하고 있는 실제 이동 벡터
+    Vector3 v = Vector3.zero;
+    if (IsAgentUsable())
+        v = agent.desiredVelocity;            // NavMeshAgent가 향하고 있는 실제 이동 벡터
     Vector2Int moveDir = GetAnimDirFromVector(v); // 4방향으로 변환
 
     if (moveDir == Vector2Int.zero)               // 거의 멈춘 경우, 이전 방향 유지
@@ -220,6 +226,12 @@ public class ZombieNavMove : MonoBehaviour
     SetAnimDirection(moveDir);
     lastMoveDir = moveDir;
 }
+
+    // NavMeshAgent가 안전하게 사용 가능한지 체크
+    bool IsAgentUsable()
+    {
+        return agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh;
+    }
 
     // 실제 데미지 처리(좀비 공격)
     void DoAttack()
@@ -304,7 +316,7 @@ public class ZombieNavMove : MonoBehaviour
     {
         isHitStopped = true;
 
-        if (agent != null && !agent.isStopped)
+        if (IsAgentUsable() && !agent.isStopped)
             agent.isStopped = true;
 
         if (spriteRenderer != null)
