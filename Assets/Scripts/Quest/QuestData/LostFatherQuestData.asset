@@ -19,6 +19,6 @@ MonoBehaviour:
   requiredAmount: 1
   giveItemReward: 1
   rewardItem: {fileID: 1511330356446781366, guid: 9c0014343ab8b684aafc23314b0bfa19, type: 3}
-  rewardCount: 3
+  rewardCount: 4
   increaseSurvivors: 1
   survivorIncreaseAmount: 1

@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI; 
 
-// Slot 클래스를 상속받는다고 가정하며, itemIcon과 itemCountText는 Slot에 정의되어 있다고 가정합니다.
 public class QuestSlot : Slot
 {
     // ⭐ [추가]: QuestManager가 보상 타입(아이템/생존자)을 확인하고 처리할 수 있도록 QuestData 객체 자체를 저장합니다.
@@ -30,19 +29,14 @@ public class QuestSlot : Slot
     // QuestSlot의 Raycast Target을 담당하는 Image 컴포넌트 (슬롯 배경)
     private Image slotBackground;
 
-    // 가정: itemIcon과 itemCountText는 부모 클래스 Slot에 정의되어 있습니다.
-
     void Awake()
     {
         // 슬롯 자체의 Image 컴포넌트를 가져옴
         slotBackground = GetComponent<Image>();
         
-        // ⭐ [추가된 로직] 슬롯이 항상 드롭 가능하도록 Raycast Target을 강제로 활성화
         if (slotBackground != null)
         {
-            // 이 설정을 통해 itemIcon의 SetActive 상태와 무관하게 슬롯 영역 클릭 가능
             slotBackground.raycastTarget = true;
-            // Debug.Log("[QuestSlot] 배경 Raycast Target 활성화됨."); 
         }
         else
         {
@@ -63,23 +57,15 @@ public class QuestSlot : Slot
             return;
         }
 
-        // ⭐ [수정]: QuestData 객체 자체를 저장합니다.
         AssignedQuestData = data; 
-
-        // 1. 요구 사항 데이터 저장
         this.requiredItemName = data.requiredItemName;
         this.requiredAmount = data.requiredAmount;
-        
-        // 2. 보상 데이터 저장 (물물교환/보상에 사용됨)
         this.rewardItem = data.rewardItem;
         this.rewardCount = data.rewardCount;
+        this.submittedCount = 0; 
         
-        this.submittedCount = 0; // 퀘스트 시작 시 초기화
-        
-        // 초기 퀘스트 상태 UI 업데이트 (예: 0 / reqAmount 표시)
         ClearTemporarySlot();
         
-        // Slot 클래스에 itemCountText가 있다고 가정
         if (itemCountText != null)
         {
             itemCountText.text = $"{submittedCount} / {this.requiredAmount}";
@@ -90,19 +76,18 @@ public class QuestSlot : Slot
     }
 
     // 아이템 드롭 처리: 요구 아이템인지, 수량이 충분한지 확인
-    public override void OnDrop(PointerEventData eventData)
+   public override void OnDrop(PointerEventData eventData) {
     {
         if (string.IsNullOrEmpty(requiredItemName) || requiredAmount <= 0)
         {
             Debug.LogWarning("[QuestSlot] 이 슬롯은 아직 퀘스트 정보가 설정되지 않았습니다.");
             return;
         }
-        var drag = ItemDragHandler.currentlyDragging;
+        var drag = ItemDragHandler.currentlyDragging; 
         if (drag == null) return;
         Slot fromSlot = drag.slot; 
         if (fromSlot == null || fromSlot == this) return;
         
-        // Inventory.instance, ItemDragHandler.currentlyDragging 등은 외부 스크립트/싱글톤에서 가져온다고 가정
         Inventory inven = Inventory.instance;
         if (inven == null) 
         {
@@ -111,7 +96,7 @@ public class QuestSlot : Slot
         }
         
         int fromIdx = fromSlot.slotIndex;
-        InventoryItem draggedItem = inven.items.Count > fromIdx ? inven.items[fromIdx] : null;
+        InventoryItem draggedItem = inven.items.Count > fromIdx ? inven.items[fromIdx] : null; 
         
         if (draggedItem == null || draggedItem.itemName != requiredItemName)
         {
@@ -129,7 +114,15 @@ public class QuestSlot : Slot
         temporaryItemIndex = fromIdx;
         UpdateTemporarySlotUI(draggedItem);
         Debug.Log($"아이템 {requiredItemName}이 슬롯에 임시 배치되었습니다.");
+        
+        // ⭐ [수정] 아이템을 드롭했을 때 QuestManager에게 상태 변경을 알립니다.
+        if (QuestManager.instance != null)
+        {
+            // 드롭된 아이템의 수량으로 버튼 상태 업데이트를 요청
+            QuestManager.instance.NotifySlotStateChanged(draggedItem.count);
+        }
     }
+   }
     
     /// <summary>
     /// 버튼이 눌렸을 때 임시 배치된 아이템을 확정 제출하는 함수 (QuestManager에서 호출됨)
@@ -150,7 +143,7 @@ public class QuestSlot : Slot
             return false;
         }
         
-        // 인벤토리에서 실제 아이템 확인 (드래그 후 인벤토리 변경이 발생했을 수 있으므로 재확인)
+        // 인벤토리에서 실제 아이템 확인
         InventoryItem actualItem = inven.items[temporaryItemIndex];
         if (actualItem == null || actualItem.itemName != requiredItemName)
         {
@@ -167,9 +160,22 @@ public class QuestSlot : Slot
             return true; // 이미 완료된 것으로 간주
         }
         
-        // 필요한 수량과 인벤토리의 실제 수량 중 작은 값만큼 제출
-        int submitAmount = Mathf.Min(needed, actualItem.count);
+        int potentialSubmitAmount = actualItem.count;
         
+        // ⭐⭐⭐ 핵심 수정: 버튼 비활성화 정책으로 인해 이 블록은 거의 실행되지 않아야 하지만, 안전 장치로 남깁니다. ⭐⭐⭐
+        if (potentialSubmitAmount < needed)
+        {
+           // 🚨 제출 거부: 버튼이 비활성화되었어야 합니다. 코드가 여기에 도달하면 버그입니다.
+            Debug.LogError($"[Quest] FATAL ERROR: 수량 부족({potentialSubmitAmount}/{needed})으로 제출 거부됨. 버튼 비활성화 로직 확인 필요.");
+            
+            // UI를 띄우지 않고 롤백 (임시 아이템 해제)
+            ClearTemporarySlot(); 
+            return false;
+        }
+        
+        // 요구량을 충족할 수 있는 경우에만 소모 로직 진행
+        int submitAmount = needed; // 요구량 전체만 소모
+
         // 인벤토리에서 아이템 소모
         inven.ConsumeItemAt(temporaryItemIndex, submitAmount);
         submittedCount += submitAmount;
@@ -177,32 +183,22 @@ public class QuestSlot : Slot
         // UI 업데이트
         UpdateQuestSlotUI(temporaryItem); 
         
-        // ⭐ QuestManager에게 제출 완료 알림 (보상 지급 트리거)
+        // QuestManager에게 제출 완료 알림 (보상 지급 트리거)
         if (QuestManager.instance != null)
         {
-            // 이 함수 호출 후 QuestSlot 오브젝트가 파괴되는지 확인이 필요합니다.
             QuestManager.instance.OnItemSubmitted(requiredItemName, submitAmount, this); 
         }
         
-        ClearTemporarySlot(); // 임시 배치 상태 해제
+        ClearTemporarySlot(); // 임시 배치 상태 해제 -> NotifySlotStateChanged(0) 호출
         
         Debug.Log($"아이템 {requiredItemName} {submitAmount}개를 확정 납입했습니다. (총 {submittedCount}/{requiredAmount})");
-
-        // 👇👇👇 중요: 여기서 파괴 여부 확인 👇👇👇
-        if (this.gameObject == null)
-        {
-            // 이 로그가 출력되면 QuestManager.OnItemSubmitted 또는 그 외부에 의해 객체가 파괴된 것입니다.
-            Debug.LogError("[QuestSlot] FATAL: ConfirmSubmission이 반환되기 직전에 오브젝트가 파괴되었습니다!"); 
-        }
-        // 👆👆👆 중요: 여기서 파괴 여부 확인 👆👆👆
         
-        return true;
+        return true; // 제출 성공
     }
 
     // 임시 배치된 아이템의 정보(개수)를 보여주는 UI 업데이트
     private void UpdateTemporarySlotUI(InventoryItem itemData)
     {
-        // Slot 클래스에 itemIcon이 있다고 가정
         if (itemIcon == null) 
         {
             Debug.LogError("[UI NRE Check] UpdateTemporarySlotUI: itemIcon이 Slot 인스펙터에 연결되지 않았습니다. 임시 UI 업데이트 실패."); 
@@ -220,7 +216,6 @@ public class QuestSlot : Slot
     // 최종 제출 후 현재 진행 상태를 보여주는 UI 업데이트
     private void UpdateQuestSlotUI(InventoryItem itemData)
     {
-        // Slot 클래스에 itemIcon이 있다고 가정
         if (itemIcon == null) 
         {
             Debug.LogError("[UI NRE Check] UpdateQuestSlotUI: itemIcon이 Slot 인스펙터에 연결되지 않았습니다. 확정 UI 업데이트 건너뜀."); 
@@ -253,9 +248,30 @@ public class QuestSlot : Slot
         // 제출된 아이템이 있다면, 현재 상태(submittedCount)를 다시 표시합니다.
         else if (itemIcon != null && itemCountText != null)
         {
-            // 아이콘은 이미 설정되어 있다고 가정하고 수량만 업데이트
             itemCountText.text = $"{submittedCount} / {requiredAmount}";
         }
+        
+        // ⭐ [추가]: 임시 아이템이 제거되었음을 QuestManager에게 알립니다 (수량: 0).
+        // 이로 인해 Submit 버튼이 비활성화됩니다.
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.NotifySlotStateChanged(0);
+        }
+    }
+    
+    /// <summary>
+    /// 퀘스트 제출 UI가 닫히거나, 제출이 확정되지 않았을 때 임시 배치 상태를 해제합니다.
+    /// QuestManager의 CloseSubmitUI에서 호출됩니다.
+    /// </summary>
+    public void RollbackSubmission()
+    {
+        if (temporaryItem != null)
+        {
+             Debug.Log($"[QuestSlot] 퀘스트 취소로 인해 임시 배치된 아이템 ({temporaryItem.itemName})의 상태를 해제합니다.");
+        }
+        
+        // 임시 배치 정보 초기화 및 UI 정리 (NotifySlotStateChanged(0) 포함)
+        ClearTemporarySlot(); 
     }
     
     /// <summary>
@@ -264,14 +280,14 @@ public class QuestSlot : Slot
     public void ResetSlot()
     {
         // 모든 퀘스트 정보를 초기화합니다.
-        this.AssignedQuestData = null; // ⭐ [추가]: QuestData도 초기화
+        this.AssignedQuestData = null; 
         this.requiredItemName = null;
         this.requiredAmount = 0;
         this.rewardItem = null;
         this.rewardCount = 0;
         this.submittedCount = 0;
         
-        // UI도 완전히 숨깁니다.
+        // UI도 완전히 숨깁니다. (NotifySlotStateChanged(0) 포함)
         ClearTemporarySlot(); 
     }
 }

@@ -17,9 +17,9 @@ MonoBehaviour:
     \uC124\uC815\uB429\uB2C8\uB2E4."
   requiredItemName: EnergyBar
   requiredItemIcon: {fileID: 9042664321243512265, guid: b180c75234f9fe54f945d241ba190077, type: 3}
-  requiredAmount: 5
+  requiredAmount: 4
   giveItemReward: 1
   rewardItem: {fileID: 8377399505079120524, guid: 4561518ae6c81bb47ad02a786321c602, type: 3}
-  rewardCount: 3
+  rewardCount: 2
   increaseSurvivors: 1
   survivorIncreaseAmount: 1

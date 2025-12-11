@@ -141,7 +141,7 @@ public class InventoryUI : MonoBehaviour
     /// <summary>
     /// 인벤토리 데이터와 UI 슬롯 간 내용을 동기화합니다. (과거 버전의 안전성 로직 반영)
     /// </summary>
-    void RedrawSlotUI()
+    public void RedrawSlotUI()
     {
         if (inven == null || slots == null) return;
         

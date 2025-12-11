@@ -20,6 +20,6 @@ MonoBehaviour:
   requiredAmount: 4
   giveItemReward: 0
   rewardItem: {fileID: -967469265316974195, guid: 636bd03e8d9f75c48a70e92071664bc9, type: 3}
-  rewardCount: 0
+  rewardCount: 7
   increaseSurvivors: 1
   survivorIncreaseAmount: 1
