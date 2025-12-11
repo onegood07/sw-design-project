@@ -15,8 +15,11 @@ MonoBehaviour:
   questName: Exchange3
   questDescription: "\uC694\uAD6C \uC544\uC774\uD15C\uACFC \uBCF4\uC0C1 \uC544\uC774\uD15C\uC774
     \uC124\uC815\uB429\uB2C8\uB2E4."
-  requiredItemName: Band
-  requiredItemIcon: {fileID: 1462799768519014029, guid: 9c77f37515354464aae966cdb8782afa, type: 3}
-  requiredAmount: 1
-  rewardItem: {fileID: 1117397670487763955, guid: ac2e620bd2cab82478a9238d650e170e, type: 3}
+  requiredItemName: WoodPanel
+  requiredItemIcon: {fileID: -8772241969766799354, guid: 336e235656992384abf1362ec0a8d24d, type: 3}
+  requiredAmount: 4
+  giveItemReward: 0
+  rewardItem: {fileID: 8018865339420979663, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
   rewardCount: 2
+  increaseSurvivors: 0
+  survivorIncreaseAmount: 1
