@@ -98,6 +98,8 @@ public class GameManager : MonoBehaviour
 
     // 대화창 관련 플래그
     public bool IsDialogueActive { get; private set; } = false;
+    // 씬 로드 중 시간 흐름에 따른 조명 전환을 막는 플래그
+    public bool IsSceneLoadingInProgress { get; private set; } = false;
 
     // MARK: Awake 함수
     void Awake()
@@ -212,9 +214,16 @@ public void PlayerDied()
         StopCoroutine(gameLoopCoroutine);
 }
 
-    // MARK: 글로벌 라이트 적용
-    public void ApplyGlobalLight()
+   // MARK: 글로벌 라이트 적용
+    public void ApplyGlobalLight(bool isSceneLoad = false)
     {
+        // ⭐⭐ 추가: 씬 로드 중이고, 이것이 씬 로드 호출(isSceneLoad: true)이 아니라면 무시
+        if (IsSceneLoadingInProgress && !isSceneLoad)
+        {
+             Debug.LogWarning("[GameManager] 씬 로드 초기화 중이므로, 시간 흐름에 따른 조명 전환 요청을 무시합니다.");
+             return;
+        }
+
         string currentScene = SceneManager.GetActiveScene().name;
 
         if (currentScene == ShelterSceneName)
@@ -225,16 +234,26 @@ public void PlayerDied()
 
         if (currentScene == MainWorldSceneName)
         {
-            // LightController가 외부에서 정의되어 있다고 가정하고 주석 처리
             if (LightController.Instance != null)
             {
-                LightController.Instance.UpdateGlobalLight(CurrentPhase); 
+                if (isSceneLoad)
+                {
+                    // 씬 로드 시 (쉘터 복귀 등)에는 복잡한 전환 없이 즉시 최종 조명 상태를 설정
+                    LightController.Instance.SetGlobalLightInstantly(CurrentPhase); 
+                    Debug.Log($"[GameManager] 메인 씬 복귀: {CurrentPhase} 상태 조명 즉시 설정 완료.");
+                }
+                else
+                {
+                    // 게임 루프에 의한 페이즈 전환 시에는 복합 전환 사용
+                    LightController.Instance.UpdateGlobalLight(CurrentPhase); 
+                    Debug.Log($"[GameManager] 페이즈 전환: {CurrentPhase} 상태 조명 전환 시작.");
+                }
             }
             else
             {
                 Debug.LogWarning("[GameManager] Main 씬이지만 LightController.Instance를 찾을 수 없습니다.");
             }
-           
+        
         }
     }
 
@@ -243,22 +262,24 @@ public void PlayerDied()
     {
         switch (day)
         {
-            case GameDays.FirstDay: 
+           case GameDays.FirstDay: 
                     // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (180f, 180f);
+                   return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (180f, 180f);
+                    return (360f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (180f, 180f);
+                    return (300f, 300f);
                 default:
-                    return (120f, 180f); // 안전 반환값
+                    // 혹시 모를 경우를 대비한 기본값
+                    return (180f, 180f);
         }
     }
 
  // TODO: 일차별 시간대 설정 (반드시 GetDurationForDay 동일하게 수정해줘야함)
 // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
+   // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
     IEnumerator GameLoopCoroutine()
     {
         // ⭐ DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
@@ -268,16 +289,16 @@ public void PlayerDied()
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (180f, 180f);
+                   return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (180f, 180f);
+                    return (360f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (180f, 180f);
+                    return (300f, 300f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
-                    return (120f, 180f);
+                    return (180f, 180f);
             }
         }
         
@@ -300,7 +321,9 @@ public void PlayerDied()
             // 좀비 수량 증가 (밤 페이즈 시작 시)
             CurrentZombieSpawnCount += 20; 
             Debug.Log($"🌙 [{CurrentDay}] 밤 시작! ({currentNightDuration/60f:F1}분 = {currentNightDuration:F0}초)");
-            ApplyGlobalLight();
+            
+            // ⭐ [수정 반영] 시간 흐름에 따른 전환이므로 인자 없이 호출
+            ApplyGlobalLight(); 
             
             // 밤 스폰 요청 (추가 스폰)
             StartNightPhase();
@@ -326,6 +349,8 @@ public void PlayerDied()
             (currentDayDuration, currentNightDuration) = GetDuration(CurrentDay); // 다음 날 시간 다시 가져옴
             CurrentPhase = Phase.Day;
             Debug.Log($"☀️ [{CurrentDay}] 낮 시작! ({currentDayDuration/60f:F1}분 = {currentDayDuration:F0}초)");
+            
+            // ⭐ [수정 반영] 시간 흐름에 따른 전환이므로 인자 없이 호출
             ApplyGlobalLight(); 
             
             // 낮 스폰 요청 (초기 스폰 - 씬 오브젝트 초기화 후)
@@ -341,6 +366,9 @@ public void PlayerDied()
 
         Debug.Log("모든 날이 종료되었습니다!");
     }
+
+
+
 
  // MARK: 납입 점수 기준에 따른 생존자 감소 계산
     private int CalculateSurvivorLoss()
@@ -785,9 +813,11 @@ void StartNightPhase()
         }
     }
     
-    // MARK: 씬 로드 시 실행 (UI 참조 복구 로직 강화 및 스폰 복원 총괄)
+   // MARK: 씬 로드 시 실행 (UI 참조 복구 로직 강화 및 스폰 복원 총괄)
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        IsSceneLoadingInProgress = true;
+
         IsInShelter = (scene.name == ShelterSceneName); 
         
         // SpawnManager 인스턴스를 찾거나 참조를 유지합니다.
@@ -841,9 +871,10 @@ void StartNightPhase()
             }
         } 
         
-        ApplyGlobalLight(); 
+        // ⭐ [수정 반영] 씬 로드 직후이므로 true를 전달하여 LightController의 즉시 설정 함수 호출 유도
+        ApplyGlobalLight(true); 
+        IsSceneLoadingInProgress = false;
     }
-
     public void ResetGameSession()
     {
         Debug.Log("=========================================");

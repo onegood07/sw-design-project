@@ -63,9 +63,11 @@ public class LightController : MonoBehaviour
     {
         if (globalLight == null) return;
         
+        // ⭐ 개선: 새로운 코루틴 시작 전에 기존 코루틴을 중지하고 null로 설정
         if (lightCoroutine != null)
         {
             StopCoroutine(lightCoroutine);
+            lightCoroutine = null; 
         }
 
         if (newPhase == Phase.Night)
@@ -105,9 +107,7 @@ public class LightController : MonoBehaviour
     // MARK: 밤 -> 낮 (일출) 복합 전환 시퀀스
     private IEnumerator TransitionNightToDayComplexSequence()
     {
-        // 1. **(수정 적용)** 4초 동안 서서히 밝아짐 (현재 밤색 -> 붉은 새벽 Dawn 색상)
-        // Night 상태에서 Dawn 상태로 바로 부드럽게 전환합니다.
-        // transitionDuration을 4f로 설정하여 사용합니다.
+        // 1. 4초 동안 서서히 밝아짐 (현재 밤색 -> 붉은 새벽 Dawn 색상)
         yield return TransitionLight(dawnIntensity, dawnColor, transitionDuration);
         
         // 2. 10초 동안 붉은 새벽 상태 유지
@@ -116,6 +116,7 @@ public class LightController : MonoBehaviour
         // 3. 5초 동안 서서히 완전한 낮 (MidDay)으로 전환
         yield return TransitionLight(midDayIntensity, midDayColor, dawnToMidDayTransitionDuration);
         
+        // ⭐ 개선: 코루틴이 자연스럽게 종료될 때 null로 설정
         lightCoroutine = null;
     }
     
@@ -126,9 +127,37 @@ public class LightController : MonoBehaviour
         yield return TransitionLight(duskIntensity, duskColor, midDayToDuskTransitionDuration);
 
         // 2. 4초 동안 서서히 짙은 밤 (Night)으로 전환
-        // transitionDuration을 4f로 설정하여 사용합니다.
         yield return TransitionLight(nightIntensity, nightColor, transitionDuration);
         
+        // ⭐ 개선: 코루틴이 자연스럽게 종료될 때 null로 설정
         lightCoroutine = null;
+    }
+
+    // MARK: 씬 로드 시 즉시 조명 설정
+    public void SetGlobalLightInstantly(Phase phase)
+    {
+        if (globalLight == null) return;
+        
+        // ⭐ 이 로직은 이미 정확합니다. 모든 전환을 멈춥니다.
+        if (lightCoroutine != null)
+        {
+            StopCoroutine(lightCoroutine);
+            lightCoroutine = null;
+        }
+
+        if (phase == Phase.Night)
+        {
+            // 밤의 최종 목표 값으로 즉시 설정
+            globalLight.intensity = nightIntensity;
+            globalLight.color = nightColor;
+            Debug.Log("[LightController] 씬 로드: 밤 상태로 조명 즉시 설정 완료.");
+        }
+        else // Phase.Day
+        {
+            // 낮의 최종 목표 값으로 즉시 설정
+            globalLight.intensity = midDayIntensity;
+            globalLight.color = midDayColor;
+            Debug.Log("[LightController] 씬 로드: 낮 상태로 조명 즉시 설정 완료.");
+        }
     }
 }
