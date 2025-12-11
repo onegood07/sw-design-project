@@ -81,7 +81,7 @@ public class FadeManager : MonoBehaviour
         }
 
         // 5. 씬 전환 후, 게임 전체 상태(전역 라이트) 재적용
-        GameManager.Instance?.ApplyGlobalLight();
+       GameManager.Instance?.ApplyGlobalLight(true);
 
         // 6. 화면 밝게
         yield return StartCoroutine(Fade(1f, 0f));
