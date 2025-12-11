@@ -172,6 +172,11 @@ public class DialogueManager : MonoBehaviour
         
         // 2. ⭐ [GameManager 상호작용 종료] 대화가 완전히 끝났을 때 상호작용 종료를 알립니다.
         GameManager.Instance?.EndInteraction();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ExecuteReservedSurvivorIncrease();
+        }
+
         Debug.Log("[DialogueManager] 대화 상태 완전 초기화 완료.");
     }
 }
