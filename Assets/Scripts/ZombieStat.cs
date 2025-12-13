@@ -190,15 +190,50 @@ public class ZombieStat : MonoBehaviour
         // 새로운 dropItems 배열을 우선 사용
         if (dropItems != null && dropItems.Length > 0)
         {
+            // 유효한 아이템만 필터링 (null이 아니고 itemPrefab이 있는 것만)
+            var validItems = new System.Collections.Generic.List<DropItemData>();
             foreach (var dropData in dropItems)
             {
-                if (dropData == null || dropData.itemPrefab == null)
-                    continue;
-
-                bool isDrop = Random.Range(0f, 1f) < dropData.dropRate;
-                if (isDrop)
+                if (dropData != null && dropData.itemPrefab != null)
                 {
-                    Instantiate(dropData.itemPrefab, transform.position, Quaternion.identity);
+                    validItems.Add(dropData);
+                }
+            }
+
+            if (validItems.Count == 0)
+                return;
+
+            // 모든 아이템의 확률 합계 계산
+            float totalRate = 0f;
+            foreach (var item in validItems)
+            {
+                totalRate += item.dropRate;
+            }
+
+            if (totalRate <= 0f)
+                return; // 모든 확률이 0이면 드롭 안 함
+
+            // 아이템이 드롭될지 결정 (합계가 100%가 아니어도 됨)
+            float randomValue = Random.Range(0f, 1f);
+            if (randomValue >= totalRate)
+            {
+                // 드롭되지 않음
+                return;
+            }
+
+            // 드롭될 아이템 하나를 가중치 랜덤으로 선택
+            // 합계가 100%가 아니어도 각 아이템의 상대적 비율로 선택됨
+            float selectedValue = Random.Range(0f, totalRate);
+            float currentSum = 0f;
+
+            foreach (var item in validItems)
+            {
+                currentSum += item.dropRate;
+                if (selectedValue <= currentSum)
+                {
+                    // 이 아이템 드롭
+                    Instantiate(item.itemPrefab, transform.position, Quaternion.identity);
+                    break;
                 }
             }
         }
