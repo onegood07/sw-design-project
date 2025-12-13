@@ -23,12 +23,19 @@ public class MedicineData : ItemData, IUsable
     // 코드 성능 고려하면 그게 조금 나은 것 같긴함
     /*
     - Use 
-    - 인자 : Hero 위치, 시야방향
+    - 인자 : Hero 위치(현재는 사용하지 않지만 IUsable 규격 유지용), 시야방향
     - 반환 값 : 없음
     */
     public void Use(Transform HeroTransform, Vector2 viewDirection)
     {
-        heroStat = HeroTransform.GetComponent<HeroStat>();
+        // ✅ 항상 싱글톤 HeroStat을 기준으로 동작하도록 수정
+        //    (잘못된 Transform이 넘어와도 HP 회복이 제대로 되도록 함)
+        heroStat = HeroStat.Instance;
+        if (heroStat == null)
+        {
+            Debug.LogWarning("[MedicineData] HeroStat.Instance 를 찾을 수 없어 회복 아이템을 사용할 수 없습니다.");
+            return;
+        }
 
         // hp 회복 아이템 사용 시.
         if (whichStat.Contains("hp"))
