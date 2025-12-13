@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 20
-  m_Sprite: {fileID: 7844154904726849855, guid: ba226bbcc09e28b4b9dd84cfd567f6f1, type: 3}
+  m_Sprite: {fileID: 7281391572428730709, guid: edb84edc62311ee4ca13f153741fe2d4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -148,6 +148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueNPC
   dialogueData: {fileID: 11400000, guid: d9776165376cb4e6584546fcc96927f9, type: 2}
+  PersistentID: 
 --- !u!61 &3188567100556306310
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -186,7 +187,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.25, y: 0.6875}
+    oldSize: {x: 0.265625, y: 0.6875}
     newSize: {x: 0.265625, y: 0.71875}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
