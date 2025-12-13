@@ -178,7 +178,8 @@ public class Inventory : MonoBehaviour
         for (int oldIndex = 0; oldIndex < items.Count; oldIndex++)
         {
             var it = items[oldIndex];
-            if (it == null)
+            // null이거나 아이템 이미지가 없는 슬롯은 정렬 대상에서 제외 (빈 칸으로 처리)
+            if (it == null || it.itemImage == null)
                 continue;
 
             int newIndex = newItems.Count;

@@ -175,7 +175,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03efb2b00b4d94e95b2c16598f1e0cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieStat
-  type: 0
+  type: 2
+  dropItems:
+  - itemPrefab: {fileID: 1715114082677771532, guid: 6c989bc03b49ad04a96b771c6c4031d6, type: 3}
+    dropRate: 0.5
+  - itemPrefab: {fileID: 8298581016742193680, guid: 778e4e19c7c893142b94cdd7daaf9a1b, type: 3}
+    dropRate: 0.5
   dropItem: {fileID: 1715114082677771532, guid: 6c989bc03b49ad04a96b771c6c4031d6, type: 3}
   dropRate: 1
   BaseHp: 1500

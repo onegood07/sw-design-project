@@ -16,9 +16,23 @@ public class ZombieStat : MonoBehaviour
     [Header("Zombie Type")]
     public ZombieType type = ZombieType.Normal; // 좀비의 유형
 
-    [Header("Drop Item")]
+    [System.Serializable]
+    public class DropItemData
+    {
+        public GameObject itemPrefab;
+        [Tooltip("0~1 사이 확률")]
+        [Range(0f, 1f)]
+        public float dropRate = 0.2f;
+    }
+
+    [Header("Drop Items")]
+    [Tooltip("좀비가 죽을 때 드롭할 수 있는 아이템 목록 (여러 개 가능)")]
+    public DropItemData[] dropItems = new DropItemData[0];
+
+    [Header("Deprecated - 사용하지 않음 (호환성 유지용)")]
+    [Tooltip("이 필드는 더 이상 사용하지 않습니다. dropItems 배열을 사용하세요.")]
     public GameObject dropItem;
-    [Tooltip("0~1 사이 확률")]
+    [Tooltip("이 필드는 더 이상 사용하지 않습니다. dropItems 배열의 각 항목에 dropRate를 설정하세요.")]
     public float dropRate = 0.2f;
 
     // 기본 스탯 설정
@@ -173,11 +187,29 @@ public class ZombieStat : MonoBehaviour
     // 아이템 드롭
     public void itemDrop()
     {
-        bool isDrop = Random.Range(0f, 1f) < dropRate;
-
-        if (isDrop && dropItem != null)
+        // 새로운 dropItems 배열을 우선 사용
+        if (dropItems != null && dropItems.Length > 0)
         {
-            Instantiate(dropItem, transform.position, Quaternion.identity);
+            foreach (var dropData in dropItems)
+            {
+                if (dropData == null || dropData.itemPrefab == null)
+                    continue;
+
+                bool isDrop = Random.Range(0f, 1f) < dropData.dropRate;
+                if (isDrop)
+                {
+                    Instantiate(dropData.itemPrefab, transform.position, Quaternion.identity);
+                }
+            }
+        }
+        // 기존 dropItem 필드 (하위 호환성 유지)
+        else if (dropItem != null)
+        {
+            bool isDrop = Random.Range(0f, 1f) < dropRate;
+            if (isDrop)
+            {
+                Instantiate(dropItem, transform.position, Quaternion.identity);
+            }
         }
     }
 }
