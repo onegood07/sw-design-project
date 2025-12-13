@@ -840,33 +840,50 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
-        // 3. 새로운 좀비를 Normal, HighSpeed, HighPower 세 종류에 균등하게 분배하여 스폰
-        int countPerType = newZombiesToSpawn / 3;
-        int normalCount = countPerType;
-        int highSpeedCount = countPerType;
-        int highPowerCount = newZombiesToSpawn - normalCount - highSpeedCount; // 나머지는 HighPower에 할당
-
+        // 3. 새로운 좀비 스폰 - 2일차부터는 특수좀비(HighSpeed, HighPower) 포함
         int totalSpawned = 0;
+        bool shouldSpawnSpecialZombies = GameManager.Instance != null && GameManager.Instance.CurrentDay >= GameDays.SecondDay;
 
-        // Normal Zombie 추가 스폰
-        List<Vector3> usedNormalPositions = SpawnObjects(normalZombiePrefab, normalCount, remainingPositions, spawnedZombies);
-        remainingPositions.RemoveAll(pos => usedNormalPositions.Contains(pos));
-        totalSpawned += usedNormalPositions.Count;
+        if (shouldSpawnSpecialZombies)
+        {
+            // 2일차 이상: Normal, HighSpeed, HighPower 세 종류에 균등하게 분배
+            int countPerType = newZombiesToSpawn / 3;
+            int normalCount = countPerType;
+            int highSpeedCount = countPerType;
+            int highPowerCount = newZombiesToSpawn - normalCount - highSpeedCount;
 
-        // High Speed Zombie 추가 스폰
-        List<Vector3> usedSpeedPositions = SpawnObjects(highSpeedZombiePrefab, highSpeedCount, remainingPositions, spawnedZombies);
-        remainingPositions.RemoveAll(pos => usedSpeedPositions.Contains(pos));
-        totalSpawned += usedSpeedPositions.Count;
+            // Normal Zombie 추가 스폰
+            List<Vector3> usedNormalPositions = SpawnObjects(normalZombiePrefab, normalCount, remainingPositions, spawnedZombies);
+            remainingPositions.RemoveAll(pos => usedNormalPositions.Contains(pos));
+            totalSpawned += usedNormalPositions.Count;
 
-        // High Power Zombie 추가 스폰
-        List<Vector3> usedPowerPositions = SpawnObjects(highPowerZombiePrefab, highPowerCount, remainingPositions, spawnedZombies);
-        remainingPositions.RemoveAll(pos => usedPowerPositions.Contains(pos));
-        totalSpawned += usedPowerPositions.Count;
+            // High Speed Zombie 추가 스폰
+            List<Vector3> usedSpeedPositions = SpawnObjects(highSpeedZombiePrefab, highSpeedCount, remainingPositions, spawnedZombies);
+            remainingPositions.RemoveAll(pos => usedSpeedPositions.Contains(pos));
+            totalSpawned += usedSpeedPositions.Count;
+
+            // High Power Zombie 추가 스폰
+            List<Vector3> usedPowerPositions = SpawnObjects(highPowerZombiePrefab, highPowerCount, remainingPositions, spawnedZombies);
+            remainingPositions.RemoveAll(pos => usedPowerPositions.Contains(pos));
+            totalSpawned += usedPowerPositions.Count;
+        }
+        else
+        {
+            // 1일차: Normal 좀비만 스폰
+            List<Vector3> usedNormalPositions = SpawnObjects(normalZombiePrefab, newZombiesToSpawn, remainingPositions, spawnedZombies);
+            remainingPositions.RemoveAll(pos => usedNormalPositions.Contains(pos));
+            totalSpawned += usedNormalPositions.Count;
+        }
 
         Debug.Log($"[SpawnManager] 밤 스폰 완료 - 새로운 좀비 총 {totalSpawned}마리 추가 스폰. 현재 씬 총 좀비 수: {spawnedZombies.Count}");
-        Debug.Log($"  - Normal 좀비 추가: {usedNormalPositions.Count}마리");
-        Debug.Log($"  - High Speed 좀비 추가: {usedSpeedPositions.Count}마리");
-        Debug.Log($"  - High Power 좀비 추가: {usedPowerPositions.Count}마리");
+        if (shouldSpawnSpecialZombies)
+        {
+            Debug.Log($"  - (2일차 이상) 특수좀비 포함 스폰");
+        }
+        else
+        {
+            Debug.Log($"  - (1일차) Normal 좀비만 스폰");
+        }
     }
     
     // MARK: 모든 스폰 오브젝트 제거 (씬 전환 시 호출)

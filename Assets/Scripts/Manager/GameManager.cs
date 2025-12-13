@@ -283,20 +283,20 @@ public void PlayerDied()
    // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
     IEnumerator GameLoopCoroutine()
     {
-        // ⭐ DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
+        // DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
         (float dayTime, float nightTime) GetDuration(GameDays day)
         {
             switch (day)
             {
                 case GameDays.FirstDay: 
                     // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (420f, 180f);
+                   return (300f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (360f, 240f);
+                    return (240f, 180f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (300f, 300f);
+                    return (180f, 180f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
                     return (180f, 180f);

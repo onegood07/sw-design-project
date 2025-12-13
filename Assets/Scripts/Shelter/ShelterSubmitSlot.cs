@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class ShelterSubmitSlot : Slot, IDropHandler
 {
-    // ✅ Item 컴포넌트와 이름을 저장
+    // Item 컴포넌트와 이름을 저장
     [HideInInspector] public Item requiredItem; 
     public string requiredItemName;
     
@@ -97,7 +97,7 @@ public class ShelterSubmitSlot : Slot, IDropHandler
         Inventory.instance.ConsumeItemAt(temporaryItemIndex, give); 
         submittedCount += give;
 
-        // ✅ 핵심 수정: GameManager의 제출 상태를 업데이트
+        // GameManager의 제출 상태를 업데이트
         if (GameManager.Instance != null && GameManager.Instance.CurrentSubmittedData.ContainsKey(requiredItem))
         {
             GameManager.Instance.CurrentSubmittedData[requiredItem] = submittedCount;
@@ -124,11 +124,17 @@ public class ShelterSubmitSlot : Slot, IDropHandler
                 GameManager.Instance.ShelterItemScore++; 
         }
 
+        // 인벤토리에서 아이템을 소모했으므로, 빈 칸을 앞으로 당겨 정렬한다.
+        if (Inventory.instance != null)
+        {
+            Inventory.instance.CompactItems();
+        }
+
         return true;
     }
 
     /// <summary>
-    /// ✅ 추가: 이전에 제출된 수량을 반영하고 UI를 갱신합니다.
+    /// 이전에 제출된 수량을 반영하고 UI를 갱신합니다.
     /// </summary>
     public void ReflectSubmittedCount(int count)
     {

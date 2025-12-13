@@ -129,12 +129,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03efb2b00b4d94e95b2c16598f1e0cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieStat
-  type: 0
-  dropItem: {fileID: 0}
-  dropRate: 0.2
-  BaseHp: 1000
+  type: 3
+  dropItems:
+  - itemPrefab: {fileID: 3486718950983754090, guid: de5ea7b0032b64ef5bd4e7835c50934a, type: 3}
+    dropRate: 0.5
+  - itemPrefab: {fileID: 3972602249714406821, guid: 5d9a4a6bb9122432497b32b9a6cdd7e4, type: 3}
+    dropRate: 0.5
+  dropItem: {fileID: 3486718950983754090, guid: de5ea7b0032b64ef5bd4e7835c50934a, type: 3}
+  dropRate: 1
+  BaseHp: 2000
   BaseSpeedFactor: 1.1
-  BasePower: 60
+  BasePower: 80
   baseNavSpeed: 1.5
   hitClip: {fileID: 8300000, guid: 168c9a5ac7025814ea9c89e5098a3cad, type: 3}
 --- !u!114 &2993823278250113020
@@ -149,7 +154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e59b213a322b854bbfbda058dfcf41e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieNavMove
-  speed: 3
   chaseRange: 5
   attackRange: 1
   attackDelay: 1

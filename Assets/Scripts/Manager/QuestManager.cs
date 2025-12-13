@@ -75,7 +75,6 @@ public class QuestManager : MonoBehaviour
             submitButton.onClick.RemoveAllListeners();
             submitButton.onClick.AddListener(OnSubmitButtonClicked);
             submitButton.gameObject.SetActive(true);
-            // ⭐ 초기 상태는 아이템이 없으므로 버튼 비활성화
             submitButton.interactable = false; 
         }
 
@@ -286,7 +285,6 @@ private void HandleQuestCompletion(QuestSlot slot)
     {
         if (GameManager.Instance != null) 
         {
-            // ⭐ AddSurvivors 대신 ReserveSurvivorIncrease 호출
             GameManager.Instance.ReserveSurvivorIncrease(data.survivorIncreaseAmount);
             Debug.Log($"[HandleQuestCompletion] 생존자 수 증가 보상 {data.survivorIncreaseAmount}명을 대화 종료 후 지급하도록 예약 완료.");
         }
@@ -296,14 +294,20 @@ private void HandleQuestCompletion(QuestSlot slot)
         }
     }
 
-    // ⭐ [추가]: NPC에게 퀘스트 완료 상태를 영구적으로 설정
     if (DialogueManager.Instance != null && DialogueManager.Instance.currentNPC != null) 
     {
         DialogueNPC currentNPC = DialogueManager.Instance.currentNPC;
         
-        // DialogueNPC의 CompleteQuestState는 외부에서 정의되어 있다고 가정합니다.
         currentNPC.CompleteQuestState(QUEST_COMPLETED_REPEAT_NODE_INDEX); 
         Debug.Log($"[HandleQuestCompletion] NPC '{currentNPC.name}'의 퀘스트 완료 상태 설정 완료. 반복 노드: {QUEST_COMPLETED_REPEAT_NODE_INDEX}");
+
+        // 생존자 증가 보상이 있는 퀘스트라면,
+        // 이 NPC는 생존자로서 쉘터로 이동한 것으로 간주하고
+        // 대화가 완전히 끝난 직후 필드에서 사라지도록 플래그를 설정한다.
+        if (data.increaseSurvivors)
+        {
+            currentNPC.MarkDisappearAfterDialogue();
+        }
     }
     
     // 3. 대화 재개 및 상호작용 유지 로직

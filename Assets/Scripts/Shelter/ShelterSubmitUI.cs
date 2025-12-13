@@ -68,7 +68,7 @@ public class ShelterSubmitUI : MonoBehaviour
             newItem.Setup(requiredItem, requiredAmount); 
             newItem.onSelected += SelectItem;
 
-            // 2. ✅ GameManager에서 저장된 제출 수량 반영
+            // 2. GameManager에서 저장된 제출 수량 반영
             int submittedCount = 0;
             if (GameManager.Instance.CurrentSubmittedData.TryGetValue(requiredItem, out submittedCount))
             {

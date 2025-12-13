@@ -11,7 +11,7 @@ public class LeaderNPC : MonoBehaviour, IInteractable
 
         if (ShelterSubmitManager.Instance != null)
         {
-            // ✅ 인자를 제거하고, OpenSubmitUI()를 호출합니다.
+            // 인자를 제거하고, OpenSubmitUI()를 호출합니다.
             Debug.Log($"[LeaderNPC] 상호작용 시도됨!!!!!!!!!!!!1");
             ShelterSubmitManager.Instance.OpenSubmitUI(); 
             

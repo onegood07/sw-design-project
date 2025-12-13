@@ -16,9 +16,23 @@ public class ZombieStat : MonoBehaviour
     [Header("Zombie Type")]
     public ZombieType type = ZombieType.Normal; // 좀비의 유형
 
-    [Header("Drop Item")]
+    [System.Serializable]
+    public class DropItemData
+    {
+        public GameObject itemPrefab;
+        [Tooltip("0~1 사이 확률")]
+        [Range(0f, 1f)]
+        public float dropRate = 0.2f;
+    }
+
+    [Header("Drop Items")]
+    [Tooltip("좀비가 죽을 때 드롭할 수 있는 아이템 목록 (여러 개 가능)")]
+    public DropItemData[] dropItems = new DropItemData[0];
+
+    [Header("Deprecated - 사용하지 않음 (호환성 유지용)")]
+    [Tooltip("이 필드는 더 이상 사용하지 않습니다. dropItems 배열을 사용하세요.")]
     public GameObject dropItem;
-    [Tooltip("0~1 사이 확률")]
+    [Tooltip("이 필드는 더 이상 사용하지 않습니다. dropItems 배열의 각 항목에 dropRate를 설정하세요.")]
     public float dropRate = 0.2f;
 
     // 기본 스탯 설정
@@ -132,7 +146,13 @@ public class ZombieStat : MonoBehaviour
     {
         if (navAgent != null)
         {
-            navAgent.speed = baseNavSpeed * currentSpeedFactor;
+            float finalSpeed = baseNavSpeed * currentSpeedFactor;
+            navAgent.speed = finalSpeed;
+            Debug.Log($"[ZombieStat] 속도 적용: baseNavSpeed={baseNavSpeed}, currentSpeedFactor={currentSpeedFactor}, 최종 속도={finalSpeed}");
+        }
+        else
+        {
+            Debug.LogWarning("[ZombieStat] NavMeshAgent가 null입니다. 속도를 적용할 수 없습니다.");
         }
     }
 
@@ -167,11 +187,64 @@ public class ZombieStat : MonoBehaviour
     // 아이템 드롭
     public void itemDrop()
     {
-        bool isDrop = Random.Range(0f, 1f) < dropRate;
-
-        if (isDrop && dropItem != null)
+        // 새로운 dropItems 배열을 우선 사용
+        if (dropItems != null && dropItems.Length > 0)
         {
-            Instantiate(dropItem, transform.position, Quaternion.identity);
+            // 유효한 아이템만 필터링 (null이 아니고 itemPrefab이 있는 것만)
+            var validItems = new System.Collections.Generic.List<DropItemData>();
+            foreach (var dropData in dropItems)
+            {
+                if (dropData != null && dropData.itemPrefab != null)
+                {
+                    validItems.Add(dropData);
+                }
+            }
+
+            if (validItems.Count == 0)
+                return;
+
+            // 모든 아이템의 확률 합계 계산
+            float totalRate = 0f;
+            foreach (var item in validItems)
+            {
+                totalRate += item.dropRate;
+            }
+
+            if (totalRate <= 0f)
+                return; // 모든 확률이 0이면 드롭 안 함
+
+            // 아이템이 드롭될지 결정 (합계가 100%가 아니어도 됨)
+            float randomValue = Random.Range(0f, 1f);
+            if (randomValue >= totalRate)
+            {
+                // 드롭되지 않음
+                return;
+            }
+
+            // 드롭될 아이템 하나를 가중치 랜덤으로 선택
+            // 합계가 100%가 아니어도 각 아이템의 상대적 비율로 선택됨
+            float selectedValue = Random.Range(0f, totalRate);
+            float currentSum = 0f;
+
+            foreach (var item in validItems)
+            {
+                currentSum += item.dropRate;
+                if (selectedValue <= currentSum)
+                {
+                    // 이 아이템 드롭
+                    Instantiate(item.itemPrefab, transform.position, Quaternion.identity);
+                    break;
+                }
+            }
+        }
+        // 기존 dropItem 필드 (하위 호환성 유지)
+        else if (dropItem != null)
+        {
+            bool isDrop = Random.Range(0f, 1f) < dropRate;
+            if (isDrop)
+            {
+                Instantiate(dropItem, transform.position, Quaternion.identity);
+            }
         }
     }
 }
