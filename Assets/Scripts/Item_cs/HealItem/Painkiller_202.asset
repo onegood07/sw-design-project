@@ -21,8 +21,9 @@ MonoBehaviour:
   originCoolTime: 10
   clip: {fileID: 8300000, guid: c48a972d3d024c2408a3331750786a29, type: 3}
   whichStat:
+  - hp
   - hunger
   healAmount:
-  - 0
+  - 200
   - 100
   buffDuration: 0
