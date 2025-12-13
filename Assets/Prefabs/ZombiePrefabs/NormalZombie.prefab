@@ -113,7 +113,7 @@ MonoBehaviour:
   BaseHp: 1000
   BaseSpeedFactor: 1.1
   BasePower: 40
-  baseNavSpeed: 1.5
+  baseNavSpeed: 1.7
   hitClip: {fileID: 8300000, guid: 168c9a5ac7025814ea9c89e5098a3cad, type: 3}
 --- !u!61 &-2052348383094473455
 BoxCollider2D:

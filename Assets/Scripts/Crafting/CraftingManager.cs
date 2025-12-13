@@ -170,7 +170,13 @@ public class CraftingManager : MonoBehaviour
         
         // UI 갱신 요청
         NotifyCraftSuccess(); 
-        
+
+        // 재료 소모 및 결과 아이템 추가 후, 인벤토리 빈 칸을 앞으로 당겨 정렬
+        if (Inventory.instance != null)
+        {
+            Inventory.instance.CompactItems();
+        }
+
         return true;
     }
 }

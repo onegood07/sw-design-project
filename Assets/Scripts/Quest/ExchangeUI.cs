@@ -35,7 +35,7 @@ public class ExchangeUI : MonoBehaviour
     }
 
     // ===========================
-    //     UI Show (✅ 인벤토리 열기 추가)
+    //     UI Show (인벤토리 열기 추가)
     // ===========================
     public void Show(QuestData[] recipes)
     {
@@ -52,7 +52,7 @@ public class ExchangeUI : MonoBehaviour
             SelectRecipeItem(currentRecipeItems[0]);
         }
         
-        // ✅ 인벤토리 UI 활성화
+        // 인벤토리 UI 활성화
         if (InventoryUI.instance != null)
         {
             InventoryUI.instance.OpenInventory();
@@ -65,7 +65,7 @@ public class ExchangeUI : MonoBehaviour
     }
 
     // ===========================
-    //     UI Hide (✅ 인벤토리 닫기 추가)
+    //     UI Hide (인벤토리 닫기 추가)
     // ===========================
     public void Hide()
     {
@@ -75,7 +75,7 @@ public class ExchangeUI : MonoBehaviour
         ClearRecipeItems();
         selectedRecipeItem = null;
 
-        // ✅ 인벤토리 UI 비활성화
+        // 인벤토리 UI 비활성화
         if (InventoryUI.instance != null)
         {
             InventoryUI.instance.CloseInventory();

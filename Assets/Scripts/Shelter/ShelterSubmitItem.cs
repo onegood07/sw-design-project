@@ -19,7 +19,7 @@ public class ShelterSubmitItem : MonoBehaviour
     [Header("Submit Button")]
     public Button submitButton;
 
-    // ✅ Item 컴포넌트를 저장
+    // Item 컴포넌트를 저장
     public Item RequiredItem { get; private set; } 
     public int RequiredAmount { get; private set; }
     
@@ -51,7 +51,7 @@ public class ShelterSubmitItem : MonoBehaviour
         if (submitButton != null)
         {
             submitButton.onClick.RemoveAllListeners();
-            // ✅ OnClick 함수에 즉시 납입 로직이 포함됩니다.
+            // OnClick 함수에 즉시 납입 로직이 포함됩니다.
             submitButton.onClick.AddListener(OnClick); 
             submitButton.interactable = true;
         }
@@ -79,7 +79,7 @@ public class ShelterSubmitItem : MonoBehaviour
         // 1. 해당 항목 선택 이벤트 호출 (UI 선택 표시 용도)
         onSelected?.Invoke(this); 
 
-        // 2. ✅ 납입 슬롯의 ConfirmSubmission 로직을 직접 호출하여 아이템 소모 및 카운트 증가
+        // 2. 납입 슬롯의 ConfirmSubmission 로직을 직접 호출하여 아이템 소모 및 카운트 증가
         if (submitSlot != null)
         {
             bool success = submitSlot.ConfirmSubmission();

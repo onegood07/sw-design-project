@@ -57,8 +57,8 @@ public class ItemSubmitManager : MonoBehaviour
         }
 
         // 납입 요구 목록 가져오기 (타입 변경 필요)
-        // ❌ 기존: Dictionary<ItemType, int> requiredItems = GameManager.Instance.CurrentRequiredItems;
-        // ✅ 수정: Dictionary<Item, int>로 타입을 바꾸고, 변수 이름을 CurrentRequiredItemsData로 변경합니다.
+        // 기존: Dictionary<ItemType, int> requiredItems = GameManager.Instance.CurrentRequiredItems;
+        // 수정: Dictionary<Item, int>로 타입을 바꾸고, 변수 이름을 CurrentRequiredItemsData로 변경합니다.
         Dictionary<Item, int> requiredItemsData = GameManager.Instance.CurrentRequiredItemsData;
 
         // UI Text 컴포넌트 연결 확인
@@ -86,7 +86,7 @@ public class ItemSubmitManager : MonoBehaviour
             // Dictionary 키가 ItemType에서 Item으로 변경되었으므로 Key.itemName을 사용합니다.
             foreach (var item in requiredItemsData)
             {
-                // ✅ Key.itemName을 사용하여 아이템 이름을 표시합니다.
+                // Key.itemName을 사용하여 아이템 이름을 표시합니다.
                 sb.AppendLine($"[ {item.Key.itemName} ] : {item.Value} 개 필요"); 
             }
         }
