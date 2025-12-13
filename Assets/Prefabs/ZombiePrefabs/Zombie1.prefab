@@ -135,7 +135,7 @@ MonoBehaviour:
   BaseHp: 2000
   BaseSpeedFactor: 1.1
   BasePower: 80
-  baseNavSpeed: 1.5
+  baseNavSpeed: 2
   hitClip: {fileID: 8300000, guid: 168c9a5ac7025814ea9c89e5098a3cad, type: 3}
 --- !u!114 &2993823278250113020
 MonoBehaviour:
@@ -149,7 +149,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e59b213a322b854bbfbda058dfcf41e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieNavMove
-  speed: 3
   chaseRange: 5
   attackRange: 1
   attackDelay: 1

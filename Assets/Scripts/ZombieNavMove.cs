@@ -5,7 +5,6 @@ using UnityEngine.AI;
 public class ZombieNavMove : MonoBehaviour
 {
     [Header("이동 / 탐지")]
-    [SerializeField] float speed = 3f;            // NavMeshAgent 기본 이동 속도
     [SerializeField] float chaseRange = 5f;       // 플레이어 추적을 시작하는 거리
     [SerializeField] float attackRange = 1.0f;    // 공격이 가능해지는 거리
     [SerializeField] float attackDelay = 1.0f;    // 공격 쿨타임 (1.0초)
@@ -65,7 +64,7 @@ public class ZombieNavMove : MonoBehaviour
         {
             agent.updateRotation = false;   // 회전 비활성화
             agent.updateUpAxis   = false;   // Y축을 위쪽으로 사용
-            agent.speed          = speed;   // 이동 속도 적용
+            // 속도는 ZombieStat.Start()에서 설정됨 (여기서는 설정하지 않음)
         }
 
         if (spriteRenderer == null)

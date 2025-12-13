@@ -132,7 +132,13 @@ public class ZombieStat : MonoBehaviour
     {
         if (navAgent != null)
         {
-            navAgent.speed = baseNavSpeed * currentSpeedFactor;
+            float finalSpeed = baseNavSpeed * currentSpeedFactor;
+            navAgent.speed = finalSpeed;
+            Debug.Log($"[ZombieStat] 속도 적용: baseNavSpeed={baseNavSpeed}, currentSpeedFactor={currentSpeedFactor}, 최종 속도={finalSpeed}");
+        }
+        else
+        {
+            Debug.LogWarning("[ZombieStat] NavMeshAgent가 null입니다. 속도를 적용할 수 없습니다.");
         }
     }
 

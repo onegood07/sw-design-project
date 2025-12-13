@@ -28,8 +28,6 @@ public class MedicineData : ItemData, IUsable
     */
     public void Use(Transform HeroTransform, Vector2 viewDirection)
     {
-        // 항상 싱글톤 HeroStat을 기준으로 동작하도록 수정
-        // (잘못된 Transform이 넘어와도 HP 회복이 제대로 되도록 함)
         heroStat = HeroStat.Instance;
         if (heroStat == null)
         {

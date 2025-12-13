@@ -23,46 +23,37 @@ public class InsideShelterManager : MonoBehaviour
     [Header("Spawn Settings")]
     public float minDistanceFromHero = 1.5f; // 생존자 스폰 시 Hero와 최소 거리
 
-    // 🌟 [추가된 부분] 쉘터 회복 설정 변수
     [Header("Shelter Healing Settings")]
-    [SerializeField] private float healAmount = 10f; // 회복량 (요청: 10)
-    [SerializeField] private float healInterval = 2.0f; // 회복 주기 (초) (요청: 2초)
+    [SerializeField] private float healPerSurvivor = 5f;   // 생존자 1명당 회복량
+    [SerializeField] private float healInterval = 1.0f;    // 회복 주기 (초)
 
-    private Coroutine healingRoutine; // 회복 코루틴 참조
+    private Coroutine healingRoutine;
 
-    // MARK: 시작 시 실행
     IEnumerator Start()
     {
-        // GameManager 준비될 때까지 대기
         while (GameManager.Instance == null)
             yield return null;
 
-        // 한 프레임 기다린 후 실행 (씬 로딩 완료 보장)
         yield return new WaitForEndOfFrame();
 
-        // 영웅, 리더, 생존자 순서대로 스폰
         SpawnHero();
         SpawnLeader();
         SpawnSurvivors();
         
-        // 🌟 [추가된 부분] 쉘터 회복 코루틴 시작
         StartShelterHealing(); 
     }
 
-    // MARK: - 🌟 [추가된 부분] 쉘터 회복 코루틴 시작 관리
     void StartShelterHealing()
     {
-        // 이미 실행 중이면 중지하고 새로 시작
         if (healingRoutine != null)
         {
             StopCoroutine(healingRoutine);
         }
         
-        // HeroStat이 준비되었는지 확인 후 코루틴 시작
         if (HeroStat.Instance != null)
         {
             healingRoutine = StartCoroutine(HealOverTimeCoroutine());
-            Debug.Log($"[InsideShelterManager] 쉘터 HP 회복 시작. {healInterval}초마다 {healAmount}씩 회복.");
+            Debug.Log($"[InsideShelterManager] 쉘터 HP 회복 시작. {healInterval}초마다 (생존자 수 x {healPerSurvivor})만큼 회복.");
         }
         else
         {
@@ -70,19 +61,22 @@ public class InsideShelterManager : MonoBehaviour
         }
     }
     
-    // MARK: - 🌟 [추가된 부분] HP 회복 코루틴 (지속 회복 로직)
     IEnumerator HealOverTimeCoroutine()
     {
-        // 플레이어가 살아있는 동안 계속 회복
         while (HeroStat.Instance != null && HeroStat.Instance.isSurvival)
         {
-            // 설정된 시간(2초)만큼 대기
             yield return new WaitForSeconds(healInterval); 
 
-            // HeroStat의 Heal 메서드를 호출하여 설정된 양(10)만큼 회복
             if (HeroStat.Instance != null && HeroStat.Instance.isSurvival)
             {
-                HeroStat.Instance.Heal(healAmount);
+                int survivorCount = (GameManager.Instance != null) ? GameManager.Instance.SurvivorCount : 0;
+                float amount = survivorCount * healPerSurvivor;
+
+                if (amount > 0f)
+                {
+                    HeroStat.Instance.Heal(amount);
+                    Debug.Log($"[InsideShelterManager] 쉘터 회복: 생존자 {survivorCount}명, {amount} HP 회복.");
+                }
             }
         }
         healingRoutine = null;
