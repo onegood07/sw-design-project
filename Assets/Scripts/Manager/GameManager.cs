@@ -261,21 +261,21 @@ public void PlayerDied()
     // TODO: 일차별 시간대 설정 (반드시 GameLoopCoroutine와 동일하게 수정해줘야함)
     public (float dayTime, float nightTime) GetDurationForDay(GameDays day)
     {
-        switch (day)
-        {
-           case GameDays.FirstDay: 
-                    // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (420f, 180f);
-                case GameDays.SecondDay: 
-                    // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (300f, 240f);
-                case GameDays.ThirdDay: 
-                    // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (240f, 300f);
-                default:
-                    // 혹시 모를 경우를 대비한 기본값
-                    return (180f, 180f);
-        }
+       switch (day)
+    {
+        case GameDays.FirstDay: 
+            // 1일차: 낮 7분 (420초), 밤 3분 (180초)
+            return (420f, 180f);
+        case GameDays.SecondDay: 
+            // 2일차: 낮 6분 (360초), 밤 4분 (240초)
+            return (360f, 240f);
+        case GameDays.ThirdDay: 
+            // 3일차: 낮 5분 (300초), 밤 5분 (300초)
+            return (300f, 300f);
+        default:
+            // 혹시 모를 경우를 대비한 기본값
+            return (180f, 180f);
+    }
     }
 
  // TODO: 일차별 시간대 설정 (반드시 GetDurationForDay 동일하게 수정해줘야함)
@@ -287,20 +287,20 @@ public void PlayerDied()
         (float dayTime, float nightTime) GetDuration(GameDays day)
         {
             switch (day)
-            {
-                case GameDays.FirstDay: 
-                    // 1일차: 낮 7분 (420초), 밤 3분 (180초)
-                   return (420f, 180f);
-                case GameDays.SecondDay: 
-                    // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (300f, 240f);
-                case GameDays.ThirdDay: 
-                    // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (240f, 300f);
-                default:
-                    // 혹시 모를 경우를 대비한 기본값
-                    return (180f, 180f);
-            }
+    {
+        case GameDays.FirstDay: 
+            // 1일차: 낮 7분 (420초), 밤 3분 (180초)
+            return (420f, 180f);
+        case GameDays.SecondDay: 
+            // 2일차: 낮 6분 (360초), 밤 4분 (240초)
+            return (360f, 240f);
+        case GameDays.ThirdDay: 
+            // 3일차: 낮 5분 (300초), 밤 5분 (300초)
+            return (300f, 300f);
+        default:
+            // 혹시 모를 경우를 대비한 기본값
+            return (180f, 180f);
+    }
         }
         
         // 1일차 낮 시간 설정 (Start()에서 이미 시작된 루프)
@@ -385,13 +385,17 @@ public void PlayerDied()
  // MARK: 납입 점수 기준에 따른 생존자 감소 계산
     private int CalculateSurvivorLoss()
     {
-        // 납입 점수 계산: Item에 itemDataAsset이 없으므로 임시로 10점씩 부여하는 로직을 따릅니다.
-        PreviousDaySubmittedScore = 0;
-        foreach (var pair in CurrentSubmittedData)
+    PreviousDaySubmittedScore = 0;
+    
+    // Key가 Item 타입이고, Item이 ItemData를 itemDataAsset으로 참조한다고 가정
+    foreach (var pair in CurrentSubmittedData)
+    {
+        // Null 체크: Key(Item)와 ItemDataAsset 모두 유효한지 확인
+        if (pair.Key != null && pair.Key.itemDataAsset != null)
         {
-            // ⭐ 납입품은 임시로 개당 10점으로 가정
-            PreviousDaySubmittedScore += pair.Value * 10; 
+            PreviousDaySubmittedScore += pair.Value * pair.Key.itemDataAsset.getScore;
         }
+    }
         
         PreviousDayTargetScore = TargetRequiredScore;
         
@@ -750,9 +754,11 @@ void StartNightPhase()
         int submittedScore = 0;
         foreach (var pair in CurrentSubmittedData)
         {
-            // 임시 점수 (ItemDataAsset이 없으므로)
-            // if (pair.Key != null) submittedScore += pair.Value * pair.Key.itemDataAsset.score; 
-            if (pair.Key != null) submittedScore += pair.Value * 10; 
+            if (pair.Key != null && pair.Key.itemDataAsset != null) 
+{
+        // pair.Key.itemDataAsset.getScore를 사용하여 ItemData의 Score 값에 접근
+        submittedScore += pair.Value * pair.Key.itemDataAsset.getScore;
+}
         }
         return submittedScore;
     }
