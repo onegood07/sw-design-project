@@ -226,15 +226,29 @@ public class ZombieStat : MonoBehaviour
             float selectedValue = Random.Range(0f, totalRate);
             float currentSum = 0f;
 
-            foreach (var item in validItems)
+            for (int i = 0; i < validItems.Count; i++)
             {
+                var item = validItems[i];
+                float previousSum = currentSum;
                 currentSum += item.dropRate;
-                if (selectedValue <= currentSum)
+                
+                // selectedValue가 이 아이템의 범위에 속하는지 확인
+                // previousSum < selectedValue <= currentSum
+                if (selectedValue > previousSum && selectedValue <= currentSum)
                 {
                     // 이 아이템 드롭
                     Instantiate(item.itemPrefab, transform.position, Quaternion.identity);
-                    break;
+                    Debug.Log($"[ZombieStat] 아이템 드롭: {item.itemPrefab.name} (인덱스 {i}, 확률 {item.dropRate}, 선택값 {selectedValue:F3}, 범위 {previousSum:F3}~{currentSum:F3})");
+                    return;
                 }
+            }
+            
+            // 마지막 아이템이 선택되지 않았으면 (부동소수점 오차로 인한 경우) 마지막 아이템 드롭
+            if (validItems.Count > 0)
+            {
+                var lastItem = validItems[validItems.Count - 1];
+                Instantiate(lastItem.itemPrefab, transform.position, Quaternion.identity);
+                Debug.Log($"[ZombieStat] 아이템 드롭 (마지막): {lastItem.itemPrefab.name} (선택값 {selectedValue:F3}, 총합 {totalRate:F3})");
             }
         }
         // 기존 dropItem 필드 (하위 호환성 유지)
