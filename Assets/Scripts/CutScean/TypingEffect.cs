@@ -12,6 +12,10 @@ public class TypingEffect : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip typingClip;
 
+    // 외부에서 연결할 이벤트
+    public System.Action onTypingFinished;
+
+
     Coroutine typingCoroutine;
     bool isTyping;
     string currentMessage;
@@ -38,6 +42,7 @@ public class TypingEffect : MonoBehaviour
         StopTypingSound();
 
         isTyping = false;
+        onTypingFinished?.Invoke();
     }
 
     IEnumerator TypeText(string message)
@@ -50,8 +55,6 @@ public class TypingEffect : MonoBehaviour
         foreach (char c in message)
         {
             targetText.text += c;
-
-            StartTypingSound();
             yield return new WaitForSecondsRealtime(typingSpeed);
         }
 
@@ -88,6 +91,19 @@ public class TypingEffect : MonoBehaviour
         isTyping = false;
     }
 
+        public void OnClick()
+    {
+        if (isTyping)
+        {
+            Skip();        // 타이핑 스킵
+        }
+        else
+        {
+            onTypingFinished?.Invoke(); // 다음 대사 요청
+        }
+    }
+
+
     void Update()
     {
         if (!isTyping) return;
@@ -98,7 +114,7 @@ public class TypingEffect : MonoBehaviour
             Keyboard.current.enterKey.wasPressedThisFrame
         )
         {
-            Skip();
+            OnClick();
         }
     }
 }

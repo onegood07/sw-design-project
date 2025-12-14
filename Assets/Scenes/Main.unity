@@ -3419,7 +3419,7 @@ GameObject:
   - component: {fileID: 396147100}
   - component: {fileID: 396147099}
   m_Layer: 5
-  m_Name: MInimap Panel
+  m_Name: Minimap Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -109174,7 +109174,7 @@ GameObject:
   - component: {fileID: 1476122595}
   - component: {fileID: 1476122594}
   m_Layer: 5
-  m_Name: Dialogue Panel
+  m_Name: End Scean Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

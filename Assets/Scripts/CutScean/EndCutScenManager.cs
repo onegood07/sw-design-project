@@ -57,8 +57,8 @@ public class EndCutsceneController : MonoBehaviour
         Debug.LogError("🔥 HappyEnding CALLED\n" + System.Environment.StackTrace);
         DisablePlayerControl();
 
-        dialoguePanel.SetActive(true);
         FreezeWorld();
+        dialoguePanel.SetActive(true);
 
         spawnedTruck = Instantiate(
             vehicleGroupPrefab,
@@ -79,14 +79,11 @@ public class EndCutsceneController : MonoBehaviour
             Debug.Log($"[Cutscene] child count = {spawnedTruck.transform.childCount}");
 
 
-        typingEffect.Play("드디어 무전기에서 소리가 들리기 시작했다.");
-        yield return new WaitForSecondsRealtime(3f);
+        yield return ShowDialogue("드디어 무전기에서 소리가 들리기 시작했다.");
 
-        typingEffect.Play("-아아, 여기는 정부군부대. 생존자는 응답 바랍니다.");
-        yield return new WaitForSecondsRealtime(3f);
+        yield return ShowDialogue("-아아, 여기는 정부군부대. 생존자는 응답 바랍니다.");
 
-        typingEffect.Play("곧 군용 차량이 쉘터 앞으로 도착할 예정이니 준비해 주십시오.");
-        yield return new WaitForSecondsRealtime(3f);
+        yield return ShowDialogue("곧 군용 차량이 쉘터 앞으로 도착할 예정이니 준비해 주십시오.");
 
 
         // 트럭 이동 연출
@@ -100,12 +97,10 @@ public class EndCutsceneController : MonoBehaviour
 
         yield return StartCoroutine(MoveTruck(mover));
 
-        typingEffect.Play("마침내 우리는 이 도시에서 탈출할 수 있었다.");
-        yield return new WaitForSecondsRealtime(3f);
-
-        typingEffect.Play("비록 우리가 향하는 곳이 어디인지, 아무도 알지 못했지만......");
-        yield return new WaitForSecondsRealtime(3f);
-
+        yield return ShowDialogue("마침내 우리는 이 도시에서 탈출할 수 있었다.");
+    
+        yield return ShowDialogue("비록 우리가 향하는 곳이 어디인지, 아무도 알지 못했지만......");
+    
         EndCutscene();
     }
 
@@ -116,23 +111,18 @@ public class EndCutsceneController : MonoBehaviour
     {
         DisablePlayerControl();
 
-        dialoguePanel.SetActive(true);
         FreezeWorld();
+        dialoguePanel.SetActive(true);
 
-        typingEffect.Play("... 여기 아직 생존자가 있습니다.");
-        yield return new WaitForSecondsRealtime(3f);
+        yield return ShowDialogue("... 여기 아직 생존자가 있습니다.");
+   
+        yield return ShowDialogue("- ...");
+   
+        yield return ShowDialogue("계속 연락해 봤지만 응답은 없었다.");
 
-        typingEffect.Play("- ...");
-        yield return new WaitForSecondsRealtime(3f);
+        yield return ShowDialogue("결국 나는 이 지옥같은 도시에 혼자 남겨졌다.");
 
-        typingEffect.Play("계속 연락해 봤지만 응답은 없었다.");
-        yield return new WaitForSecondsRealtime(3f);
-
-        typingEffect.Play("결국 나는 이 지옥같은 도시에 혼자 남겨졌다.");
-        yield return new WaitForSecondsRealtime(3f);
-
-        typingEffect.Play("혼자서는 절대 살아남을 수 없다.");
-        yield return new WaitForSecondsRealtime(3f);
+        yield return ShowDialogue("혼자서는 절대 살아남을 수 없다.");
 
         EndCutscene();
     }
@@ -148,11 +138,15 @@ public class EndCutsceneController : MonoBehaviour
             controller.enabled = false;
     }
 
-
     void EndCutscene()
     {
         UnfreezeWorld();
         Debug.Log("[EndCutscene] 컷씬 종료");
+
+        if (spawnedTruck != null)
+            Destroy(spawnedTruck);
+        
+        dialoguePanel.SetActive(false);
 
         // 여기서 페이드아웃 / 엔딩 크레딧 / 메인 메뉴 이동 등 처리 가능
         EnablePlayerControl(); // ← 추가
@@ -160,7 +154,31 @@ public class EndCutsceneController : MonoBehaviour
         FadeManager.Instance.FadeOutToScene("StartMenu");
     }
 
-    
+    IEnumerator ShowDialogue(string message)
+    {
+        bool isDone = false;
+
+        if (typingEffect == null)
+        {
+            Debug.LogError("[EndCutscene] TypingEffect missing");
+            dialogueText.text = message;
+            yield return null;
+            yield break;
+        }
+
+        void OnFinished()
+        {
+            isDone = true;
+        }
+
+        typingEffect.onTypingFinished += OnFinished;
+        typingEffect.Play(message);
+
+        // 버튼 클릭 or 키 입력 대기
+        yield return new WaitUntil(() => isDone);
+        typingEffect.onTypingFinished -= OnFinished;
+    }
+
     void EnablePlayerControl()
     {
         var controller = player.GetComponent<HeroMoveControl>();
