@@ -7,15 +7,16 @@ public class InsideShelterManager : MonoBehaviour
 {
     [Header("Hero Spawn Settings")]
     public Tilemap spawnTilemap; // Hero 스폰용 타일맵
-    public float heroMinDistance = 0.1f; // Hero 최소 스폰 거리
+    public float heroMinDistance = 0.1f; // Hero 최소 스폰 거리 (현재 코드에서는 사용되지 않음)
     public Vector3 outsidePosition = new Vector3(10.5f, 2.5f, 0f); // 쉘터 밖 위치 (쉘터 퇴장 시 설정할 좌표)
 
     [Header("NPC Prefab")]
-    public GameObject survivorPrefab; // 생존자 NPC 프리팹
+    // **[수정]** 단일 프리팹 -> 리스트
+    public List<GameObject> survivorPrefabs; // 생존자 NPC 프리팹 리스트 
     public GameObject leaderPrefab; // 리더 NPC 프리팹
 
     [Header("Tilemaps")]
-    public Tilemap groundTilemap; // 참고용 타일맵
+    public Tilemap groundTilemap; // 참고용 타일맵 (현재 코드에서는 사용되지 않음)
     public Tilemap collisionTilemap; // 충돌 불가 타일맵 (벽, 장애물)
     public Tilemap leaderTilemap; // 리더 스폰 위치 타일맵
     public Tilemap survivorTilemap; // 생존자 스폰 위치 타일맵
@@ -139,13 +140,15 @@ public class InsideShelterManager : MonoBehaviour
     // MARK: 생존자 NPC 스폰 
     void SpawnSurvivors()
     {
-        if (survivorPrefab == null)
+        // **[수정]** 프리팹 리스트 유효성 검사 추가
+        if (survivorPrefabs == null || survivorPrefabs.Count == 0)
         {
-            Debug.LogError("[InsideShelterManager] Survivor Prefab이 없습니다!");
+            Debug.LogError("[InsideShelterManager] Survivor Prefabs 리스트가 비어있거나 설정되지 않았습니다!");
             return;
         }
 
-        int survivorCount = GameManager.Instance.SurvivorScore; // 스폰할 생존자 수
+        // GameManager.Instance.SurvivorCount가 더 적절할 수 있지만, 기존 코드의 로직을 따라갑니다.
+        int survivorCount = GameManager.Instance.SurvivorScore; // 스폰할 생존자 수 (GameManager의 SurvivorScore를 사용)
         
         List<Vector3> survivorPositions = new List<Vector3>();
         BoundsInt bounds = survivorTilemap.cellBounds;
@@ -172,14 +175,29 @@ public class InsideShelterManager : MonoBehaviour
             return;
         }
 
-        // 랜덤 위치로 생존자 스폰
+        // 랜덤 위치와 랜덤 프리팹으로 생존자 스폰
         for (int i = 0; i < survivorCount; i++)
         {
-            Vector3 spawnPos = survivorPositions[Random.Range(0, survivorPositions.Count)];
-            Instantiate(survivorPrefab, spawnPos, Quaternion.identity);
+            if (survivorPositions.Count == 0) break; // 스폰 위치가 부족할 경우 루프 탈출
+
+            // 1. 랜덤 스폰 위치 선택
+            int positionIndex = Random.Range(0, survivorPositions.Count);
+            Vector3 spawnPos = survivorPositions[positionIndex];
+            
+            // 2. 랜덤 생존자 프리팹 선택
+            GameObject selectedPrefab = survivorPrefabs[Random.Range(0, survivorPrefabs.Count)];
+            
+            // 3. 스폰 및 사용한 위치 제거 (중복 스폰 방지)
+            Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
+            survivorPositions.RemoveAt(positionIndex); // 같은 위치에 중복 스폰하지 않도록 제거
+
+            // 선택적으로, 위치가 부족하더라도 갯수만큼 스폰하고 싶다면 위 `RemoveAt` 라인을 주석 처리하고 아래와 같이 수정:
+            // survivorPositions에서 제거하지 않고, 위치 선택만 반복:
+            // Vector3 spawnPos = survivorPositions[Random.Range(0, survivorPositions.Count)];
+            // Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
         }
 
-        Debug.Log($"[InsideShelterManager] {survivorCount}명의 생존자를 스폰했습니다.");
+        Debug.Log($"[InsideShelterManager] {survivorCount}명의 생존자를 랜덤 프리팹으로 스폰했습니다.");
     }
 
     // MARK: Hero가 쉘터 밖으로 이동했을 때

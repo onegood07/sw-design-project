@@ -210,7 +210,7 @@ public class EndCutsceneController : MonoBehaviour
         truck.position = end;
     }
     
-    /* // debuging
+   // debuging
     void Update()
     {
         if (Keyboard.current.hKey.wasPressedThisFrame)
@@ -219,5 +219,4 @@ public class EndCutsceneController : MonoBehaviour
         if (Keyboard.current.bKey.wasPressedThisFrame)
             PlayBadEnding();
     }
-    */
 }
