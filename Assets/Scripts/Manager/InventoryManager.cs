@@ -82,13 +82,13 @@ public class InventoryManager : MonoBehaviour
         return;
     }
     
-    // 1. 딕셔너리에 수량 기록 (✅ 딕셔너리 기록)
+    // 1. 딕셔너리에 수량 기록
     // Item.itemName 필드를 사용하여 딕셔너리에 기록합니다.
     addItem(rewardItem.itemName, count); 
     
     Debug.Log($"[InventoryManager] 딕셔너리 기록 완료: '{rewardItem.itemName}' {count}개.");
 
-    // 2. Inventory (UI 데이터 소스)에 아이템 추가 요청 (✅ UI 표시 - 원래 잘 작동했던 로직)
+    // 2. Inventory (UI 데이터 소스)에 아이템 추가 요청 (UI 표시 - 원래 잘 작동했던 로직)
     if (Inventory.instance != null)
     {
         // ⭐⭐⭐ 데이터 복사/생성 과정 없이, QuestManager에서 받은 Item 객체를 그대로 전달합니다. ⭐⭐⭐
@@ -118,12 +118,12 @@ public class InventoryManager : MonoBehaviour
 //         return;
 //     }
     
-//     // 1. InventoryManager의 딕셔너리에 수량 기록 (✅ 딕셔너리 기록)
+//     // 1. InventoryManager의 딕셔너리에 수량 기록
 //     addItem(itemData.name, count); 
     
 //     Debug.Log($"[InventoryManager] ItemData를 통해 '{itemData.name}' {count}개를 딕셔너리에 기록했습니다. (addItem 호출 완료)");
 
-//     // 2. Inventory (UI 데이터 소스)에 아이템 추가 요청 (✅ UI 표시 - 기존 작동 로직 재현)
+//     // 2. Inventory (UI 데이터 소스)에 아이템 추가 요청 (UI 표시 - 기존 작동 로직 재현)
 //     if (Inventory.instance != null)
 //     {
 //         // 🚨 Item 클래스가 MonoBehaviour를 상속하므로 GameObject를 생성하여 컴포넌트를 확보합니다.

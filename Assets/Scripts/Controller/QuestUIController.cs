@@ -119,7 +119,7 @@ public class QuestUIController : MonoBehaviour
 
         Debug.Log("[QuestUIController] Quest UI Panel Closed via X button. QuestManager에게 정리 요청.");
 
-        // ✅ 핵심: QuestManager에게 제출 상태와 대화 상태를 모두 정리하도록 요청
+        // 핵심: QuestManager에게 제출 상태와 대화 상태를 모두 정리하도록 요청
         if (QuestManager.instance != null)
         {
             QuestManager.instance.CloseSubmitUI(); 

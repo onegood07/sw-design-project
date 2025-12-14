@@ -335,6 +335,8 @@ public class HeroMoveControl : MonoBehaviour
                 if (weaponVisual != null)
                 {
                     weaponVisual.SetRolling(false);
+                    // 구르기 방향으로 바뀐 총 방향을 현재 상태에 맞게 복구
+                    weaponVisual.UpdateDirection(currentViewDirection);
                 }
 
                 // 구르기 종료 후 입력이 없으면 즉시 멈추고 Idle 애니메이션

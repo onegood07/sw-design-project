@@ -218,7 +218,7 @@ public void PlayerDied()
    // MARK: 글로벌 라이트 적용
     public void ApplyGlobalLight(bool isSceneLoad = false)
     {
-        // ⭐⭐ 추가: 씬 로드 중이고, 이것이 씬 로드 호출(isSceneLoad: true)이 아니라면 무시
+        // 씬 로드 중이고, 이것이 씬 로드 호출(isSceneLoad: true)이 아니라면 무시
         if (IsSceneLoadingInProgress && !isSceneLoad)
         {
              Debug.LogWarning("[GameManager] 씬 로드 초기화 중이므로, 시간 흐름에 따른 조명 전환 요청을 무시합니다.");
@@ -268,10 +268,10 @@ public void PlayerDied()
                    return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (360f, 240f);
+                    return (300f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (300f, 300f);
+                    return (240f, 300f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
                     return (180f, 180f);
@@ -283,7 +283,7 @@ public void PlayerDied()
    // MARK: 전체 게임 루프 코루틴 (일차별 시간 조정)
     IEnumerator GameLoopCoroutine()
     {
-        // ⭐ DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
+        // DayDuration과 NightDuration을 동적으로 가져오는 헬퍼 함수
         (float dayTime, float nightTime) GetDuration(GameDays day)
         {
             switch (day)
@@ -293,10 +293,10 @@ public void PlayerDied()
                    return (420f, 180f);
                 case GameDays.SecondDay: 
                     // 2일차: 낮 6분 (360초), 밤 4분 (240초)
-                    return (360f, 240f);
+                    return (300f, 240f);
                 case GameDays.ThirdDay: 
                     // 3일차: 낮 5분 (300초), 밤 5분 (300초)
-                    return (300f, 300f);
+                    return (240f, 300f);
                 default:
                     // 혹시 모를 경우를 대비한 기본값
                     return (180f, 180f);

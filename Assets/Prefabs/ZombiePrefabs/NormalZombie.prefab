@@ -108,12 +108,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieStat
   type: 0
+  dropItems:
+  - itemPrefab: {fileID: 1209361645699686677, guid: 5f3a59114b93870448531afcf21a3975, type: 3}
+    dropRate: 0.1
+  - itemPrefab: {fileID: 987821263373698245, guid: b31846fef8942354c9e030b51adf3b25, type: 3}
+    dropRate: 0.1
+  - itemPrefab: {fileID: 1296834444985638504, guid: 7f140e7a38ddecd48bccfdb655f6529b, type: 3}
+    dropRate: 0.1
+  - itemPrefab: {fileID: 4395095357716272013, guid: 425a1d701a7b0fe43b0e979d3247ac22, type: 3}
+    dropRate: 0.1
+  - itemPrefab: {fileID: 9042649337361522645, guid: 636bd03e8d9f75c48a70e92071664bc9, type: 3}
+    dropRate: 0.1
   dropItem: {fileID: 1296834444985638504, guid: 7f140e7a38ddecd48bccfdb655f6529b, type: 3}
   dropRate: 0.1
   BaseHp: 1000
   BaseSpeedFactor: 1.1
   BasePower: 40
-  baseNavSpeed: 1.5
+  baseNavSpeed: 1.7
   hitClip: {fileID: 8300000, guid: 168c9a5ac7025814ea9c89e5098a3cad, type: 3}
 --- !u!61 &-2052348383094473455
 BoxCollider2D:
@@ -217,7 +228,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e59b213a322b854bbfbda058dfcf41e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieNavMove
-  speed: 3
   chaseRange: 5
   attackRange: 1
   attackDelay: 1

@@ -134,6 +134,12 @@ public class ExchangeSubmitSlot : Slot
                 itemIcon.color = Color.gray;
         }
 
+        // 인벤토리에서 아이템을 소모/추가했으므로, 빈 칸을 앞으로 당겨 정렬한다.
+        if (Inventory.instance != null)
+        {
+            Inventory.instance.CompactItems();
+        }
+
         return true;
     }
 
