@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     [Header("Scores & Survivors")]
     public int ShelterItemScore = 0; 
     public int SurvivorScore = 10; 
-    public int InitialSurvivorCount = 10;     
+    public int InitialSurvivorCount = 20;     
     [HideInInspector] public int SurvivorCount; 
     
     // 이전 날의 요구/납입 점수 추적
@@ -342,9 +342,19 @@ public void PlayerDied()
             if (CurrentDay > GameDays.ThirdDay)
             {
                 CurrentEnding = GameEnding.Happy;
-                Debug.Log("[GameManager] 생존 성공! Happy Ending");
-                break; 
-            } 
+
+                EndCutsceneController cutscene = FindObjectOfType<EndCutsceneController>();
+                if (cutscene != null)
+                    cutscene.PlayHappyEnding();
+
+                if (gameLoopCoroutine != null)
+                    StopCoroutine(gameLoopCoroutine);
+
+                if (uiRoot != null)
+                    uiRoot.SetActive(false);
+
+                yield break;
+            }
             
             // 3. 낮 페이즈
             (currentDayDuration, currentNightDuration) = GetDuration(CurrentDay); // 다음 날 시간 다시 가져옴
@@ -366,6 +376,7 @@ public void PlayerDied()
         }
 
         Debug.Log("모든 날이 종료되었습니다!");
+        
     }
 
 
@@ -401,9 +412,25 @@ public void PlayerDied()
 
         if (SurvivorCount <= 0)
         {
-             if (CurrentEnding == GameEnding.None)
-                PlayerDied(); 
+            if (CurrentEnding == GameEnding.None)
+            {
+                // Bad 엔딩으로 설정
+                CurrentEnding = GameEnding.Bad;
+                Debug.Log("[GameManager] Bad Ending 발생: 생존자 전멸");
+
+                // 컷씬 호출
+                EndCutsceneController cutscene = FindObjectOfType<EndCutsceneController>();
+                if (cutscene != null)
+                    cutscene.PlayBadEnding();
+
+                // UI 비활성화 및 게임 루프 중단
+                if (uiRoot != null)
+                    uiRoot.SetActive(false);
+                if (gameLoopCoroutine != null)
+                    StopCoroutine(gameLoopCoroutine);
+            }
         }
+
 
         return actualLoss;
     }
