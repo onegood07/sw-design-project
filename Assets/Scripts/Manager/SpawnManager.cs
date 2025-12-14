@@ -408,22 +408,22 @@ public class SpawnManager : MonoBehaviour
                     npcComponent.RestoreState(npcData.isQuestCompleted, npcData.repeatDialogueNodeIndex); 
                 }
                 
-                // ⭐ [추가] 복원된 NPC는 유지할 목록에 추가
+                // 복원된 NPC는 유지할 목록에 추가
                 npcsToKeep.Add(npcData);
             }
         }
         
-        // ⭐ [추가] 영구 데이터 리스트를 유지할 NPC 목록으로 덮어씁니다. (실제 영구 제거)
+        // 영구 데이터 리스트를 유지할 NPC 목록으로 덮어씁니다 (실제 영구 제거)
         persistentNPCs = npcsToKeep;
         
-        // 🚨 3. 좀비 강제 스폰 (아이템/NPC 복원 직후 낮 좀비 스폰 보장)
+        // 3. 좀비 강제 스폰 (아이템/NPC 복원 직후 낮 좀비 스폰 보장)
         Debug.Log($"[SpawnManager] 복원 후 낮 좀비 스폰 강제 실행: {defaultDayZombieCount}마리.");
         SpawnZombiesDuringRestore(defaultDayZombieCount, occupiedPositions);
         
         Debug.Log($"[SpawnManager] 오브젝트 복원 및 좀비 스폰 완료: 아이템 {spawnedItems.Count}개, NPC {restoredNpcCount}명, 좀비 {spawnedZombies.Count}마리");
     }
 
-    // 🚨 좀비 스폰 로직 분리 (복원 시 사용)
+    // 좀비 스폰 로직 (쉘터 복원 시 사용)
     private void SpawnZombiesDuringRestore(int zombieCount, List<Vector3> occupiedPositions)
     {
         if (allSpawnPositions.Count == 0)
@@ -441,12 +441,40 @@ public class SpawnManager : MonoBehaviour
         // 아이템/NPC가 복원된 위치 제외
         remainingPositions.RemoveAll(pos => occupiedPositions.Contains(pos));
 
-        // 좀비 스폰 (낮에는 일반 좀비만 스폰)
-        List<Vector3> usedZombiePositions = SpawnObjects(normalZombiePrefab, zombieCount, remainingPositions, spawnedZombies);
+        // 현재 날짜에 따라 특수좀비 스폰 여부 결정 (2일차 이상부터 특수좀비 스폰)
+        bool shouldSpawnSpecialZombies = GameManager.Instance != null && GameManager.Instance.CurrentDay >= GameDays.SecondDay;
         
-        if (usedZombiePositions.Count < zombieCount)
+        if (shouldSpawnSpecialZombies)
         {
-            Debug.LogWarning($"[SpawnManager] 요청된 좀비 수({zombieCount})보다 적은 수({usedZombiePositions.Count})의 좀비만 스폰되었습니다. (위치 부족)");
+            // 2일차 이상: Normal, HighSpeed, HighPower 세 종류에 균등하게 분배
+            int countPerType = zombieCount / 3;
+            int normalCount = countPerType;
+            int highSpeedCount = countPerType;
+            int highPowerCount = zombieCount - normalCount - highSpeedCount;
+
+            // Normal 좀비 스폰
+            List<Vector3> usedNormalPositions = SpawnObjects(normalZombiePrefab, normalCount, remainingPositions, spawnedZombies);
+            remainingPositions.RemoveAll(pos => usedNormalPositions.Contains(pos));
+
+            // HighSpeed 좀비 스폰
+            List<Vector3> usedSpeedPositions = SpawnObjects(highSpeedZombiePrefab, highSpeedCount, remainingPositions, spawnedZombies);
+            remainingPositions.RemoveAll(pos => usedSpeedPositions.Contains(pos));
+
+            // HighPower 좀비 스폰
+            List<Vector3> usedPowerPositions = SpawnObjects(highPowerZombiePrefab, highPowerCount, remainingPositions, spawnedZombies);
+            
+            Debug.Log($"[SpawnManager] 복원 시 좀비 스폰 완료 (2일차 이상): Normal {usedNormalPositions.Count}마리, HighSpeed {usedSpeedPositions.Count}마리, HighPower {usedPowerPositions.Count}마리");
+        }
+        else
+        {
+            // 1일차: Normal 좀비만 스폰
+            List<Vector3> usedZombiePositions = SpawnObjects(normalZombiePrefab, zombieCount, remainingPositions, spawnedZombies);
+            Debug.Log($"[SpawnManager] 복원 시 좀비 스폰 완료 (1일차): Normal {usedZombiePositions.Count}마리");
+            
+            if (usedZombiePositions.Count < zombieCount)
+            {
+                Debug.LogWarning($"[SpawnManager] 요청된 좀비 수({zombieCount})보다 적은 수({usedZombiePositions.Count})의 좀비만 스폰되었습니다. (위치 부족)");
+            }
         }
     }
 
