@@ -1,3 +1,7 @@
+### 🎮 게임 시연 영상
+https://github.com/user-attachments/assets/df899f69-ac83-4da2-b5af-c1733fdd893f
+
+### ➡️ 프로젝트 소개
 ![슬라이드1](https://github.com/user-attachments/assets/d3d2d55f-d273-4fe6-b0a0-194b7ddb3be2)
 ![슬라이드2](https://github.com/user-attachments/assets/9859cc36-ce03-4e47-b662-b2b78d3f2111)
 ![슬라이드3](https://github.com/user-attachments/assets/3d74c691-d0b7-4f0e-a2ce-f4c28a9167a7)
